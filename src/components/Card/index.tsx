@@ -39,16 +39,15 @@ export const Card: React.FC<{
       )}
       ref={card.ref}
     >
-      <div className="relative w-full aspect-video overflow-hidden">
-        {!metaImage && <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">No image</div>}
-        {metaImage && typeof metaImage !== 'string' && (
+      {metaImage && typeof metaImage !== 'string' && (
+        <div className="relative w-full aspect-video overflow-hidden">
           <Media
             resource={metaImage}
             size="33vw"
             imgClassName="absolute inset-0 w-full h-full object-cover object-center"
           />
-        )}
-      </div>
+        </div>
+      )}
       <div className="p-4">
         {showCategories && hasCategories && (
           <div className="uppercase text-sm mb-4">
@@ -79,7 +78,7 @@ export const Card: React.FC<{
         {titleToUse && (
           <div className="prose">
             <h3>
-              <Link className="not-prose" href={href} ref={link.ref}>
+              <Link className="not-prose no-underline font-bold" href={href} ref={link.ref}>
                 {titleToUse}
               </Link>
             </h3>

@@ -66,8 +66,10 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   const { hero, layout } = page
 
+  const isLandingPage = decodedSlug === 'home'
+
   return (
-    <article className="pt-16 pb-24">
+    <article className={isLandingPage ? '' : 'container pt-16 pb-24'}>
       <PageClient />
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />

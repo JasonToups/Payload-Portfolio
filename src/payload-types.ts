@@ -481,7 +481,8 @@ export interface Page {
   id: number;
   title: string;
   hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    type: 'none' | 'landingImpact' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    heading?: string | null;
     richText?: {
       root: {
         type: string;
@@ -523,7 +524,17 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | CallToActionBlock
+    | ContentBlock
+    | MediaBlock
+    | ArchiveBlock
+    | FormBlock
+    | ServicesBlock
+    | SkillsBlock
+    | SubscribeBlock
+    | TestimonialsBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -887,6 +898,83 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesBlock".
+ */
+export interface ServicesBlock {
+  heading?: string | null;
+  description?: string | null;
+  services?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'services';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SkillsBlock".
+ */
+export interface SkillsBlock {
+  heading?: string | null;
+  description?: string | null;
+  categories?:
+    | {
+        name: string;
+        items?:
+          | {
+              name: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'skills';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SubscribeBlock".
+ */
+export interface SubscribeBlock {
+  heading?: string | null;
+  description?: string | null;
+  placeholder?: string | null;
+  buttonText?: string | null;
+  /**
+   * Stored with the subscriber record (e.g. homepage, post-footer)
+   */
+  source?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'subscribe';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock".
+ */
+export interface TestimonialsBlock {
+  heading?: string | null;
+  testimonials?:
+    | {
+        quote: string;
+        author: string;
+        role?: string | null;
+        company?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonials';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1195,6 +1283,7 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         type?: T;
+        heading?: T;
         richText?: T;
         links?:
           | T
@@ -1221,6 +1310,10 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        services?: T | ServicesBlockSelect<T>;
+        skills?: T | SkillsBlockSelect<T>;
+        subscribe?: T | SubscribeBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
       };
   meta?:
     | T
@@ -1318,6 +1411,76 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesBlock_select".
+ */
+export interface ServicesBlockSelect<T extends boolean = true> {
+  heading?: T;
+  description?: T;
+  services?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SkillsBlock_select".
+ */
+export interface SkillsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  description?: T;
+  categories?:
+    | T
+    | {
+        name?: T;
+        items?:
+          | T
+          | {
+              name?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SubscribeBlock_select".
+ */
+export interface SubscribeBlockSelect<T extends boolean = true> {
+  heading?: T;
+  description?: T;
+  placeholder?: T;
+  buttonText?: T;
+  source?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock_select".
+ */
+export interface TestimonialsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  testimonials?:
+    | T
+    | {
+        quote?: T;
+        author?: T;
+        role?: T;
+        company?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }

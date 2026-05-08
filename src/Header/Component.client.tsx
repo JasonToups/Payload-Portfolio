@@ -34,8 +34,11 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   const logoText = data.logo?.text
 
   return (
-    <header className="container relative z-20" {...(theme ? { 'data-theme': theme } : {})}>
-      <div className="py-8 flex justify-between">
+    <header
+      className="container relative z-20 w-full flex justify-center"
+      {...(theme ? { 'data-theme': theme } : {})}
+    >
+      <div className="flex justify-between w-full max-w-3xl border-4 border-neutral-150 rounded-full py-3 px-4 md:py-4 md:px-6">
         <Link href="/" className="flex items-center gap-3">
           {logoImage && typeof logoImage === 'object' && (
             <div className="relative h-[34px] w-[34px]">
@@ -47,7 +50,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
               />
             </div>
           )}
-          {logoText && <span className="text-xl font-semibold text-primary">{logoText}</span>}
+          {logoText && <span className="text-xl font-semibold text-primary-mid">{logoText}</span>}
           {!logoImage && !logoText && (
             <Logo loading="eager" priority="high" className="invert dark:invert-0" />
           )}

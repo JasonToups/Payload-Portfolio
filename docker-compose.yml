@@ -7,20 +7,22 @@ services:
       - .:/home/node/app
       - node_modules:/home/node/app/node_modules
     working_dir: /home/node/app/
-    command: sh -c "pnpm install && pnpm dev"
+    command: sh -c "corepack enable pnpm && pnpm install && pnpm dev"
     depends_on:
-      - mongo
+      - postgres
     env_file:
       - .env
 
-  mongo:
-    image: mongo:latest
+  postgres:
+    image: postgres:16-alpine
     ports:
-      - '27017:27017'
-    command:
-      - --storageEngine=wiredTiger
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: now-hiring
     volumes:
-      - data:/data/db
+      - data:/var/lib/postgresql/data
     logging:
       driver: none
 

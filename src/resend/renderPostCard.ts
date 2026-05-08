@@ -12,17 +12,21 @@ function formatDate(iso: string): string {
 
 export function renderPostCard(post: Post, preview = false): string {
   const postUrl = `${getServerSideURL()}/posts/${post.slug ?? ''}`
-  const imageUrl =
-    resolvePayloadImageUrl(post.meta?.image as Media | number | null | undefined, {
+  const imageUrl: string | null =
+    resolvePayloadImageUrl(post.meta?.image as Media | null | undefined, {
       size: 'small',
       preview,
       email: !preview,
     }) ??
-    resolvePayloadImageUrl(post.heroImage, { size: 'small', preview, email: !preview })
+    resolvePayloadImageUrl(post.heroImage as Media | null | undefined, {
+      size: 'small',
+      preview,
+      email: !preview,
+    })
   const description = post.meta?.description ?? null
   const publishedAt = post.publishedAt ? formatDate(post.publishedAt) : null
 
-  const imageHtml = imageUrl
+  const imageHtml = imageUrl !== null
     ? `<tr>
         <td style="padding:0 0 0 0;">
           <a href="${postUrl}" style="display:block;text-decoration:none;">
