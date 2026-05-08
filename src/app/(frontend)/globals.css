@@ -3,7 +3,7 @@
 @plugin "tailwindcss-animate";
 
 @source "../../../**/*.{ts,tsx}";
-@source inline("lg:col-span-4 lg:col-span-6 lg:col-span-8 lg:col-span-12 border-border bg-card border-error bg-error/30 border-success bg-success/30 border-warning bg-warning/30");
+@source inline("lg:col-span-4 lg:col-span-6 lg:col-span-8 lg:col-span-12 col-span-3 col-span-6 md:col-span-2 md:col-span-4 border-border bg-card border-error bg-error/30 border-success bg-success/30 border-warning bg-warning/30");
 
 /* ─── Dark mode via data-theme attribute ──────────────────────────────────── */
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
@@ -58,6 +58,7 @@
   --popover: var(--neutral-50);
   --popover-foreground: var(--neutral-900);
   --primary: var(--primary-base);
+  --primary-on-bg: var(--primary-mid);
   --primary-foreground: var(--neutral-900);
   --secondary: var(--neutral-100);
   --secondary-foreground: var(--neutral-900);
@@ -84,11 +85,12 @@
   --popover: var(--neutral-950);
   --popover-foreground: var(--neutral-100);
   --primary: var(--primary-bright);
+  --primary-on-bg: var(--primary-light);
   --primary-foreground: var(--neutral-950);
   --secondary: var(--neutral-800);
   --secondary-foreground: var(--neutral-100);
-  --muted: var(--neutral-800);
-  --muted-foreground: var(--neutral-450);
+  --muted: var(--neutral-900);
+  --muted-foreground: var(--neutral-400);
   --accent: var(--neutral-800);
   --accent-foreground: var(--neutral-100);
   --destructive: var(--destructive-dark);
@@ -136,6 +138,7 @@
   --color-primary-deep: var(--primary-deep);
   --color-primary-gradient-mid: var(--primary-gradient-mid);
   --color-primary-dark: var(--primary-dark);
+  --color-primary-on-bg: var(--primary-on-bg);
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -224,11 +227,6 @@
     var(--primary-mid) 100%
   );
   color: var(--neutral-50);
-}
-
-.section-warm {
-  background-color: var(--background);
-  color: var(--foreground);
 }
 
 .section-dark {
@@ -362,6 +360,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .bento-tile:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
   .reveal,
   .reveal-stagger > * {
     opacity: 1;
@@ -375,6 +379,276 @@
     opacity: 1;
     transform: none;
   }
+}
+
+/* ─── Bento grid ─────────────────────────────────────────────────────────── */
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+}
+.bento-tile {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  transition:
+    border-color 250ms,
+    transform 250ms;
+  position: relative;
+  overflow: hidden;
+}
+.bento-tile:hover {
+  border-color: color-mix(in oklch, var(--primary) 60%, var(--border));
+  transform: translateY(-2px);
+}
+.bento-tile .num {
+  font-family: var(--font-mono);
+  color: var(--primary-on-bg);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+}
+
+/* ─── Tag pill ────────────────────────────────────────────────────────────── */
+
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--primary) 20%, var(--background));
+  color: var(--primary-on-bg);
+  border: 1px solid color-mix(in oklch, var(--primary) 30%, transparent);
+}
+
+/* ─── Animated mark ──────────────────────────────────────────────────────── */
+
+.mark-orbit {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+.mark-orbit svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.mark-orbit .ring {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1.25;
+  transform-origin: center;
+}
+.mark-orbit .ring-1 {
+  animation: orbit 14s linear infinite;
+}
+.mark-orbit .ring-2 {
+  animation: orbit 22s linear infinite reverse;
+}
+.mark-orbit .core {
+  transform-origin: center;
+  animation: mark-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes mark-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mark-orbit .ring-1,
+  .mark-orbit .ring-2,
+  .mark-orbit .core {
+    animation: none;
+  }
+}
+
+/* ─── Word swap (kinetic headline) ───────────────────────────────────────── */
+
+.word-swap {
+  display: inline-grid;
+  vertical-align: baseline;
+}
+.word-swap > span {
+  grid-area: 1 / 1;
+  color: var(--primary-on-bg);
+  animation: swap 9s steps(1) infinite;
+  opacity: 0;
+}
+.word-swap > span:nth-child(1) {
+  animation-delay: 0s;
+}
+.word-swap > span:nth-child(2) {
+  animation-delay: 3s;
+}
+.word-swap > span:nth-child(3) {
+  animation-delay: 6s;
+}
+
+@keyframes swap {
+  0% {
+    opacity: 0;
+    transform: translateY(0.3em);
+  }
+  3%,
+  33% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  36%,
+  100% {
+    opacity: 0;
+    transform: translateY(-0.3em);
+  }
+}
+
+/* ─── Kinetic emphasis float ──────────────────────────────────────────────── */
+
+.kinetic {
+  display: inline-block;
+  animation: drift-text 6s ease-in-out infinite;
+}
+
+@keyframes drift-text {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* ─── Skills marquee ──────────────────────────────────────────────────────── */
+
+.marquee {
+  display: flex;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+.marquee-track {
+  display: flex;
+  gap: 4rem;
+  animation: marquee 22s linear infinite;
+  white-space: nowrap;
+  padding-right: 4rem;
+  flex-shrink: 0;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ─── Ambient blob ────────────────────────────────────────────────────────── */
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: 0.55;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+[data-theme='dark'] .blob {
+  mix-blend-mode: screen;
+  opacity: 0.5;
+}
+.blob-a {
+  background: var(--primary);
+  animation: drift-a 18s ease-in-out infinite;
+}
+
+@keyframes drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(40px, -20px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 30px) scale(0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word-swap > span {
+    animation: none;
+  }
+  .word-swap > span:not(:first-child) {
+    display: none;
+  }
+  .word-swap > span:first-child {
+    opacity: 1;
+    transform: none;
+  }
+  .marquee-track {
+    animation: none;
+  }
+  .kinetic {
+    animation: none;
+  }
+  .blob-a {
+    animation: none;
+  }
+}
+
+/* ─── Post cards ────────────────────────────────────────────────────────────── */
+
+.post-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition:
+    transform 250ms,
+    border-color 250ms;
+}
+.post-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklch, var(--primary) 50%, var(--border));
+}
+
+.post-thumb {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--primary) 35%, var(--background)) 0%,
+    color-mix(in oklch, var(--primary) 10%, var(--background)) 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+.post-thumb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 8px,
+    color-mix(in oklch, var(--primary) 18%, transparent) 8px 9px
+  );
 }
 
 /* ─── Theme flash prevention ─────────────────────────────────────────────── */

@@ -481,7 +481,7 @@ export interface Page {
   id: number;
   title: string;
   hero: {
-    type: 'none' | 'landingImpact' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    type: 'none' | 'kinetic' | 'landingImpact' | 'highImpact' | 'mediumImpact' | 'lowImpact';
     heading?: string | null;
     richText?: {
       root: {
@@ -523,6 +523,51 @@ export interface Page {
         }[]
       | null;
     media?: (number | null) | Media;
+    /**
+     * Short label left of the rule, e.g. "NOW HIRING ME — INDEX"
+     */
+    eyebrow?: string | null;
+    /**
+     * Version stamp right of the rule, e.g. "v.26.05.07"
+     */
+    version?: string | null;
+    headline?: {
+      /**
+       * e.g. "I build"
+       */
+      before?: string | null;
+      /**
+       * Italic accent word, e.g. "software"
+       */
+      emphasis?: string | null;
+      /**
+       * e.g. "that earns its place on the"
+       */
+      middle?: string | null;
+      /**
+       * Up to 3 words that cycle in the headline
+       */
+      rotatingWords?:
+        | {
+            word: string;
+            id?: string | null;
+          }[]
+        | null;
+    };
+    /**
+     * Short body copy shown left of the CTAs
+     */
+    manifesto?: string | null;
+    /**
+     * Skills ticker below the hero. Every 3rd item is auto-italicised.
+     */
+    marquee?:
+      | {
+          label: string;
+          emphasis?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
   };
   layout: (
     | CallToActionBlock
@@ -530,6 +575,7 @@ export interface Page {
     | MediaBlock
     | ArchiveBlock
     | FormBlock
+    | MarqueeBlock
     | ServicesBlock
     | SkillsBlock
     | SubscribeBlock
@@ -666,6 +712,11 @@ export interface MediaBlock {
  * via the `definition` "ArchiveBlock".
  */
 export interface ArchiveBlock {
+  /**
+   * Small label above the heading
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
   introContent?: {
     root: {
       type: string;
@@ -898,15 +949,110 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarqueeBlock".
+ */
+export interface MarqueeBlock {
+  /**
+   * Optional small label above the ticker strip
+   */
+  eyebrow?: string | null;
+  variant?: ('text' | 'images') | null;
+  /**
+   * Text items to scroll. Every 3rd is auto-italicised unless any item has manual emphasis set.
+   */
+  items?:
+    | {
+        label: string;
+        /**
+         * Italic + accent colour. Setting this on any item disables auto-italicise.
+         */
+        emphasis?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Client logos to scroll.
+   */
+  logos?:
+    | {
+        image: number | Media;
+        /**
+         * Alt text override (falls back to the media file alt)
+         */
+        alt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'marquee';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ServicesBlock".
  */
 export interface ServicesBlock {
+  layout?: ('list' | 'bento') | null;
   heading?: string | null;
   description?: string | null;
   services?:
     | {
         title: string;
         description: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Add service, CTA, or "Currently Building" tiles to the bento grid.
+   */
+  tiles?:
+    | {
+        kind: 'service' | 'cta' | 'currentlyBuilding';
+        /**
+         * e.g. "01 / COMPANY IMPACT"
+         */
+        number?: string | null;
+        title?: string | null;
+        description?: string | null;
+        size?: ('span-2' | 'span-4') | null;
+        tags?:
+          | {
+              label: string;
+              id?: string | null;
+            }[]
+          | null;
+        cta?: {
+          /**
+           * e.g. "— Book a slot"
+           */
+          eyebrow?: string | null;
+          /**
+           * e.g. "3 SLOTS · MAY"
+           */
+          availability?: string | null;
+          heading?: string | null;
+          body?: string | null;
+          buttonLabel?: string | null;
+          buttonHref?: string | null;
+        };
+        building?: {
+          /**
+           * e.g. "— Currently building"
+           */
+          eyebrow?: string | null;
+          /**
+           * e.g. "LIVE · WK 19"
+           */
+          liveLabel?: string | null;
+          heading?: string | null;
+          checklist?:
+            | {
+                label: string;
+                done?: boolean | null;
+                id?: string | null;
+              }[]
+            | null;
+        };
         id?: string | null;
       }[]
     | null;
@@ -942,10 +1088,18 @@ export interface SkillsBlock {
  * via the `definition` "SubscribeBlock".
  */
 export interface SubscribeBlock {
+  /**
+   * Small label above the heading, e.g. "— Newsletter"
+   */
+  eyebrow?: string | null;
   heading?: string | null;
   description?: string | null;
   placeholder?: string | null;
   buttonText?: string | null;
+  /**
+   * Stat line shown below the form
+   */
+  meta?: string | null;
   /**
    * Stored with the subscriber record (e.g. homepage, post-footer)
    */
@@ -959,13 +1113,25 @@ export interface SubscribeBlock {
  * via the `definition` "TestimonialsBlock".
  */
 export interface TestimonialsBlock {
+  /**
+   * Small label above the heading, e.g. "— Receipts"
+   */
+  eyebrow?: string | null;
   heading?: string | null;
+  /**
+   * Subtext shown to the right of the heading
+   */
+  body?: string | null;
   testimonials?:
     | {
         quote: string;
         author: string;
         role?: string | null;
         company?: string | null;
+        /**
+         * Renders this quote with a primary-color background as the focal card
+         */
+        featured?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -1301,6 +1467,29 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
             };
         media?: T;
+        eyebrow?: T;
+        version?: T;
+        headline?:
+          | T
+          | {
+              before?: T;
+              emphasis?: T;
+              middle?: T;
+              rotatingWords?:
+                | T
+                | {
+                    word?: T;
+                    id?: T;
+                  };
+            };
+        manifesto?: T;
+        marquee?:
+          | T
+          | {
+              label?: T;
+              emphasis?: T;
+              id?: T;
+            };
       };
   layout?:
     | T
@@ -1310,6 +1499,7 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        marquee?: T | MarqueeBlockSelect<T>;
         services?: T | ServicesBlockSelect<T>;
         skills?: T | SkillsBlockSelect<T>;
         subscribe?: T | SubscribeBlockSelect<T>;
@@ -1393,6 +1583,8 @@ export interface MediaBlockSelect<T extends boolean = true> {
  * via the `definition` "ArchiveBlock_select".
  */
 export interface ArchiveBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
   introContent?: T;
   populateBy?: T;
   relationTo?: T;
@@ -1416,9 +1608,34 @@ export interface FormBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarqueeBlock_select".
+ */
+export interface MarqueeBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  variant?: T;
+  items?:
+    | T
+    | {
+        label?: T;
+        emphasis?: T;
+        id?: T;
+      };
+  logos?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ServicesBlock_select".
  */
 export interface ServicesBlockSelect<T extends boolean = true> {
+  layout?: T;
   heading?: T;
   description?: T;
   services?:
@@ -1426,6 +1643,46 @@ export interface ServicesBlockSelect<T extends boolean = true> {
     | {
         title?: T;
         description?: T;
+        id?: T;
+      };
+  tiles?:
+    | T
+    | {
+        kind?: T;
+        number?: T;
+        title?: T;
+        description?: T;
+        size?: T;
+        tags?:
+          | T
+          | {
+              label?: T;
+              id?: T;
+            };
+        cta?:
+          | T
+          | {
+              eyebrow?: T;
+              availability?: T;
+              heading?: T;
+              body?: T;
+              buttonLabel?: T;
+              buttonHref?: T;
+            };
+        building?:
+          | T
+          | {
+              eyebrow?: T;
+              liveLabel?: T;
+              heading?: T;
+              checklist?:
+                | T
+                | {
+                    label?: T;
+                    done?: T;
+                    id?: T;
+                  };
+            };
         id?: T;
       };
   id?: T;
@@ -1458,10 +1715,12 @@ export interface SkillsBlockSelect<T extends boolean = true> {
  * via the `definition` "SubscribeBlock_select".
  */
 export interface SubscribeBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
   heading?: T;
   description?: T;
   placeholder?: T;
   buttonText?: T;
+  meta?: T;
   source?: T;
   id?: T;
   blockName?: T;
@@ -1471,7 +1730,9 @@ export interface SubscribeBlockSelect<T extends boolean = true> {
  * via the `definition` "TestimonialsBlock_select".
  */
 export interface TestimonialsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
   heading?: T;
+  body?: T;
   testimonials?:
     | T
     | {
@@ -1479,6 +1740,7 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
         author?: T;
         role?: T;
         company?: T;
+        featured?: T;
         id?: T;
       };
   id?: T;
@@ -1986,6 +2248,17 @@ export interface Header {
  */
 export interface Footer {
   id: number;
+  logo?: {
+    /**
+     * Logo image — SVG, PNG, or JPG
+     */
+    image?: (number | null) | Media;
+    /**
+     * Brand name shown next to the logo image
+     */
+    text?: string | null;
+  };
+  copyright?: string | null;
   navItems?:
     | {
         link: {
@@ -2165,6 +2438,13 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
+  logo?:
+    | T
+    | {
+        image?: T;
+        text?: T;
+      };
+  copyright?: T;
   navItems?:
     | T
     | {

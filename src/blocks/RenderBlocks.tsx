@@ -6,6 +6,7 @@ import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
+import { MarqueeBlock } from '@/blocks/Marquee/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { ServicesBlock } from '@/blocks/Services/Component'
 import { SkillsBlock } from '@/blocks/Skills/Component'
@@ -17,6 +18,7 @@ const blockComponents = {
   content: ContentBlock,
   cta: CallToActionBlock,
   formBlock: FormBlock,
+  marquee: MarqueeBlock,
   mediaBlock: MediaBlock,
   services: ServicesBlock,
   skills: SkillsBlock,
@@ -25,7 +27,7 @@ const blockComponents = {
 }
 
 // Blocks that manage their own section padding — no wrapper margin applied
-const fullWidthBlocks = new Set(['services', 'skills', 'subscribe', 'testimonials'])
+const fullWidthBlocks = new Set(['marquee', 'services', 'skills', 'subscribe', 'testimonials'])
 
 export const RenderBlocks: React.FC<{
   blocks: Page['layout'][0][]

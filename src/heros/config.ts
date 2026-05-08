@@ -24,6 +24,10 @@ export const hero: Field = {
           value: 'none',
         },
         {
+          label: 'Kinetic',
+          value: 'kinetic',
+        },
+        {
           label: 'Landing (Amber)',
           value: 'landingImpact',
         },
@@ -75,6 +79,64 @@ export const hero: Field = {
       },
       relationTo: 'media',
       required: false,
+    },
+    // ── Kinetic hero fields ───────────────────────────────────────────────
+    {
+      name: 'eyebrow',
+      type: 'text',
+      admin: {
+        condition: (_, { type } = {}) => type === 'kinetic',
+        description: 'Short label left of the rule, e.g. "NOW HIRING ME — INDEX"',
+      },
+    },
+    {
+      name: 'version',
+      type: 'text',
+      admin: {
+        condition: (_, { type } = {}) => type === 'kinetic',
+        description: 'Version stamp right of the rule, e.g. "v.26.05.07"',
+      },
+    },
+    {
+      name: 'headline',
+      type: 'group',
+      admin: {
+        condition: (_, { type } = {}) => type === 'kinetic',
+      },
+      fields: [
+        { name: 'before', type: 'text', admin: { description: 'e.g. "I build"' } },
+        { name: 'emphasis', type: 'text', admin: { description: 'Italic accent word, e.g. "software"' } },
+        { name: 'middle', type: 'text', admin: { description: 'e.g. "that earns its place on the"' } },
+        {
+          name: 'rotatingWords',
+          type: 'array',
+          maxRows: 3,
+          admin: { description: 'Up to 3 words that cycle in the headline' },
+          fields: [
+            { name: 'word', type: 'text', required: true },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'manifesto',
+      type: 'textarea',
+      admin: {
+        condition: (_, { type } = {}) => type === 'kinetic',
+        description: 'Short body copy shown left of the CTAs',
+      },
+    },
+    {
+      name: 'marquee',
+      type: 'array',
+      admin: {
+        condition: (_, { type } = {}) => type === 'kinetic',
+        description: 'Skills ticker below the hero. Every 3rd item is auto-italicised.',
+      },
+      fields: [
+        { name: 'label', type: 'text', required: true },
+        { name: 'emphasis', type: 'checkbox', defaultValue: false },
+      ],
     },
   ],
   label: false,

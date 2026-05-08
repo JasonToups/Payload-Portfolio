@@ -17,24 +17,37 @@ export const Subscribe: Block = {
   },
   fields: [
     {
+      name: 'eyebrow',
+      type: 'text',
+      defaultValue: '— Newsletter',
+      admin: { description: 'Small label above the heading, e.g. "— Newsletter"' },
+    },
+    {
       name: 'heading',
       type: 'text',
-      defaultValue: 'Subscribe to the newsletter',
+      defaultValue: 'Field notes from the engineer / designer seam.',
     },
     {
       name: 'description',
       type: 'textarea',
-      defaultValue: 'Get updates in your inbox. No spam.',
+      defaultValue:
+        'One letter a month on shipping, hiring, and the work that sits between teams. No spam, no ladder content.',
     },
     {
       name: 'placeholder',
       type: 'text',
-      defaultValue: 'Enter your email',
+      defaultValue: 'you@studio.com',
     },
     {
       name: 'buttonText',
       type: 'text',
-      defaultValue: 'Subscribe',
+      defaultValue: 'Subscribe →',
+    },
+    {
+      name: 'meta',
+      type: 'text',
+      defaultValue: '827 READERS · MONTHLY · UNSUBSCRIBE WHENEVER',
+      admin: { description: 'Stat line shown below the form' },
     },
     {
       name: 'source',

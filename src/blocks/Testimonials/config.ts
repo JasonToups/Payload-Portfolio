@@ -9,9 +9,20 @@ export const Testimonials: Block = {
   },
   fields: [
     {
+      name: 'eyebrow',
+      type: 'text',
+      defaultValue: '— Receipts',
+      admin: { description: 'Small label above the heading, e.g. "— Receipts"' },
+    },
+    {
       name: 'heading',
       type: 'text',
       defaultValue: 'What people say',
+    },
+    {
+      name: 'body',
+      type: 'textarea',
+      admin: { description: 'Subtext shown to the right of the heading' },
     },
     {
       name: 'testimonials',
@@ -36,6 +47,12 @@ export const Testimonials: Block = {
         {
           name: 'company',
           type: 'text',
+        },
+        {
+          name: 'featured',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: { description: 'Renders this quote with a primary-color background as the focal card' },
         },
       ],
     },

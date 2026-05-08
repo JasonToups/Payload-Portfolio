@@ -12,6 +12,17 @@ export const Archive: Block = {
   interfaceName: 'ArchiveBlock',
   fields: [
     {
+      name: 'eyebrow',
+      type: 'text',
+      defaultValue: '— Posts',
+      admin: { description: 'Small label above the heading' },
+    },
+    {
+      name: 'heading',
+      type: 'text',
+      defaultValue: 'Latest dispatch',
+    },
+    {
       name: 'introContent',
       type: 'richText',
       editor: lexicalEditor({

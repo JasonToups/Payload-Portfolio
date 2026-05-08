@@ -1,0 +1,455 @@
+/* ─── Design tokens, mirroring src/app/(frontend)/globals.css ─────────── */
+
+:root {
+  /* Primary scale (cyan) */
+  --primary-pale: oklch(93% 0.13 216);
+  --primary-light: oklch(82% 0.13 216);
+  --primary-bright: oklch(70% 0.13 216);
+  --primary-base: oklch(71% 0.13 216);
+  --primary-muted: oklch(55% 0.13 216);
+  --primary-mid: oklch(48% 0.13 216);
+  --primary-deep: oklch(42% 0.13 216);
+  --primary-gradient-mid: oklch(32% 0.13 216);
+  --primary-dark: oklch(28% 0.13 216);
+
+  /* Warm neutral scale */
+  --neutral-50:  oklch(97% 0.006 70);
+  --neutral-100: oklch(96% 0.005 68);
+  --neutral-150: oklch(94% 0.008 68);
+  --neutral-200: oklch(92% 0.008 68);
+  --neutral-250: oklch(92% 0.04 68);
+  --neutral-300: oklch(88% 0.012 65);
+  --neutral-350: oklch(80% 0.006 68);
+  --neutral-400: oklch(70% 0.005 65);
+  --neutral-450: oklch(58% 0.008 65);
+  --neutral-500: oklch(52% 0.005 65);
+  --neutral-700: oklch(22% 0.008 58);
+  --neutral-800: oklch(20% 0.008 58);
+  --neutral-850: oklch(15% 0.01 58);
+  --neutral-900: oklch(11% 0.01 60);
+  --neutral-950: oklch(11% 0.01 58);
+
+  /* Semantic — Light */
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-900);
+  --card: var(--neutral-150);
+  --muted-foreground: var(--neutral-500);
+  --border: var(--neutral-300);
+  --primary: var(--primary-base);
+  --primary-on-bg: var(--primary-mid);
+  --primary-foreground: var(--neutral-900);
+  --radius: 0.5rem;
+
+  --font-display: 'Spectral', Georgia, serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+[data-theme='dark'] {
+  --background: var(--neutral-950);
+  --foreground: var(--neutral-100);
+  --card: var(--neutral-850);
+  --muted-foreground: var(--neutral-450);
+  --border: var(--neutral-700);
+  --primary: var(--primary-bright);
+  --primary-on-bg: var(--primary-light);
+  --primary-foreground: var(--neutral-950);
+}
+
+/* Allow primary hue to be remixed via tweak */
+[data-accent='violet'] {
+  --primary-pale: oklch(93% 0.13 295);
+  --primary-light: oklch(82% 0.13 295);
+  --primary-bright: oklch(70% 0.13 295);
+  --primary-base: oklch(58% 0.18 295);
+  --primary-muted: oklch(50% 0.16 295);
+  --primary-mid: oklch(48% 0.16 295);
+  --primary-deep: oklch(42% 0.16 295);
+  --primary-gradient-mid: oklch(32% 0.16 295);
+  --primary-dark: oklch(28% 0.16 295);
+}
+[data-accent='lime'] {
+  --primary-pale: oklch(93% 0.13 130);
+  --primary-light: oklch(82% 0.16 130);
+  --primary-bright: oklch(78% 0.2 130);
+  --primary-base: oklch(72% 0.2 130);
+  --primary-muted: oklch(55% 0.16 130);
+  --primary-mid: oklch(48% 0.14 130);
+  --primary-deep: oklch(42% 0.13 130);
+  --primary-gradient-mid: oklch(32% 0.13 130);
+  --primary-dark: oklch(28% 0.12 130);
+}
+[data-accent='ember'] {
+  --primary-pale: oklch(93% 0.08 35);
+  --primary-light: oklch(82% 0.13 35);
+  --primary-bright: oklch(72% 0.18 35);
+  --primary-base: oklch(65% 0.2 35);
+  --primary-muted: oklch(55% 0.18 35);
+  --primary-mid: oklch(48% 0.16 35);
+  --primary-deep: oklch(42% 0.15 35);
+  --primary-gradient-mid: oklch(32% 0.13 35);
+  --primary-dark: oklch(28% 0.12 35);
+}
+
+/* ─── Globals on the artboard ─────────────────────────────────────────── */
+
+.page {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-feature-settings: 'ss01', 'cv11';
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.page * {
+  border-color: var(--border);
+}
+
+/* ─── Type ────────────────────────────────────────────────────────────── */
+
+.font-display { font-family: var(--font-display); }
+.font-body { font-family: var(--font-body); }
+.font-mono { font-family: var(--font-mono); }
+
+.text-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.text-headline {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.text-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.625rem;
+  line-height: 1.2;
+}
+.text-body {
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 400;
+}
+.text-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ─── Components ──────────────────────────────────────────────────────── */
+
+.pill-nav {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.625rem 1.25rem;
+  background: color-mix(in oklch, var(--background) 80%, transparent);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 200ms, opacity 200ms;
+}
+.btn-primary:hover { transform: translateY(-1px); }
+
+.btn-ghost {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  transition: background 200ms;
+}
+.btn-ghost:hover { background: var(--card); }
+
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--primary) 20%, var(--background));
+  color: var(--primary-on-bg);
+  border: 1px solid color-mix(in oklch, var(--primary) 30%, transparent);
+}
+
+/* ─── Animated mark (replaces static logo) ────────────────────────────── */
+
+.mark-orbit {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 1em;
+  height: 1em;
+  font-size: inherit;
+}
+.mark-orbit svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.mark-orbit .ring {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1.25;
+  transform-origin: center;
+}
+.mark-orbit .ring-1 { animation: spin 14s linear infinite; }
+.mark-orbit .ring-2 { animation: spin 22s linear infinite reverse; }
+.mark-orbit .core {
+  fill: var(--primary);
+  transform-origin: center;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.85); opacity: 0.7; }
+}
+
+/* ─── Marquee ─────────────────────────────────────────────────────────── */
+
+.marquee {
+  display: flex;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+.marquee-track {
+  display: flex;
+  gap: 4rem;
+  animation: marquee 30s linear infinite;
+  white-space: nowrap;
+  padding-right: 4rem;
+  flex-shrink: 0;
+}
+@keyframes marquee {
+  to { transform: translateX(-100%); }
+}
+
+/* ─── Focal blob (replaces big static logo) ───────────────────────────── */
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: 0.55;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+[data-theme='dark'] .blob {
+  mix-blend-mode: screen;
+  opacity: 0.5;
+}
+.blob-a {
+  background: var(--primary);
+  animation: drift-a 18s ease-in-out infinite;
+}
+.blob-b {
+  background: color-mix(in oklch, var(--primary) 70%, white);
+  animation: drift-b 22s ease-in-out infinite;
+}
+[data-theme='dark'] .blob-b {
+  background: color-mix(in oklch, var(--primary) 70%, black);
+}
+@keyframes drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -20px) scale(1.1); }
+  66% { transform: translate(-20px, 30px) scale(0.95); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-50px, 20px) scale(1.15); }
+}
+
+/* ─── Word swap (animated headline) ───────────────────────────────────── */
+
+.word-swap {
+  display: inline-grid;
+  vertical-align: baseline;
+}
+.word-swap > span {
+  grid-area: 1 / 1;
+  color: var(--primary-on-bg);
+  animation: swap 9s steps(1) infinite;
+  opacity: 0;
+}
+.word-swap > span:nth-child(1) { animation-delay: 0s; }
+.word-swap > span:nth-child(2) { animation-delay: 3s; }
+.word-swap > span:nth-child(3) { animation-delay: 6s; }
+@keyframes swap {
+  0% { opacity: 0; transform: translateY(0.3em); }
+  3%, 33% { opacity: 1; transform: translateY(0); }
+  36%, 100% { opacity: 0; transform: translateY(-0.3em); }
+}
+
+/* ─── Cards ───────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: transform 250ms, border-color 250ms;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklch, var(--primary) 50%, var(--border));
+}
+
+.thumb {
+  background: linear-gradient(135deg,
+    color-mix(in oklch, var(--primary) 35%, var(--background)) 0%,
+    color-mix(in oklch, var(--primary) 10%, var(--background)) 100%);
+  position: relative;
+  overflow: hidden;
+}
+.thumb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 8px,
+    color-mix(in oklch, var(--primary) 18%, transparent) 8px 9px
+  );
+}
+
+/* ─── Numbered service row hover ──────────────────────────────────────── */
+
+.svc-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 2fr;
+  gap: 2rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 200ms, padding 200ms;
+}
+.svc-row:hover {
+  background: color-mix(in oklch, var(--primary) 6%, transparent);
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.svc-row .arrow {
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 200ms, transform 200ms;
+}
+.svc-row:hover .arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ─── Bento ───────────────────────────────────────────────────────────── */
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+}
+.bento-tile {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  transition: border-color 250ms, transform 250ms;
+  position: relative;
+  overflow: hidden;
+}
+.bento-tile:hover {
+  border-color: color-mix(in oklch, var(--primary) 60%, var(--border));
+  transform: translateY(-2px);
+}
+.bento-tile .num {
+  font-family: var(--font-mono);
+  color: var(--primary-on-bg);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+}
+
+/* ─── Diagonal accent ─────────────────────────────────────────────────── */
+
+.accent-line {
+  position: absolute;
+  height: 1px;
+  background: var(--border);
+  pointer-events: none;
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────── */
+
+.foot {
+  background: var(--neutral-900);
+  color: var(--neutral-100);
+  padding: 4rem 3rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
+  gap: 2rem;
+}
+[data-theme='dark'] .foot {
+  background: var(--neutral-850);
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Reveal-on-scroll style classes for static use ───────────────────── */
+
+.kinetic {
+  display: inline-block;
+  animation: drift-text 6s ease-in-out infinite;
+}
+@keyframes drift-text {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* ─── Scroll-shimmer underline ────────────────────────────────────────── */
+
+.under-link {
+  position: relative;
+  display: inline-block;
+}
+.under-link::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms;
+}
+.under-link:hover::after { transform: scaleX(1); }
