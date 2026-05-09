@@ -15,7 +15,7 @@ export const HeaderNav: React.FC<{
   return (
     <nav className="flex gap-3 items-center">
       {navItems.map(({ link }, i) => (
-        <CMSLink className="text-primary-muted" key={i} {...link} appearance="link" />
+        <CMSLink className="text-primary-on-bg" key={i} {...link} appearance="link" />
       ))}
     </nav>
   )

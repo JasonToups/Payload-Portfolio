@@ -1,17 +1,38 @@
 import React, { Fragment } from 'react'
+import dynamic from 'next/dynamic'
 
 import type { Page } from '@/payload-types'
 
-import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
-import { CallToActionBlock } from '@/blocks/CallToAction/Component'
-import { ContentBlock } from '@/blocks/Content/Component'
-import { FormBlock } from '@/blocks/Form/Component'
-import { MarqueeBlock } from '@/blocks/Marquee/Component'
-import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import { ServicesBlock } from '@/blocks/Services/Component'
-import { SkillsBlock } from '@/blocks/Skills/Component'
-import { SubscribeBlock } from '@/blocks/Subscribe/Component'
-import { TestimonialsBlock } from '@/blocks/Testimonials/Component'
+const ArchiveBlock = dynamic(() =>
+  import('@/blocks/ArchiveBlock/Component').then((m) => ({ default: m.ArchiveBlock })),
+)
+const CallToActionBlock = dynamic(() =>
+  import('@/blocks/CallToAction/Component').then((m) => ({ default: m.CallToActionBlock })),
+)
+const ContentBlock = dynamic(() =>
+  import('@/blocks/Content/Component').then((m) => ({ default: m.ContentBlock })),
+)
+const FormBlock = dynamic(() =>
+  import('@/blocks/Form/Component').then((m) => ({ default: m.FormBlock })),
+)
+const MarqueeBlock = dynamic(() =>
+  import('@/blocks/Marquee/Component').then((m) => ({ default: m.MarqueeBlock })),
+)
+const MediaBlock = dynamic(() =>
+  import('@/blocks/MediaBlock/Component').then((m) => ({ default: m.MediaBlock })),
+)
+const ServicesBlock = dynamic(() =>
+  import('@/blocks/Services/Component').then((m) => ({ default: m.ServicesBlock })),
+)
+const SkillsBlock = dynamic(() =>
+  import('@/blocks/Skills/Component').then((m) => ({ default: m.SkillsBlock })),
+)
+const SubscribeBlock = dynamic(() =>
+  import('@/blocks/Subscribe/Component').then((m) => ({ default: m.SubscribeBlock })),
+)
+const TestimonialsBlock = dynamic(() =>
+  import('@/blocks/Testimonials/Component').then((m) => ({ default: m.TestimonialsBlock })),
+)
 
 const blockComponents = {
   archive: ArchiveBlock,

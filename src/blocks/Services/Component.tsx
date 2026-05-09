@@ -201,7 +201,7 @@ function TileBuilding({ tile }: { tile: Tile }) {
               <li
                 key={id ?? label}
                 className="flex items-center gap-2.5"
-                style={{ opacity: done ? 1 : 0.6 }}
+                style={{ color: done ? 'var(--neutral-100)' : undefined }}
               >
                 <span
                   className="font-mono"

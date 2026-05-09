@@ -19,26 +19,24 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
   const hasImage = heroImage && typeof heroImage !== 'string'
 
   return (
-    <div className="relative -mt-16">
-      {/* Fixed-aspect container — image is cropped to fit, overflow clipped */}
-      <div
-        className="relative w-full overflow-hidden"
-        style={{ aspectRatio: '16/9', minHeight: '19rem' }}
-      >
-        {hasImage ? (
-          <>
-            <Media resource={heroImage} priority fill imgClassName="object-cover object-center" />
-            {/* Gradient for text legibility */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-          </>
-        ) : (
-          <div className="post-thumb absolute inset-0" />
-        )}
+    <div className="relative mt-1">
+      <div className="container">
+        {/* Image cropped to a fixed height — overflow clipped, rounded corners */}
+        <div className="relative overflow-hidden rounded-lg" style={{ height: '28rem' }}>
+          {hasImage ? (
+            <>
+              <Media resource={heroImage} priority fill size="100vw" imgClassName="object-cover object-center" />
+              {/* Gradient for text legibility */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+            </>
+          ) : (
+            <div className="post-thumb absolute inset-0" />
+          )}
 
-        {/* Text content — pinned to bottom of the hero */}
-        <div className="absolute bottom-0 left-0 right-0 z-10">
-          <div className="container pb-10 lg:grid lg:grid-cols-[1fr_48rem_1fr]">
-            <div className="col-start-1 col-span-1 md:col-start-2 md:col-span-2">
+          {/* Text content — pinned to bottom of the image */}
+          <div className="absolute bottom-0 left-0 right-0 z-10">
+            <div className="pb-8 px-8 lg:grid lg:grid-cols-[1fr_48rem_1fr]">
+              <div className="col-start-1 col-span-1 md:col-start-2 md:col-span-2">
               {/* Categories as .tag pills */}
               {hasCategories && (
                 <div className="flex flex-wrap gap-2 mb-5">
@@ -91,5 +89,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
         </div>
       </div>
     </div>
+  </div>
   )
 }
+

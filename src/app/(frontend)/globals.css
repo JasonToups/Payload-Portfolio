@@ -242,7 +242,7 @@
 
 .text-display {
   font-family: var(--font-spectral), Georgia, serif;
-  font-weight: 900;
+  font-weight: 800;
   font-size: clamp(3rem, 8vw, 5.5rem);
   line-height: 0.95;
   letter-spacing: -0.02em;
@@ -251,7 +251,7 @@
 
 .text-headline {
   font-family: var(--font-spectral), Georgia, serif;
-  font-weight: 800;
+  font-weight: 700;
   font-size: clamp(2rem, 5vw, 3.5rem);
   line-height: 1.05;
   letter-spacing: -0.015em;
@@ -639,16 +639,6 @@
   );
   position: relative;
   overflow: hidden;
-}
-.post-thumb::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    45deg,
-    transparent 0 8px,
-    color-mix(in oklch, var(--primary) 18%, transparent) 8px 9px
-  );
 }
 
 /* ─── Theme flash prevention ─────────────────────────────────────────────── */

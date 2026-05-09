@@ -4,6 +4,7 @@ import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { getPayload, type RequiredDataFromCollectionSlug } from 'payload'
 import { draftMode } from 'next/headers'
+import { unstable_cache } from 'next/cache'
 import React, { cache } from 'react'
 import { homeStatic } from '@/endpoints/seed/home-static'
 
@@ -51,9 +52,9 @@ export default async function Page({ params: paramsPromise }: Args) {
   const url = '/' + decodedSlug
   let page: RequiredDataFromCollectionSlug<'pages'> | null
 
-  page = await queryPageBySlug({
-    slug: decodedSlug,
-  })
+  page = draft
+    ? await queryPageBySlugDraft({ slug: decodedSlug })
+    : await getCachedPageBySlug({ slug: decodedSlug })
 
   // Remove this code once your website is seeded
   if (!page && slug === 'home') {
@@ -86,24 +87,45 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const { slug = 'home' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
-  const page = await queryPageBySlug({
-    slug: decodedSlug,
-  })
+  const page = await getCachedPageBySlug({ slug: decodedSlug })
 
   return generateMeta({ doc: page })
 }
 
-const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
-  const { isEnabled: draft } = await draftMode()
+// Cross-request cached query — used for normal (non-draft) page loads
+const getCachedPageBySlug = unstable_cache(
+  async ({ slug }: { slug: string }) => {
+    const payload = await getPayload({ config: configPromise })
 
+    const result = await payload.find({
+      collection: 'pages',
+      draft: false,
+      limit: 1,
+      pagination: false,
+      overrideAccess: false,
+      where: {
+        slug: {
+          equals: slug,
+        },
+      },
+    })
+
+    return result.docs?.[0] || null
+  },
+  ['page-by-slug'],
+  { tags: ['pages'], revalidate: 60 },
+)
+
+// Per-request only — used for draft/preview mode to always fetch fresh data
+const queryPageBySlugDraft = cache(async ({ slug }: { slug: string }) => {
   const payload = await getPayload({ config: configPromise })
 
   const result = await payload.find({
     collection: 'pages',
-    draft,
+    draft: true,
     limit: 1,
     pagination: false,
-    overrideAccess: draft,
+    overrideAccess: true,
     where: {
       slug: {
         equals: slug,

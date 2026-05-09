@@ -3,7 +3,7 @@ import type { TestimonialsBlock as TestimonialsBlockProps } from '@/payload-type
 
 type Testimonial = NonNullable<TestimonialsBlockProps['testimonials']>[number]
 
-function TestimonialCard({ t, index }: { t: Testimonial; index: number }) {
+function TestimonialCard({ t }: { t: Testimonial }) {
   const isFeatured = t.featured ?? false
 
   return (
@@ -106,7 +106,7 @@ export const TestimonialsBlock: React.FC<TestimonialsBlockProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {testimonials.map((t, index) => (
-          <TestimonialCard key={t.id ?? index} t={t} index={index} />
+          <TestimonialCard key={t.id ?? index} t={t} />
         ))}
       </div>
     </section>

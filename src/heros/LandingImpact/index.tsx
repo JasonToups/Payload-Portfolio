@@ -1,6 +1,4 @@
-'use client'
-import { useHeaderTheme } from '@/providers/HeaderTheme'
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import type { Page } from '@/payload-types'
 
@@ -8,12 +6,6 @@ import { CMSLink } from '@/components/Link'
 import RichText from '@/components/RichText'
 
 export const LandingImpactHero: React.FC<Page['hero']> = ({ heading, links, richText }) => {
-  const { setHeaderTheme } = useHeaderTheme()
-
-  useEffect(() => {
-    setHeaderTheme('dark')
-  })
-
   return (
     <div
       className="section-primary-dark relative -mt-[10.4rem] flex min-h-[80vh] items-center justify-center"

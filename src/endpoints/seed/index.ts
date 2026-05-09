@@ -246,6 +246,10 @@ export const seed = async ({
     payload.updateGlobal({
       slug: 'footer',
       data: {
+        logo: {
+          text: 'Jason Toups',
+        },
+        copyright: '© 2026 — DESIGN ENGINEER FOR HIRE',
         navItems: [
           {
             link: {

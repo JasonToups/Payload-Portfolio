@@ -1,12 +1,23 @@
 import React from 'react'
+import dynamic from 'next/dynamic'
 
 import type { Page } from '@/payload-types'
 
-import { HighImpactHero } from '@/heros/HighImpact'
-import { KineticHero } from '@/heros/Kinetic'
-import { LandingImpactHero } from '@/heros/LandingImpact'
-import { LowImpactHero } from '@/heros/LowImpact'
-import { MediumImpactHero } from '@/heros/MediumImpact'
+const HighImpactHero = dynamic(() =>
+  import('@/heros/HighImpact').then((m) => ({ default: m.HighImpactHero })),
+)
+const KineticHero = dynamic(() =>
+  import('@/heros/Kinetic').then((m) => ({ default: m.KineticHero })),
+)
+const LandingImpactHero = dynamic(() =>
+  import('@/heros/LandingImpact').then((m) => ({ default: m.LandingImpactHero })),
+)
+const LowImpactHero = dynamic(() =>
+  import('@/heros/LowImpact').then((m) => ({ default: m.LowImpactHero })),
+)
+const MediumImpactHero = dynamic(() =>
+  import('@/heros/MediumImpact').then((m) => ({ default: m.MediumImpactHero })),
+)
 
 const heroes = {
   highImpact: HighImpactHero,

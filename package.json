@@ -56,7 +56,7 @@
     "react-hook-form": "7.45.4",
     "resend": "^6.6.0",
     "shaders": "^2.5.110",
-    "sharp": "0.34.2",
+    "sharp": "0.34.5",
     "svix": "^1.92.2",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7"
@@ -85,6 +85,12 @@
     "vite-tsconfig-paths": "5.1.4",
     "vitest": "3.2.3"
   },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
   "engines": {
     "node": "^18.20.2 || >=20.9.0",
     "pnpm": "^9 || ^10"

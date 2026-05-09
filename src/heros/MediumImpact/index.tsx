@@ -5,8 +5,6 @@ import type { Page } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
-import { sizePreviewSlug } from '@payloadcms/ui/elements/Upload'
-
 export const MediumImpactHero: React.FC<Page['hero']> = ({ heading, links, media, richText }) => {
   return (
     <section className="w-full flex justify-center align-center">

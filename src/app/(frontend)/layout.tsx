@@ -8,16 +8,16 @@ import React from 'react'
 
 const spectral = Spectral({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '700', '800'],
   variable: '--font-spectral',
   display: 'swap',
 })
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '700'],
   variable: '--font-plus-jakarta-sans',
-  display: 'swap',
+  display: 'optional',
 })
 
 import { AdminBar } from '@/components/AdminBar'
@@ -65,7 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           />
 
           <Header />
-          {children}
+          <main>{children}</main>
           <Footer />
         </Providers>
       </body>

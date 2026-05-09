@@ -7,8 +7,10 @@ import type { Footer, Media as MediaType } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 
+const getFooterData = getCachedGlobal('footer', 1)
+
 export async function Footer() {
-  const footerData: Footer = await getCachedGlobal('footer', 1)()
+  const footerData: Footer = await getFooterData()
 
   const navItems = footerData?.navItems || []
   const logoImage = footerData?.logo?.image as MediaType | undefined
@@ -30,6 +32,7 @@ export async function Footer() {
       <div>
         <Link
           href="/"
+          aria-label={logoText ? undefined : 'Go to homepage'}
           className="flex items-center gap-3 no-underline"
           style={{ color: 'var(--primary-on-bg)', marginBottom: '1rem' }}
         >
