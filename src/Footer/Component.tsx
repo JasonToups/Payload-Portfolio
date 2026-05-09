@@ -38,11 +38,7 @@ export async function Footer() {
         >
           {logoImage && typeof logoImage === 'object' ? (
             <div className="relative h-7 w-7">
-              <Media
-                resource={logoImage}
-                imgClassName="object-contain invert dark:invert-0"
-                fill
-              />
+              <Media resource={logoImage} imgClassName="object-contain invert-0 dark:invert" fill />
             </div>
           ) : null}
           {logoText && (
