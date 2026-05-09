@@ -13,7 +13,7 @@
   --primary-dark: oklch(28% 0.13 216);
 
   /* Warm neutral scale */
-  --neutral-50:  oklch(97% 0.006 70);
+  --neutral-50: oklch(97% 0.006 70);
   --neutral-100: oklch(96% 0.005 68);
   --neutral-150: oklch(94% 0.008 68);
   --neutral-200: oklch(92% 0.008 68);
@@ -109,9 +109,15 @@
 
 /* ─── Type ────────────────────────────────────────────────────────────── */
 
-.font-display { font-family: var(--font-display); }
-.font-body { font-family: var(--font-body); }
-.font-mono { font-family: var(--font-mono); }
+.font-display {
+  font-family: var(--font-display);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
 
 .text-display {
   font-family: var(--font-display);
@@ -173,9 +179,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: transform 200ms, opacity 200ms;
+  transition:
+    transform 200ms,
+    opacity 200ms;
 }
-.btn-primary:hover { transform: translateY(-1px); }
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
 
 .btn-ghost {
   border: 1px solid var(--border);
@@ -188,7 +198,9 @@
   cursor: pointer;
   transition: background 200ms;
 }
-.btn-ghost:hover { background: var(--card); }
+.btn-ghost:hover {
+  background: var(--card);
+}
 
 .tag {
   display: inline-block;
@@ -224,8 +236,12 @@
   stroke-width: 1.25;
   transform-origin: center;
 }
-.mark-orbit .ring-1 { animation: spin 14s linear infinite; }
-.mark-orbit .ring-2 { animation: spin 22s linear infinite reverse; }
+.mark-orbit .ring-1 {
+  animation: spin 14s linear infinite;
+}
+.mark-orbit .ring-2 {
+  animation: spin 22s linear infinite reverse;
+}
 .mark-orbit .core {
   fill: var(--primary);
   transform-origin: center;
@@ -233,30 +249,20 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 @keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(0.85); opacity: 0.7; }
-}
-
-/* ─── Marquee ─────────────────────────────────────────────────────────── */
-
-.marquee {
-  display: flex;
-  overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-}
-.marquee-track {
-  display: flex;
-  gap: 4rem;
-  animation: marquee 30s linear infinite;
-  white-space: nowrap;
-  padding-right: 4rem;
-  flex-shrink: 0;
-}
-@keyframes marquee {
-  to { transform: translateX(-100%); }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
 }
 
 /* ─── Focal blob (replaces big static logo) ───────────────────────────── */
@@ -285,13 +291,25 @@
   background: color-mix(in oklch, var(--primary) 70%, black);
 }
 @keyframes drift-a {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(40px, -20px) scale(1.1); }
-  66% { transform: translate(-20px, 30px) scale(0.95); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(40px, -20px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 30px) scale(0.95);
+  }
 }
 @keyframes drift-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-50px, 20px) scale(1.15); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-50px, 20px) scale(1.15);
+  }
 }
 
 /* ─── Word swap (animated headline) ───────────────────────────────────── */
@@ -306,13 +324,30 @@
   animation: swap 9s steps(1) infinite;
   opacity: 0;
 }
-.word-swap > span:nth-child(1) { animation-delay: 0s; }
-.word-swap > span:nth-child(2) { animation-delay: 3s; }
-.word-swap > span:nth-child(3) { animation-delay: 6s; }
+.word-swap > span:nth-child(1) {
+  animation-delay: 0s;
+}
+.word-swap > span:nth-child(2) {
+  animation-delay: 3s;
+}
+.word-swap > span:nth-child(3) {
+  animation-delay: 6s;
+}
 @keyframes swap {
-  0% { opacity: 0; transform: translateY(0.3em); }
-  3%, 33% { opacity: 1; transform: translateY(0); }
-  36%, 100% { opacity: 0; transform: translateY(-0.3em); }
+  0% {
+    opacity: 0;
+    transform: translateY(0.3em);
+  }
+  3%,
+  33% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  36%,
+  100% {
+    opacity: 0;
+    transform: translateY(-0.3em);
+  }
 }
 
 /* ─── Cards ───────────────────────────────────────────────────────────── */
@@ -322,7 +357,9 @@
   border-radius: var(--radius);
   border: 1px solid var(--border);
   overflow: hidden;
-  transition: transform 250ms, border-color 250ms;
+  transition:
+    transform 250ms,
+    border-color 250ms;
 }
 .card:hover {
   transform: translateY(-2px);
@@ -330,9 +367,11 @@
 }
 
 .thumb {
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     color-mix(in oklch, var(--primary) 35%, var(--background)) 0%,
-    color-mix(in oklch, var(--primary) 10%, var(--background)) 100%);
+    color-mix(in oklch, var(--primary) 10%, var(--background)) 100%
+  );
   position: relative;
   overflow: hidden;
 }
@@ -356,7 +395,9 @@
   padding: 2rem 0;
   border-top: 1px solid var(--border);
   cursor: pointer;
-  transition: background 200ms, padding 200ms;
+  transition:
+    background 200ms,
+    padding 200ms;
 }
 .svc-row:hover {
   background: color-mix(in oklch, var(--primary) 6%, transparent);
@@ -366,7 +407,9 @@
 .svc-row .arrow {
   opacity: 0;
   transform: translateX(-8px);
-  transition: opacity 200ms, transform 200ms;
+  transition:
+    opacity 200ms,
+    transform 200ms;
 }
 .svc-row:hover .arrow {
   opacity: 1;
@@ -385,7 +428,9 @@
   border: 1px solid var(--border);
   border-radius: 1.25rem;
   padding: 2rem;
-  transition: border-color 250ms, transform 250ms;
+  transition:
+    border-color 250ms,
+    transform 250ms;
   position: relative;
   overflow: hidden;
 }
@@ -432,8 +477,13 @@
   animation: drift-text 6s ease-in-out infinite;
 }
 @keyframes drift-text {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 /* ─── Scroll-shimmer underline ────────────────────────────────────────── */
@@ -445,11 +495,15 @@
 .under-link::after {
   content: '';
   position: absolute;
-  left: 0; right: 0; bottom: -2px;
+  left: 0;
+  right: 0;
+  bottom: -2px;
   height: 1px;
   background: currentColor;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 300ms;
 }
-.under-link:hover::after { transform: scaleX(1); }
+.under-link:hover::after {
+  transform: scaleX(1);
+}
