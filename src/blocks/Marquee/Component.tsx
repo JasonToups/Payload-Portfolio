@@ -5,16 +5,42 @@ import type { MarqueeBlock as MarqueeBlockProps, Media as MediaType } from '@/pa
 type TextItem = NonNullable<MarqueeBlockProps['items']>[number]
 type LogoItem = NonNullable<MarqueeBlockProps['logos']>[number]
 
+const TEXT_REPEAT = 4
+const LOGO_REPEAT = 4
+const LOGO_HEIGHT_PX = 80
+const GAP_PX = 64 // 4rem at 16px root
+const PADDING_RIGHT_PX = 64
+// ~2200px text track / 22s ≈ 100px/s — images match this rate
+const MARQUEE_SPEED_PX_S = 100
+
+function computeImageDuration(logos: LogoItem[]): string {
+  const logoWidths = logos.map(({ image }) => {
+    if (typeof image !== 'object') return 160
+    const img = image as MediaType
+    const h = img.height ?? LOGO_HEIGHT_PX
+    const w = img.width ?? 160
+    return w * (LOGO_HEIGHT_PX / h)
+  })
+  const totalLogoWidth = logoWidths.reduce((sum, w) => sum + w, 0)
+  const itemCount = logos.length * LOGO_REPEAT
+  const trackWidth = totalLogoWidth * LOGO_REPEAT + (itemCount - 1) * GAP_PX + PADDING_RIGHT_PX
+  return `${Math.round(trackWidth / MARQUEE_SPEED_PX_S)}s`
+}
+
 function TextTrack({ items }: { items: TextItem[] }) {
   const hasManualEmphasis = items.some(({ emphasis }) => emphasis)
+  const tiled = Array.from({ length: TEXT_REPEAT }, (_, rep) =>
+    items.map((item, i) => ({ ...item, tileKey: `${rep}-${item.id ?? i}` })),
+  ).flat()
 
   return (
     <>
-      {items.map(({ label, emphasis, id }, i) => {
-        const isEmphasised = hasManualEmphasis ? (emphasis ?? false) : i % 3 === 0
+      {tiled.map(({ label, emphasis, tileKey }, tiledIndex) => {
+        const originalIndex = tiledIndex % items.length
+        const isEmphasised = hasManualEmphasis ? (emphasis ?? false) : originalIndex % 3 === 0
         return (
           <span
-            key={id ?? i}
+            key={tileKey}
             className="font-display"
             style={{
               fontWeight: 500,
@@ -32,8 +58,7 @@ function TextTrack({ items }: { items: TextItem[] }) {
 }
 
 function ImageTrack({ logos }: { logos: LogoItem[] }) {
-  const REPEAT = 4
-  const tiled = Array.from({ length: REPEAT }, (_, rep) =>
+  const tiled = Array.from({ length: LOGO_REPEAT }, (_, rep) =>
     logos.map(({ image, alt, id }, i) => ({ image, alt, key: `${rep}-${id ?? i}` })),
   ).flat()
 
@@ -75,6 +100,14 @@ export const MarqueeBlock: React.FC<MarqueeBlockProps> = ({ eyebrow, variant, it
 
   if (!hasItems && !hasLogos) return null
 
+  // Text: scale the baseline 22s by the repeat factor to preserve visual speed.
+  // Images: derive from actual logo dimensions at a shared px/s rate.
+  const marqueeDuration = hasLogos
+    ? computeImageDuration(logos!)
+    : `${22 * TEXT_REPEAT}s`
+
+  const trackStyle = { '--marquee-duration': marqueeDuration } as React.CSSProperties
+
   return (
     <section
       style={{
@@ -97,7 +130,7 @@ export const MarqueeBlock: React.FC<MarqueeBlockProps> = ({ eyebrow, variant, it
 
       <div className="marquee" aria-hidden="true">
         {[0, 1].map((trackIndex) => (
-          <div className="marquee-track" key={trackIndex}>
+          <div className="marquee-track" key={trackIndex} style={trackStyle}>
             {hasItems && <TextTrack items={items!} />}
             {hasLogos && <ImageTrack logos={logos!} />}
           </div>
