@@ -1,5 +1,3 @@
-'use client'
-import useClickableCard from '@/utilities/useClickableCard'
 import Link from 'next/link'
 import React, { Fragment } from 'react'
 
@@ -52,7 +50,6 @@ export const Card: React.FC<{
   title?: string
   index?: number
 }> = (props) => {
-  const { card, link } = useClickableCard({})
   const { className, doc, relationTo, showCategories, title: titleFromProps, index = 0 } = props
 
   const { slug, categories, keywords, meta, title, publishedAt, content } = doc || {}
@@ -69,9 +66,10 @@ export const Card: React.FC<{
 
   return (
     <article
-      className={`post-card flex flex-row items-center md:flex-col md:items-stretch hover:cursor-pointer${className ? ` ${className}` : ''}`}
-      ref={card.ref}
+      className={`post-card relative flex flex-row items-center md:flex-col md:items-stretch${className ? ` ${className}` : ''}`}
     >
+      {/* Invisible overlay — makes the entire card navigate to the post */}
+      <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
       <div
         className="post-thumb w-28 h-28 shrink-0 md:w-full md:h-auto md:aspect-[4/3]"
       >
@@ -131,8 +129,7 @@ export const Card: React.FC<{
           </span>
 
           <div
-            className="flex flex-wrap gap-1.5 flex-1 min-w-0"
-            onClick={(e) => e.stopPropagation()}
+            className="relative z-20 flex flex-wrap gap-1.5 flex-1 min-w-0"
           >
             {showCategories && hasCategories && (
               <Fragment>
@@ -180,9 +177,8 @@ export const Card: React.FC<{
             style={{ fontWeight: 600, fontSize: '1.375rem', lineHeight: 1.2 }}
           >
             <Link
-              className="not-prose no-underline"
+              className="not-prose no-underline relative z-20"
               href={href}
-              ref={link.ref}
               style={{ color: 'inherit' }}
             >
               {titleToUse}
