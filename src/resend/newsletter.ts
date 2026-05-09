@@ -4,7 +4,7 @@ import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import type { EmailLayout, EmailSetting } from '../payload-types'
 import { getResendClient, retryResendCall } from './client'
 import { renderEmailTemplate } from './template'
-import { createResendContact, addContactToResendSegment } from './contacts'
+import { createResendContact, addContactToResendSegment, buildUnsubscribeUrl } from './contacts'
 import type { CreateResendContactResult, AddToResendSegmentResult } from './contacts'
 
 interface ResendEmailData {
@@ -57,7 +57,9 @@ export async function sendWelcomeEmail(
       ? convertLexicalToHTML({ data: welcomeBodyLexical })
       : '<p>Thanks for subscribing 🎉</p>'
 
-    const htmlBody = renderEmailTemplate(bodyHtml, emailLayout)
+    const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL ?? ''
+    const unsubscribeUrl = buildUnsubscribeUrl(normalizedTo, baseUrl)
+    const htmlBody = renderEmailTemplate(bodyHtml, emailLayout, unsubscribeUrl)
 
     const { data, error } = await retryResendCall(() =>
       resend.emails.send({
@@ -65,6 +67,10 @@ export async function sendWelcomeEmail(
         to: normalizedTo,
         subject,
         html: htmlBody,
+        headers: {
+          'List-Unsubscribe': `<${unsubscribeUrl}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
         ...(replyTo ? { replyTo } : {}),
       }),
     )

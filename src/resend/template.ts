@@ -28,7 +28,11 @@ function resolveLogoUrl(logo: ((number | null) | Media) | undefined | null): str
  * The unsubscribe link placeholder {{{RESEND_UNSUBSCRIBE_URL}}} is replaced
  * by Resend at send time for broadcast emails.
  */
-export function renderEmailTemplate(bodyHtml: string, layout: EmailLayout): string {
+export function renderEmailTemplate(
+  bodyHtml: string,
+  layout: EmailLayout,
+  unsubscribeUrl: string = '{{{RESEND_UNSUBSCRIBE_URL}}}',
+): string {
   const header = layout.header ?? {}
   const footer = layout.footer
 
@@ -106,7 +110,7 @@ export function renderEmailTemplate(bodyHtml: string, layout: EmailLayout): stri
               }
               <p style="margin:0 0 8px;font-size:12px;color:${footerTextColor};font-family:'Courier New',Courier,monospace;letter-spacing:0.04em;">${footer.mailingAddress}</p>
               <p style="margin:0;font-size:12px;font-family:'Courier New',Courier,monospace;letter-spacing:0.04em;">
-                <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:${footerTextColor};text-decoration:underline;">${unsubscribeText}</a>
+                <a href="${unsubscribeUrl}" style="color:${footerTextColor};text-decoration:underline;">${unsubscribeText}</a>
               </p>
             </td>
           </tr>
