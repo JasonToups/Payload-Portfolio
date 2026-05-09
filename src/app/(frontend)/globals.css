@@ -548,7 +548,7 @@
 }
 .marquee-track {
   display: flex;
-  gap: 4rem;
+  gap: 6rem;
   animation: marquee var(--marquee-duration, 22s) linear infinite;
   white-space: nowrap;
   padding-right: 4rem;

@@ -265,27 +265,6 @@
   }
 }
 
-/* ─── Marquee ─────────────────────────────────────────────────────────── */
-
-.marquee {
-  display: flex;
-  overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-}
-.marquee-track {
-  display: flex;
-  gap: 6rem;
-  animation: marquee 30s linear infinite;
-  white-space: nowrap;
-  padding-right: 4rem;
-  flex-shrink: 0;
-}
-@keyframes marquee {
-  to {
-    transform: translateX(-100%);
-  }
-}
-
 /* ─── Focal blob (replaces big static logo) ───────────────────────────── */
 
 .blob {
