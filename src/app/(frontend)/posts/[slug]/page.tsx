@@ -77,11 +77,23 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero post={post} />
 
-      <div className="flex flex-col items-center gap-4 px-8 py-6">
+      <div className="container py-16">
         <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
         {relatedPosts.length > 0 && (
-          <section className="w-full">
-            <h2 className="text-xl font-semibold mb-6">Related Posts</h2>
+          <section
+            className="max-w-[48rem] mx-auto mt-16 pt-8"
+            style={{ borderTop: '1px solid var(--border)' }}
+          >
+            <p
+              className="font-mono mb-6"
+              style={{
+                fontSize: '0.75rem',
+                letterSpacing: '0.08em',
+                color: 'var(--muted-foreground)',
+              }}
+            >
+              RELATED POSTS
+            </p>
             <RelatedPosts docs={relatedPosts} />
           </section>
         )}

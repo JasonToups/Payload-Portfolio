@@ -1,4 +1,3 @@
-import { formatDateTime } from 'src/utilities/formatDateTime'
 import React from 'react'
 
 import type { Post } from '@/payload-types'
@@ -6,81 +5,90 @@ import type { Post } from '@/payload-types'
 import { Media } from '@/components/Media'
 import { KeywordPill } from '@/components/ui/keyword-pill'
 import { formatAuthors } from '@/utilities/formatAuthors'
+import { getReadMinutes, formatPostDate } from '@/utilities/postMeta'
 
-export const PostHero: React.FC<{
-  post: Post
-}> = ({ post }) => {
-  const { categories, heroImage, keywords, populatedAuthors, publishedAt, title } = post
+export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
+  const { categories, heroImage, keywords, populatedAuthors, publishedAt, title, content } = post
 
   const hasAuthors =
     populatedAuthors && populatedAuthors.length > 0 && formatAuthors(populatedAuthors) !== ''
+  const formattedDate = formatPostDate(publishedAt)
+  const readMinutes = getReadMinutes(content)
+  const hasCategories = categories && Array.isArray(categories) && categories.length > 0
+  const hasKeywords = keywords && Array.isArray(keywords) && keywords.length > 0
+  const hasImage = heroImage && typeof heroImage !== 'string'
 
   return (
-    <div className="relative -mt-[10.4rem] flex items-end">
-      <div className="container z-10 relative lg:grid lg:grid-cols-[1fr_48rem_1fr] text-white pb-8">
-        <div className="col-start-1 col-span-1 md:col-start-2 md:col-span-2">
-          <div className="uppercase text-sm mb-6">
-            {categories?.map((category, index) => {
-              if (typeof category === 'object' && category !== null) {
-                const { title: categoryTitle } = category
+    <div className="relative -mt-16">
+      {/* Fixed-aspect container — image is cropped to fit, overflow clipped */}
+      <div
+        className="relative w-full overflow-hidden"
+        style={{ aspectRatio: '16/9', minHeight: '19rem' }}
+      >
+        {hasImage ? (
+          <>
+            <Media resource={heroImage} priority fill imgClassName="object-cover object-center" />
+            {/* Gradient for text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+          </>
+        ) : (
+          <div className="post-thumb absolute inset-0" />
+        )}
 
-                const titleToUse = categoryTitle || 'Untitled category'
-
-                const isLast = index === categories.length - 1
-
-                return (
-                  <React.Fragment key={index}>
-                    {titleToUse}
-                    {!isLast && <React.Fragment>, &nbsp;</React.Fragment>}
-                  </React.Fragment>
-                )
-              }
-              return null
-            })}
-          </div>
-
-          <div className="">
-            <h1 className="mb-6 text-3xl md:text-5xl lg:text-6xl">{title}</h1>
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-4 md:gap-16">
-            {hasAuthors && (
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm">Author</p>
-
-                  <p>{formatAuthors(populatedAuthors)}</p>
+        {/* Text content — pinned to bottom of the hero */}
+        <div className="absolute bottom-0 left-0 right-0 z-10">
+          <div className="container pb-10 lg:grid lg:grid-cols-[1fr_48rem_1fr]">
+            <div className="col-start-1 col-span-1 md:col-start-2 md:col-span-2">
+              {/* Categories as .tag pills */}
+              {hasCategories && (
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {categories!.map((category, i) => {
+                    if (typeof category !== 'object' || !category) return null
+                    return (
+                      <span key={i} className="tag" style={{ color: 'var(--primary-on-bg)' }}>
+                        {category.title || 'Untitled'}
+                      </span>
+                    )
+                  })}
                 </div>
-              </div>
-            )}
-            {publishedAt && (
-              <div className="flex flex-col gap-1">
-                <p className="text-sm">Date Published</p>
+              )}
 
-                <time dateTime={publishedAt}>{formatDateTime(publishedAt)}</time>
+              {/* Title */}
+              <h1 className="text-headline text-white mb-5">{title}</h1>
+
+              {/* Compact monospace meta row */}
+              <div
+                className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono"
+                style={{
+                  fontSize: '0.8125rem',
+                  letterSpacing: '0.08em',
+                  color: 'rgba(255,255,255,0.6)',
+                }}
+              >
+                {formattedDate && <span>{formattedDate}</span>}
+                {formattedDate && <span aria-hidden="true">·</span>}
+                <span>{readMinutes} MIN READ</span>
+                {hasAuthors && <span aria-hidden="true">·</span>}
+                {hasAuthors && <span>{formatAuthors(populatedAuthors)}</span>}
               </div>
-            )}
-            {keywords && keywords.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 items-start">
-                {keywords.map((kw) =>
-                  typeof kw === 'object' ? (
-                    <KeywordPill
-                      key={kw.id}
-                      keyword={kw}
-                      className="border border-white/40 bg-white/10 hover:bg-white/20 text-white"
-                    />
-                  ) : null,
-                )}
-              </div>
-            )}
+
+              {/* Keyword pills */}
+              {hasKeywords && (
+                <div className="flex flex-wrap gap-1.5 mt-5">
+                  {keywords!.map((kw) =>
+                    typeof kw === 'object' ? (
+                      <KeywordPill
+                        key={kw.id}
+                        keyword={kw}
+                        className="border border-white/40 bg-white/10 hover:bg-white/20 text-white"
+                      />
+                    ) : null,
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="min-h-[80vh] select-none">
-        {heroImage && typeof heroImage !== 'string' && (
-          <Media fill priority imgClassName="-z-10 object-cover" resource={heroImage} />
-        )}
-        <div className="absolute pointer-events-none left-0 bottom-0 w-full h-1/2 bg-gradient-to-t from-black to-transparent" />
       </div>
     </div>
   )
