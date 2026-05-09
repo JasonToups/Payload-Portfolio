@@ -12,6 +12,7 @@ import { Broadcasts } from './collections/Broadcasts'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
+import { Resume } from './collections/Resume'
 import { Users } from './collections/Users'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
@@ -105,7 +106,7 @@ export default buildConfig({
       connectionString: process.env.POSTGRES_URL || '',
     },
   }),
-  collections: [Broadcasts, Pages, Posts, Media, Categories, Keywords, Users],
+  collections: [Broadcasts, Pages, Posts, Media, Categories, Keywords, Resume, Users],
   cors: [getServerSideURL()].filter(Boolean),
   email: resendAdapter({
     apiKey: process.env.RESEND_API_KEY!,

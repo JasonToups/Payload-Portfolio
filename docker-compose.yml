@@ -1,13 +1,19 @@
 services:
   payload:
-    image: node:20-alpine
+    image: node:20-slim
     ports:
       - '3000:3000'
     volumes:
       - .:/home/node/app
       - node_modules:/home/node/app/node_modules
     working_dir: /home/node/app/
-    command: sh -c "corepack enable pnpm && pnpm install && pnpm dev"
+    command: >
+      sh -c "apt-get update &&
+             apt-get install -y --no-install-recommends pandoc wkhtmltopdf xvfb libfontconfig1 libx11-6 libxext6 libxrender1 &&
+             rm -rf /var/lib/apt/lists/* &&
+             npm install -g pnpm@10 &&
+             pnpm install &&
+             pnpm dev"
     depends_on:
       - postgres
     env_file:

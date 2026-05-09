@@ -21,7 +21,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     return new Response('You are not allowed to preview this page', { status: 403 })
   }
 
-  if (!path || !collection || !slug) {
+  if (!path || !collection) {
     return new Response('Insufficient search params', { status: 404 })
   }
 
