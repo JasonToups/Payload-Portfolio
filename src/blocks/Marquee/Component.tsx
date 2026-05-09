@@ -32,9 +32,14 @@ function TextTrack({ items }: { items: TextItem[] }) {
 }
 
 function ImageTrack({ logos }: { logos: LogoItem[] }) {
+  const REPEAT = 4
+  const tiled = Array.from({ length: REPEAT }, (_, rep) =>
+    logos.map(({ image, alt, id }, i) => ({ image, alt, key: `${rep}-${id ?? i}` })),
+  ).flat()
+
   return (
     <>
-      {logos.map(({ image, alt, id }, i) => {
+      {tiled.map(({ image, alt, key }) => {
         if (typeof image !== 'object') return null
         const mediaImage = image as MediaType
         const altText = alt || mediaImage.alt || ''
@@ -43,12 +48,19 @@ function ImageTrack({ logos }: { logos: LogoItem[] }) {
         const naturalHeight = mediaImage.height ?? 80
         return (
           <Image
-            key={id ?? i}
+            key={key}
             src={mediaImage.url}
             alt={altText}
             width={naturalWidth}
             height={naturalHeight}
-            style={{ height: '80px', width: 'auto', objectFit: 'contain', display: 'block', flexShrink: 0 }}
+            className="invert-0 dark:invert"
+            style={{
+              height: '80px',
+              width: 'auto',
+              objectFit: 'contain',
+              display: 'block',
+              flexShrink: 0,
+            }}
           />
         )
       })}
