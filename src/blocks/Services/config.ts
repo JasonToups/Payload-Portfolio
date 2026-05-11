@@ -1,4 +1,17 @@
 import type { Block } from 'payload'
+import { lexicalEditor, FixedToolbarFeature, InlineToolbarFeature } from '@payloadcms/richtext-lexical'
+
+const descriptionRichText = {
+  name: 'description',
+  type: 'richText' as const,
+  editor: lexicalEditor({
+    features: ({ rootFeatures }) => [
+      ...rootFeatures,
+      FixedToolbarFeature(),
+      InlineToolbarFeature(),
+    ],
+  }),
+}
 
 export const Services: Block = {
   slug: 'services',
@@ -22,11 +35,7 @@ export const Services: Block = {
       type: 'text',
       defaultValue: 'What I do',
     },
-    {
-      name: 'description',
-      type: 'textarea',
-      defaultValue: 'Problems I solve and the teams I work best with.',
-    },
+    descriptionRichText,
     // ── List layout ───────────────────────────────────────────────────────
     {
       name: 'services',
@@ -42,11 +51,7 @@ export const Services: Block = {
           type: 'text',
           required: true,
         },
-        {
-          name: 'description',
-          type: 'textarea',
-          required: true,
-        },
+        { ...descriptionRichText, required: true },
       ],
     },
     // ── Bento layout ──────────────────────────────────────────────────────
@@ -84,13 +89,7 @@ export const Services: Block = {
             condition: (_, { kind } = {}) => kind === 'service',
           },
         },
-        {
-          name: 'description',
-          type: 'textarea',
-          admin: {
-            condition: (_, { kind } = {}) => kind === 'service',
-          },
-        },
+        { ...descriptionRichText, admin: { condition: (_, { kind } = {}) => kind === 'service' } },
         {
           name: 'size',
           type: 'select',
