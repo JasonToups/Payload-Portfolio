@@ -1,6 +1,7 @@
 import React from 'react'
 import type { Page } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
+import RichText from '@/components/RichText'
 
 export const KineticHero: React.FC<Page['hero']> = ({
   eyebrow,
@@ -76,12 +77,13 @@ export const KineticHero: React.FC<Page['hero']> = ({
         <div className="grid grid-cols-3 gap-8 mt-16 items-start">
           <div className="col-start-1 col-span-2 md:col-span-1">
             {manifesto && (
-              <p
-                className="text-body text-muted-foreground"
-                style={{ fontSize: '1.0625rem', maxWidth: '38ch' }}
-              >
-                {manifesto}
-              </p>
+              <div style={{ fontSize: '1.0625rem', maxWidth: '38ch' }}>
+                <RichText
+                  data={manifesto}
+                  enableGutter={false}
+                  className="text-body text-muted-foreground"
+                />
+              </div>
             )}
           </div>
 

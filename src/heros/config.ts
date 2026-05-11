@@ -120,7 +120,16 @@ export const hero: Field = {
     },
     {
       name: 'manifesto',
-      type: 'textarea',
+      type: 'richText',
+      editor: lexicalEditor({
+        features: ({ rootFeatures }) => {
+          return [
+            ...rootFeatures,
+            FixedToolbarFeature(),
+            InlineToolbarFeature(),
+          ]
+        },
+      }),
       admin: {
         condition: (_, { type } = {}) => type === 'kinetic',
         description: 'Short body copy shown left of the CTAs',

@@ -559,7 +559,21 @@ export interface Page {
     /**
      * Short body copy shown left of the CTAs
      */
-    manifesto?: string | null;
+    manifesto?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
   };
   layout: (
     | CallToActionBlock
