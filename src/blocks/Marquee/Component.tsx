@@ -86,8 +86,12 @@ export const MarqueeBlock: React.FC<MarqueeBlockProps> = ({ eyebrow, variant, it
       <div className="marquee" aria-hidden="true">
         {[0, 1].map((trackIndex) => (
           <div className="marquee-track" key={trackIndex}>
-            {hasItems && <TextTrack items={items!} />}
-            {hasLogos && <ImageTrack logos={logos!} />}
+            {hasItems && Array.from({ length: 4 }, (_, i) => (
+              <TextTrack key={i} items={items!} />
+            ))}
+            {hasLogos && Array.from({ length: 4 }, (_, i) => (
+              <ImageTrack key={i} logos={logos!} />
+            ))}
           </div>
         ))}
       </div>
