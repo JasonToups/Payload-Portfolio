@@ -102,9 +102,7 @@ export const MarqueeBlock: React.FC<MarqueeBlockProps> = ({ eyebrow, variant, it
 
   // Text: scale the baseline 22s by the repeat factor to preserve visual speed.
   // Images: derive from actual logo dimensions at a shared px/s rate.
-  const marqueeDuration = hasLogos
-    ? computeImageDuration(logos!)
-    : `${22 * TEXT_REPEAT}s`
+  const marqueeDuration = hasLogos ? computeImageDuration(logos!) : `${22 * TEXT_REPEAT}s`
 
   const trackStyle = { '--marquee-duration': marqueeDuration } as React.CSSProperties
 
