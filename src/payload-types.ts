@@ -560,16 +560,6 @@ export interface Page {
      * Short body copy shown left of the CTAs
      */
     manifesto?: string | null;
-    /**
-     * Skills ticker below the hero. Every 3rd item is auto-italicised.
-     */
-    marquee?:
-      | {
-          label: string;
-          emphasis?: boolean | null;
-          id?: string | null;
-        }[]
-      | null;
   };
   layout: (
     | CallToActionBlock
@@ -1505,13 +1495,6 @@ export interface PagesSelect<T extends boolean = true> {
                   };
             };
         manifesto?: T;
-        marquee?:
-          | T
-          | {
-              label?: T;
-              emphasis?: T;
-              id?: T;
-            };
       };
   layout?:
     | T

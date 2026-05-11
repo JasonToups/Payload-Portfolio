@@ -126,18 +126,6 @@ export const hero: Field = {
         description: 'Short body copy shown left of the CTAs',
       },
     },
-    {
-      name: 'marquee',
-      type: 'array',
-      admin: {
-        condition: (_, { type } = {}) => type === 'kinetic',
-        description: 'Skills ticker below the hero. Every 3rd item is auto-italicised.',
-      },
-      fields: [
-        { name: 'label', type: 'text', required: true },
-        { name: 'emphasis', type: 'checkbox', defaultValue: false },
-      ],
-    },
   ],
   label: false,
 }
