@@ -1,6 +1,11 @@
-import React from 'react'
+'use client'
+import React, { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
+import { motion, useReducedMotion } from 'motion/react'
 import type { MarqueeBlock as MarqueeBlockProps, Media as MediaType } from '@/payload-types'
+
+const PIXELS_PER_SECOND = 80
+const COPIES = 8
 
 type TextItem = NonNullable<MarqueeBlockProps['items']>[number]
 type LogoItem = NonNullable<MarqueeBlockProps['logos']>[number]
@@ -97,6 +102,20 @@ export const MarqueeBlock: React.FC<MarqueeBlockProps> = ({ eyebrow, variant, it
   const isImages = variant === 'images'
   const hasItems = !isImages && Array.isArray(items) && items.length > 0
   const hasLogos = isImages && Array.isArray(logos) && logos.length > 0
+
+  const copyRef = useRef<HTMLDivElement>(null)
+  const [copyWidth, setCopyWidth] = useState(0)
+  const prefersReduced = useReducedMotion()
+
+  useEffect(() => {
+    const el = copyRef.current
+    if (!el) return
+    const measure = () => setCopyWidth(el.offsetWidth)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   if (!hasItems && !hasLogos) return null
 

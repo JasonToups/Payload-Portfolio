@@ -604,9 +604,6 @@
     opacity: 1;
     transform: none;
   }
-  .marquee-track {
-    animation: none;
-  }
   .kinetic {
     animation: none;
   }
