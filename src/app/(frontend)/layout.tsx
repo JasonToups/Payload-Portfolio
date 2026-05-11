@@ -3,20 +3,31 @@ import type { Metadata } from 'next'
 import { cn } from '@/utilities/ui'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
-import { Spectral, Plus_Jakarta_Sans } from 'next/font/google'
+import localFont from 'next/font/local'
 import React from 'react'
 
-const spectral = Spectral({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  style: ['normal', 'italic'],
+const spectral = localFont({
+  src: [
+    { path: '../../../public/fonts/spectral/spectral-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: '../../../public/fonts/spectral/spectral-400-italic.woff2', weight: '400', style: 'italic' },
+    { path: '../../../public/fonts/spectral/spectral-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../../../public/fonts/spectral/spectral-500-italic.woff2', weight: '500', style: 'italic' },
+    { path: '../../../public/fonts/spectral/spectral-600-normal.woff2', weight: '600', style: 'normal' },
+    { path: '../../../public/fonts/spectral/spectral-600-italic.woff2', weight: '600', style: 'italic' },
+    { path: '../../../public/fonts/spectral/spectral-700-normal.woff2', weight: '700', style: 'normal' },
+    { path: '../../../public/fonts/spectral/spectral-700-italic.woff2', weight: '700', style: 'italic' },
+    { path: '../../../public/fonts/spectral/spectral-800-normal.woff2', weight: '800', style: 'normal' },
+    { path: '../../../public/fonts/spectral/spectral-800-italic.woff2', weight: '800', style: 'italic' },
+  ],
   variable: '--font-spectral',
   display: 'swap',
 })
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '700'],
+const plusJakartaSans = localFont({
+  src: [
+    { path: '../../../public/fonts/plus-jakarta-sans/plus-jakarta-sans-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: '../../../public/fonts/plus-jakarta-sans/plus-jakarta-sans-700-normal.woff2', weight: '700', style: 'normal' },
+  ],
   variable: '--font-plus-jakarta-sans',
   display: 'optional',
 })

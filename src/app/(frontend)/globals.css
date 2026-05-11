@@ -546,20 +546,6 @@
   mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
   -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
 }
-.marquee-track {
-  display: flex;
-  gap: 4rem;
-  animation: marquee 22s linear infinite;
-  white-space: nowrap;
-  padding-right: 4rem;
-  flex-shrink: 0;
-}
-
-@keyframes marquee {
-  to {
-    transform: translateX(-100%);
-  }
-}
 
 /* ─── Ambient blob ────────────────────────────────────────────────────────── */
 
@@ -603,9 +589,6 @@
   .word-swap > span:first-child {
     opacity: 1;
     transform: none;
-  }
-  .marquee-track {
-    animation: none;
   }
   .kinetic {
     animation: none;

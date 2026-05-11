@@ -45,7 +45,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
             <div className="relative h-[34px] w-[34px]">
               <Media
                 resource={logoImage}
-                imgClassName="object-contain invert dark:invert-0"
+                imgClassName="object-contain invert-0 dark:invert"
                 fill
                 priority
               />

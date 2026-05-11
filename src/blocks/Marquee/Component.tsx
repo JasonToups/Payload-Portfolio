@@ -1,6 +1,11 @@
-import React from 'react'
+'use client'
+import React, { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
+import { motion, useReducedMotion } from 'motion/react'
 import type { MarqueeBlock as MarqueeBlockProps, Media as MediaType } from '@/payload-types'
+
+const PIXELS_PER_SECOND = 80
+const COPIES = 8
 
 type TextItem = NonNullable<MarqueeBlockProps['items']>[number]
 type LogoItem = NonNullable<MarqueeBlockProps['logos']>[number]
@@ -44,11 +49,18 @@ function ImageTrack({ logos }: { logos: LogoItem[] }) {
         return (
           <Image
             key={id ?? i}
+            className="invert-0 dark:invert"
             src={mediaImage.url}
             alt={altText}
             width={naturalWidth}
             height={naturalHeight}
-            style={{ height: '80px', width: 'auto', objectFit: 'contain', display: 'block', flexShrink: 0 }}
+            style={{
+              height: '80px',
+              width: 'auto',
+              objectFit: 'contain',
+              display: 'block',
+              flexShrink: 0,
+            }}
           />
         )
       })}
@@ -61,7 +73,23 @@ export const MarqueeBlock: React.FC<MarqueeBlockProps> = ({ eyebrow, variant, it
   const hasItems = !isImages && Array.isArray(items) && items.length > 0
   const hasLogos = isImages && Array.isArray(logos) && logos.length > 0
 
+  const copyRef = useRef<HTMLDivElement>(null)
+  const [copyWidth, setCopyWidth] = useState(0)
+  const prefersReduced = useReducedMotion()
+
+  useEffect(() => {
+    const el = copyRef.current
+    if (!el) return
+    const measure = () => setCopyWidth(el.offsetWidth)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   if (!hasItems && !hasLogos) return null
+
+  const duration = copyWidth / PIXELS_PER_SECOND
 
   return (
     <section
@@ -84,16 +112,27 @@ export const MarqueeBlock: React.FC<MarqueeBlockProps> = ({ eyebrow, variant, it
       )}
 
       <div className="marquee" aria-hidden="true">
-        {[0, 1].map((trackIndex) => (
-          <div className="marquee-track" key={trackIndex}>
-            {hasItems && Array.from({ length: 4 }, (_, i) => (
-              <TextTrack key={i} items={items!} />
-            ))}
-            {hasLogos && Array.from({ length: 4 }, (_, i) => (
-              <ImageTrack key={i} logos={logos!} />
-            ))}
-          </div>
-        ))}
+        <motion.div
+          style={{ display: 'flex', willChange: 'transform' }}
+          animate={!prefersReduced && copyWidth > 0 ? { x: [0, -copyWidth] } : false}
+          transition={{
+            duration,
+            ease: 'linear',
+            repeat: Infinity,
+            repeatType: 'loop',
+          }}
+        >
+          {Array.from({ length: COPIES }, (_, i) => (
+            <div
+              key={i}
+              ref={i === 0 ? copyRef : undefined}
+              style={{ display: 'flex', gap: '4rem', paddingRight: '4rem', flexShrink: 0 }}
+            >
+              {hasItems && <TextTrack items={items!} />}
+              {hasLogos && <ImageTrack logos={logos!} />}
+            </div>
+          ))}
+        </motion.div>
       </div>
     </section>
   )
