@@ -10,6 +10,7 @@ This template is right for you if you are working on:
 
 Core features:
 
+- [Documentation](#documentation)
 - [Quick Start](#quick-start)
   - [Clone](#clone)
   - [Prerequisites](#prerequisites)
@@ -37,6 +38,11 @@ Core features:
   - [Deploying to Vercel](#deploying-to-vercel)
   - [Self-hosting](#self-hosting)
 - [Questions](#questions)
+
+## Documentation
+
+- [Development Guide](./documentation/Development.md) — Local setup, database workflows, and dev scripts
+- [Penpot](./documentation/Penpot.md) — Design tool setup and usage
 
 ## Quick Start
 
