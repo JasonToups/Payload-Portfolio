@@ -16,7 +16,7 @@ function TileService({ tile }: { tile: Tile }) {
     <div
       className={cn(
         'bento-tile flex flex-col justify-between gap-2',
-        isWide ? 'col-span-6 md:col-span-4' : 'col-span-3 md:col-span-2',
+        isWide ? 'col-span-1 md:col-span-4' : 'col-span-1 md:col-span-2',
       )}
       style={{ minHeight: 280 }}
     >
@@ -64,7 +64,7 @@ function TileCta({ tile }: { tile: Tile }) {
 
   return (
     <div
-      className="bento-tile flex flex-col justify-between gap-2 col-span-3 md:col-span-2"
+      className="bento-tile flex flex-col justify-between gap-2 col-span-1 md:col-span-2"
       style={{
         minHeight: 280,
         background: 'var(--primary)',
@@ -145,7 +145,7 @@ function TileBuilding({ tile }: { tile: Tile }) {
 
   return (
     <div
-      className="bento-tile flex flex-col justify-between gap-2 overflow-hidden col-span-3 md:col-span-2"
+      className="bento-tile flex flex-col justify-between gap-2 overflow-hidden col-span-1 md:col-span-2"
       style={{
         minHeight: 280,
         background: 'var(--neutral-900)',
@@ -310,7 +310,7 @@ function ServicesBento({
         )}
       </div>
 
-      <div className="bento">
+      <div className="bento grid md:grid-cols-6 grid-cols-1 gap-5">
         {tiles.map((tile) => {
           if (tile.kind === 'service') return <TileService key={tile.id} tile={tile} />
           if (tile.kind === 'cta') return <TileCta key={tile.id} tile={tile} />

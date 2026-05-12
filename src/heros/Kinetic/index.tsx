@@ -75,7 +75,7 @@ export const KineticHero: React.FC<Page['hero']> = ({
         </h1>
 
         <div className="grid grid-cols-3 gap-8 mt-16 items-start">
-          <div className="col-start-1 col-span-2 md:col-span-1">
+          <div className="col-start-1 col-span-3">
             {manifesto && (
               <div style={{ fontSize: '1.0625rem', maxWidth: '38ch' }}>
                 <RichText
@@ -114,7 +114,6 @@ export const KineticHero: React.FC<Page['hero']> = ({
           </div>
         </div>
       </div>
-
     </section>
   )
 }
