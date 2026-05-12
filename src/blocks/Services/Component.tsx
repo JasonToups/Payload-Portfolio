@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { cn } from '@/utilities/ui'
 import { RevealOnScroll } from '@/components/RevealOnScroll'
 import type { ServicesBlock as ServicesBlockProps } from '@/payload-types'
+import RichText from '@/components/RichText'
 
 type Tile = NonNullable<ServicesBlockProps['tiles']>[number]
 
@@ -36,9 +37,12 @@ function TileService({ tile }: { tile: Tile }) {
           </h3>
         )}
         {tile.description && (
-          <p className="text-muted-foreground" style={{ fontSize: '1.0625rem', maxWidth: '52ch' }}>
-            {tile.description}
-          </p>
+          <RichText
+            data={tile.description}
+            enableGutter={false}
+            className="text-muted-foreground"
+            style={{ fontSize: '1.0625rem', maxWidth: '52ch' }}
+          />
         )}
         {tile.tags && tile.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
@@ -239,12 +243,12 @@ function ServicesList({
           <div className="mb-10 md:mb-16 max-w-2xl">
             {heading && <h2 className="text-headline mb-4">{heading}</h2>}
             {description && (
-              <p
+              <RichText
+                data={description}
+                enableGutter={false}
                 className="text-foreground/75"
                 style={{ fontSize: '1.0625rem', lineHeight: '1.7' }}
-              >
-                {description}
-              </p>
+              />
             )}
           </div>
         </RevealOnScroll>
@@ -269,12 +273,12 @@ function ServicesList({
                   </p>
                 </dt>
                 <dd>
-                  <p
+                  <RichText
+                    data={service.description}
+                    enableGutter={false}
                     className="text-foreground/82 leading-relaxed"
                     style={{ fontSize: '1.0625rem', lineHeight: '1.7' }}
-                  >
-                    {service.description}
-                  </p>
+                  />
                 </dd>
               </div>
             ))}
@@ -297,12 +301,12 @@ function ServicesBento({
       <div className="grid grid-cols-2 gap-8 mb-12 items-end">
         <div>{heading && <h2 className="text-headline">{heading}</h2>}</div>
         {description && (
-          <p
+          <RichText
+            data={description}
+            enableGutter={false}
             className="text-body text-muted-foreground justify-self-end"
             style={{ fontSize: '1.0625rem', maxWidth: '48ch' }}
-          >
-            {description}
-          </p>
+          />
         )}
       </div>
 

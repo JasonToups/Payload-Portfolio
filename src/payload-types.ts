@@ -1000,11 +1000,39 @@ export interface MarqueeBlock {
 export interface ServicesBlock {
   layout?: ('list' | 'bento') | null;
   heading?: string | null;
-  description?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   services?:
     | {
         title: string;
-        description: string;
+        description: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
         id?: string | null;
       }[]
     | null;
@@ -1019,7 +1047,21 @@ export interface ServicesBlock {
          */
         number?: string | null;
         title?: string | null;
-        description?: string | null;
+        description?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
         size?: ('span-2' | 'span-4') | null;
         tags?:
           | {

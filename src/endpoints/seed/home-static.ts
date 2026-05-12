@@ -1,5 +1,27 @@
 import type { RequiredDataFromCollectionSlug } from 'payload'
 
+function textToLexical(text: string) {
+  return {
+    root: {
+      type: 'root' as const,
+      children: [
+        {
+          type: 'paragraph' as const,
+          children: [{ detail: 0, format: 0, mode: 'normal' as const, style: '', text, type: 'text' as const, version: 1 }],
+          direction: 'ltr' as const,
+          format: '' as const,
+          indent: 0,
+          version: 1,
+        },
+      ],
+      direction: 'ltr' as const,
+      format: '' as const,
+      indent: 0,
+      version: 1,
+    },
+  }
+}
+
 // Used for pre-seeded content so that the homepage is not empty
 export const homeStatic: RequiredDataFromCollectionSlug<'pages'> = {
   slug: 'home',
@@ -91,19 +113,19 @@ export const homeStatic: RequiredDataFromCollectionSlug<'pages'> = {
     {
       blockType: 'services',
       heading: 'What I do',
-      description: 'Problems I solve and the teams I work best with.',
+      description: textToLexical('Problems I solve and the teams I work best with.'),
       services: [
         {
           title: 'Full-Stack Engineering',
-          description: 'End-to-end product development from database schema to deployed UI. I build things that work reliably at scale.',
+          description: textToLexical('End-to-end product development from database schema to deployed UI. I build things that work reliably at scale.'),
         },
         {
           title: 'Technical Architecture',
-          description: 'System design, API design, and infrastructure decisions that teams can build on for years — not just months.',
+          description: textToLexical('System design, API design, and infrastructure decisions that teams can build on for years — not just months.'),
         },
         {
           title: 'Team Enablement',
-          description: 'Mentorship, code review culture, and engineering process improvements that multiply the output of the whole team.',
+          description: textToLexical('Mentorship, code review culture, and engineering process improvements that multiply the output of the whole team.'),
         },
       ],
     },
