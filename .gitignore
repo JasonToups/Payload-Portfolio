@@ -55,5 +55,5 @@ playwright-report/
 blob-report/
 playwright/.cache/
 
-# Claude Code
-.claude/worktrees/
+# Penpot backups
+backups/penpot/

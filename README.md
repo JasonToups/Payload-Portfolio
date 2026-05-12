@@ -1,4 +1,4 @@
-# Payload Website Template
+# Payload Portfolio
 
 This is the official [Payload Website Template](https://github.com/payloadcms/payload/blob/main/templates/website). Use it to power websites, blogs, or portfolios from small to enterprise. This repo includes a fully-working backend, enterprise-grade admin panel, and a beautifully designed, production-ready website.
 
@@ -10,18 +10,33 @@ This template is right for you if you are working on:
 
 Core features:
 
-- [Pre-configured Payload Config](#how-it-works)
-- [Authentication](#users-authentication)
-- [Access Control](#access-control)
+- [Quick Start](#quick-start)
+  - [Clone](#clone)
+  - [Prerequisites](#prerequisites)
+  - [Development](#development)
+- [How it works](#how-it-works)
+  - [Collections](#collections)
+  - [Globals](#globals)
+- [Access control](#access-control)
 - [Layout Builder](#layout-builder)
+- [Lexical editor](#lexical-editor)
 - [Draft Preview](#draft-preview)
-- [Live Preview](#live-preview)
+- [Live preview](#live-preview)
 - [On-demand Revalidation](#on-demand-revalidation)
 - [SEO](#seo)
 - [Search](#search)
 - [Redirects](#redirects)
-- [Jobs and Scheduled Publishing](#jobs-and-scheduled-publish)
+- [Jobs and Scheduled Publish](#jobs-and-scheduled-publish)
 - [Website](#website)
+  - [Cache](#cache)
+- [Development](#development-1)
+  - [Working with Postgres](#working-with-postgres)
+  - [Docker](#docker)
+  - [Seed](#seed)
+- [Production](#production)
+  - [Deploying to Vercel](#deploying-to-vercel)
+  - [Self-hosting](#self-hosting)
+- [Questions](#questions)
 
 ## Quick Start
 
@@ -35,6 +50,20 @@ Use the `create-payload-app` CLI to clone this template directly to your machine
 
 ```bash
 pnpx create-payload-app my-project -t website
+```
+
+### Prerequisites
+
+Install PostgreSQL17
+
+```shell
+brew install postgresql@17
+```
+
+Install lbpq
+
+```sh
+brew install libpq && brew link --force libpq
 ```
 
 ### Development
