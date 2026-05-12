@@ -66,11 +66,21 @@ You should see `penpot` listed as a connected server. You can now ask Claude to 
 
 ## Day-to-day usage
 
-```bash
-# Start everything
-pnpm penpot:up
+### Start Penpot Container
 
-# Stop everything
+```shell
+pnpm penpot:up
+```
+
+### Run the Penpot MCP Server
+
+```shell
+npx @penpot/mcp@stable
+```
+
+### Stop Penpot Container
+
+```shell
 pnpm penpot:down
 ```
 
@@ -91,6 +101,50 @@ command: npx -y @penpot/mcp@latest
 - MCP server source and full env var reference: https://github.com/penpot/penpot/tree/develop/mcp
 - Claude Code CLI registration: `claude mcp add penpot -t http http://localhost:4401/mcp`
 - For stdio-based MCP clients: `npx -y mcp-remote http://localhost:4401/mcp --allow-http`
+
+## Data & Backups
+
+Penpot data lives in two Docker volumes that **persist across `pnpm penpot:down` / `pnpm penpot:up` cycles**. Designs are only lost if you explicitly run `docker compose down -v` or purge volumes from Docker Desktop.
+
+### Taking a backup
+
+With the stack running:
+
+```bash
+pnpm penpot:backup
+```
+
+Creates `backups/penpot/YYYYMMDD-HHMMSS/` with:
+
+- `penpot.sql` — full database dump (projects, files, shapes)
+- `assets.tar.gz` — uploaded images and media
+
+The `backups/` directory is gitignored.
+
+### Restoring
+
+With the stack running, replace `<timestamp>` with the folder name (e.g. `20260512-143000`):
+
+```bash
+# 1. Drop and recreate the database (clears existing data)
+docker compose -f docker-compose.penpot.yml -p penpot exec -T penpot-postgres \
+  psql -U penpot -d postgres \
+  -c "DROP DATABASE penpot;" \
+  -c "CREATE DATABASE penpot;"
+
+# 2. Restore the database
+docker compose -f docker-compose.penpot.yml -p penpot exec -T penpot-postgres \
+  psql -U penpot penpot < backups/penpot/<timestamp>/penpot.sql
+
+# 3. Restore assets (clears existing, then extracts)
+docker run --rm \
+  -v penpot_penpot_assets:/data \
+  -v "$(pwd)/backups/penpot/<timestamp>":/backup \
+  alpine sh -c "rm -rf /data/* && tar xzf /backup/assets.tar.gz -C /data"
+
+# 4. Restart so the backend picks up the restored state
+pnpm penpot:down && pnpm penpot:up
+```
 
 ## Port reference
 

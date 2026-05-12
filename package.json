@@ -25,7 +25,8 @@
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test --config=playwright.config.ts",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "penpot:up": "docker compose -f docker-compose.penpot.yml -p penpot up -d",
-    "penpot:down": "docker compose -f docker-compose.penpot.yml -p penpot down"
+    "penpot:down": "docker compose -f docker-compose.penpot.yml -p penpot down",
+    "penpot:backup": "bash scripts/penpot-backup.sh"
   },
   "dependencies": {
     "@payloadcms/admin-bar": "3.76.1",
