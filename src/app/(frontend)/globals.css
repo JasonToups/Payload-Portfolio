@@ -408,16 +408,17 @@
 /* ─── Tag pill ────────────────────────────────────────────────────────────── */
 
 .tag {
-  display: inline-block;
+  /* display: inline-block; */
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
+  align-content: center;
   text-transform: uppercase;
-  padding: 0.25rem 0.625rem;
-  border-radius: 999px;
-  background: color-mix(in oklch, var(--primary) 20%, var(--background));
+  /* padding: 0.25rem 0.625rem; */
+  /* border-radius: 999px; */
+  /* background: color-mix(in oklch, var(--primary) 20%, var(--background)); */
   color: var(--primary-on-bg);
-  border: 1px solid color-mix(in oklch, var(--primary) 30%, transparent);
+  /* border: 1px solid color-mix(in oklch, var(--primary) 30%, transparent); */
 }
 
 /* ─── Animated mark ──────────────────────────────────────────────────────── */

@@ -41,9 +41,7 @@ export const Card: React.FC<{
     >
       {/* Invisible overlay — makes the entire card navigate to the post */}
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
-      <div
-        className="post-thumb w-28 h-28 shrink-0 md:w-full md:h-auto md:aspect-[4/3]"
-      >
+      <div className="post-thumb w-28 h-28 shrink-0 md:w-full md:h-auto md:aspect-[4/3]">
         {metaImage && typeof metaImage !== 'string' && (
           <Media
             resource={metaImage}
@@ -96,12 +94,10 @@ export const Card: React.FC<{
               flexShrink: 0,
             }}
           >
-            {cardNumber}
+            {cardNumber} /
           </span>
 
-          <div
-            className="relative z-20 flex flex-wrap gap-1.5 flex-1 min-w-0"
-          >
+          <div className="relative z-20 flex flex-wrap gap-1.5 flex-1 min-w-0">
             {showCategories && hasCategories && (
               <Fragment>
                 {categories?.map((category, i) => {
@@ -174,7 +170,11 @@ export const Card: React.FC<{
         >
           <span
             className="font-mono"
-            style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', letterSpacing: '0.08em' }}
+            style={{
+              fontSize: '0.75rem',
+              color: 'var(--muted-foreground)',
+              letterSpacing: '0.08em',
+            }}
           >
             {readMinutes} MIN READ
           </span>
