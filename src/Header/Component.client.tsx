@@ -51,7 +51,11 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
               />
             </div>
           )}
-          {logoText && <span className="text-xl font-semibold text-primary-on-bg">{logoText}</span>}
+          {logoText && (
+            <span className="font-display text-xl font-semibold text-primary-on-bg">
+              {logoText}
+            </span>
+          )}
           {!logoImage && !logoText && (
             <Logo loading="eager" priority="high" className="invert dark:invert-0" />
           )}

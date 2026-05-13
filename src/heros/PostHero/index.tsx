@@ -30,7 +30,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
                 priority
                 fill
                 size="100vw"
-                imgClassName="object-cover object-center"
+                imgClassName="object-cover object-center bg-white"
               />
               {/* Gradient for text legibility */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
