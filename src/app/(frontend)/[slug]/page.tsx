@@ -69,7 +69,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const decodedSlug = decodeURIComponent(slug)
   const page = await getCachedPageBySlug({ slug: decodedSlug })
 
-  return generateMeta({ doc: page })
+  return generateMeta({ doc: page, url: `/${decodedSlug}` })
 }
 
 // Cross-request cached query — used for normal (non-draft) page loads
