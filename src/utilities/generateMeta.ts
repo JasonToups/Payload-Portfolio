@@ -21,17 +21,19 @@ const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
 
 export const generateMeta = async (args: {
   doc: Partial<Page> | Partial<Post> | null
+  url?: string
 }): Promise<Metadata> => {
-  const { doc } = args
+  const { doc, url } = args
 
   const ogImage = getImageURL(doc?.meta?.image)
 
   const title = doc?.meta?.title || 'Payload Website Template'
+  const description = doc?.meta?.description || ''
 
   return {
-    description: doc?.meta?.description,
+    description,
     openGraph: await mergeOpenGraph({
-      description: doc?.meta?.description || '',
+      description,
       images: ogImage
         ? [
             {
@@ -40,11 +42,13 @@ export const generateMeta = async (args: {
           ]
         : undefined,
       title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+      url: url ?? (Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/'),
     }),
     twitter: {
       card: 'summary_large_image',
       title,
+      description,
+      images: ogImage ? [{ url: ogImage }] : undefined,
     },
     title,
   }
