@@ -69,7 +69,7 @@ export const Card: React.FC<{
         <div className="hidden md:block absolute top-4 left-4 z-[1]">
           <span
             className={cn(
-              'font-mono text-base tracking-[0.1em]',
+              'font-mono text-[12px] tracking-[0.1em]',
               'px-2 py-1 rounded-[4px]',
               'bg-card/85 backdrop-blur-sm text-foreground',
             )}
@@ -81,11 +81,7 @@ export const Card: React.FC<{
 
       {/* Card body */}
       <div
-        className={cn(
-          'flex-1 min-w-0 px-4 py-3',
-          'md:px-5 md:pt-4 md:pb-5',
-          'flex flex-col gap-[6px]',
-        )}
+        className={cn('flex-1 min-w-0 px-4 py-3', 'md:px-5 md:pt-4 md:pb-5', 'flex flex-col gap-6')}
       >
         {/* Meta — categories left, date right */}
         <div className="flex items-center justify-between gap-2">
@@ -94,17 +90,18 @@ export const Card: React.FC<{
             <span className="font-mono text-base text-primary-on-bg tracking-[0.08em] shrink-0 md:hidden">
               {cardNumber} /
             </span>
-            {showCategories && hasCategories &&
+            {showCategories &&
+              hasCategories &&
               categories?.map((category, i) =>
                 typeof category === 'object' ? (
-                  <span key={i} className="tag truncate">
+                  <span key={i} className="tag text-base truncate">
                     {category.title || 'Untitled'}
                   </span>
                 ) : null,
               )}
           </div>
           {formattedDate && (
-            <span className="font-mono text-base text-muted-foreground tracking-[0.05em] whitespace-nowrap shrink-0">
+            <span className="font-mono text-[12px] text-muted-foreground tracking-[1px] whitespace-nowrap shrink-0">
               {formattedDate}
             </span>
           )}
@@ -113,16 +110,18 @@ export const Card: React.FC<{
         {/* Title + Description */}
         <div className="flex flex-col gap-[6px]">
           {titleToUse && (
-            <h3
-              className="font-display text-[1.375rem] leading-[1.2] font-semibold text-foreground"
-            >
-              <Link className="not-prose no-underline relative z-20" href={href} style={{ color: 'inherit' }}>
+            <h3 className="font-display text-[1.375rem] leading-[1.2] font-semibold text-foreground">
+              <Link
+                className="not-prose no-underline relative z-20"
+                href={href}
+                style={{ color: 'inherit' }}
+              >
                 {titleToUse}
               </Link>
             </h3>
           )}
           {sanitizedDescription && (
-            <p className="text-base leading-[1.55] text-muted-foreground">
+            <p className="text-[15px] leading-[1.55] text-muted-foreground dark:text-foreground">
               {sanitizedDescription}
             </p>
           )}
@@ -142,7 +141,7 @@ export const Card: React.FC<{
 
         {/* Footer */}
         <div className="flex items-center justify-between">
-          <span className="font-mono text-base text-muted-foreground tracking-[0.05em]">
+          <span className="font-mono text-[12px] text-muted-foreground tracking-[1px]">
             {readMinutes} MIN READ
           </span>
           <span className="text-primary" aria-hidden="true">
