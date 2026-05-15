@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { cn } from '@/utilities/ui'
+import { Button } from '@/components/ui/button'
 import { RevealOnScroll } from '@/components/RevealOnScroll'
 import type { ServicesBlock as ServicesBlockProps } from '@/payload-types'
 import RichText from '@/components/RichText'
@@ -122,17 +123,12 @@ function TileCta({ tile }: { tile: Tile }) {
           </p>
         )}
         {cta.buttonLabel && cta.buttonHref && (
-          <Link
-            href={cta.buttonHref}
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-lg font-medium"
-            style={{
-              background: 'var(--neutral-900)',
-              color: 'var(--neutral-50)',
-              fontSize: '0.9375rem',
-            }}
-          >
-            {cta.buttonLabel} <span aria-hidden="true">→</span>
-          </Link>
+          <Button asChild variant="large-secondary">
+            <Link href={cta.buttonHref}>
+              <span>{cta.buttonLabel}</span>
+              <span aria-hidden="true">→</span>
+            </Link>
+          </Button>
         )}
       </div>
     </div>

@@ -6,6 +6,7 @@ export type LinkAppearances =
   | 'default'
   | 'large'
   | 'secondary'
+  | 'large-secondary'
   | 'animated'
   | 'outline'
   | 'ghost'
@@ -24,6 +25,10 @@ export const appearanceOptions: Record<LinkAppearances, { label: string; value: 
   secondary: {
     label: 'Secondary',
     value: 'secondary',
+  },
+  'large-secondary': {
+    label: 'Large Secondary (with arrow)',
+    value: 'large-secondary',
   },
   animated: {
     label: 'Animated (Pill)',

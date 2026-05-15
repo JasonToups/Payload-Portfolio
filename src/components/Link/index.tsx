@@ -70,7 +70,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
           className={cn(
             'mr-3 group-hover:mx-0',
             'flex items-center justify-start group-hover:justify-between gap-2',
-            'px-[14px] py-2',
+            'px-6 py-4',
             'rounded-full',
             'text-base font-medium',
             'transition-all duration-300',
@@ -86,10 +86,9 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
     )
   }
 
-  // Large Primary: default palette at lg sizing with arrow icon
-  if (appearance === 'large') {
+  if (appearance === 'large' || appearance === 'large-secondary') {
     return (
-      <Button asChild className={className} variant="large">
+      <Button asChild className={className} variant={appearance}>
         <Link href={href || url || ''} {...newTabProps}>
           <span>{label ?? children}</span>
           <span aria-hidden="true">→</span>
