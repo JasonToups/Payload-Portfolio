@@ -61,7 +61,7 @@ export const Card: React.FC<{
             size="33vw"
             imgClassName={cn(
               'absolute inset-0 w-full h-full object-cover object-center',
-              'blur-[10px] dark:blur-[19px] scale-110',
+              'blur-[10px] dark:blur-[10px] scale-110',
               'md:blur-none md:scale-100',
             )}
             fill
@@ -69,7 +69,7 @@ export const Card: React.FC<{
         )}
 
         {/* Mobile: white overlay on blurred backdrop */}
-        <div className="absolute inset-0 bg-white/20 dark:bg-black/20 md:hidden" />
+        <div className="absolute inset-0 bg-white/75 dark:bg-black/75 md:hidden" />
 
         {/* Desktop badge */}
         <div className="hidden md:block absolute top-4 left-4 z-[1]">
