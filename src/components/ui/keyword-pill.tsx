@@ -15,7 +15,9 @@ export const KeywordPill: React.FC<{
     <Link
       href={`/keywords/${slug}`}
       className={cn(
-        'inline-flex items-center px-3 py-1 rounded-full text-md font-medium bg-primary/10 text-primary-on-bg hover:bg-primary/20 transition-colors',
+        'inline-flex items-center px-2 py-1 rounded-full text-base font-light dark:font-medium transition-[colors,box-shadow]',
+        'bg-primary-bright/35 text-primary-dark hover:bg-primary-pale hover:shadow-[1px_1px_0px_0px_#a19e9b]',
+        'dark:bg-primary-mid/35 dark:text-primary-pale dark:hover:bg-neutral-50 dark:hover:text-neutral-950 dark:hover:shadow-[1px_1px_0px_0px_#a19e9b]',
         className,
       )}
       onClick={(e) => e.stopPropagation()}
