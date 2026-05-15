@@ -74,7 +74,7 @@ export const KineticHero: React.FC<Page['hero']> = ({
           )}
         </h1>
 
-        <div className="grid grid-cols-3 gap-8 mt-16 items-start">
+        <div className="grid grid-cols-3 gap-8 mt-10 md:mt-16 items-start">
           <div className="col-start-1 col-span-3">
             {manifesto && (
               <div style={{ fontSize: '1.0625rem', maxWidth: '38ch' }}>
@@ -88,7 +88,7 @@ export const KineticHero: React.FC<Page['hero']> = ({
           </div>
 
           <div aria-hidden="true" />
-          <div className="row-start-2 col-start-2 md:col-start-3 col-span-2 md:col-span-1">
+          <div className="row-start-2 col-start-1 md:col-start-3 col-span-3 md:col-span-1">
             {Array.isArray(links) && links.length > 0 && (
               <ul className="flex flex-col gap-3">
                 {links.map(({ link }, i) => (
