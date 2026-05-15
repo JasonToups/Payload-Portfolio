@@ -18,7 +18,6 @@ interface PostCardFeaturedProps {
 export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
   className,
   doc,
-  index = 0,
   relationTo = 'posts',
   showCategories,
 }) => {
