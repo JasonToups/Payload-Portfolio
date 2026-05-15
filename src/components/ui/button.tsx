@@ -13,26 +13,35 @@ const buttonVariants = cva(
     variants: {
       size: {
         clear: '',
-        default: 'h-10 px-4 py-2',
+        default: 'h-8 px-[9px] py-1',
         icon: 'h-10 w-10',
-        lg: 'h-11 rounded px-8',
+        lg: 'h-11 px-4 py-2.5',
         sm: 'h-9 rounded px-3',
       },
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        // Primary — identical in light and dark themes
+        default:
+          'rounded-[10px] bg-primary-light text-primary-dark hover:bg-primary-dark hover:text-primary-pale hover:shadow-[1px_1px_1px_rgba(0,255,255,0.75),inset_-1px_-1px_3px_rgba(112,255,255,1)] px-4 py-4',
+        // Large Primary — same palette as default, larger sizing, stronger glow, gap for arrow icon
+        large:
+          'gap-2 rounded-[10px] bg-primary-light text-primary-dark h-11 px-4 py-2.5 hover:bg-primary-dark hover:text-primary-pale hover:shadow-[-2px_-1px_1px_rgba(0,255,255,0.75),2px_1px_1px_rgba(112,255,255,0.75),inset_-2px_-2px_2px_rgba(0,255,255,0.75),inset_2px_2px_2px_rgba(112,255,255,0.75)]',
+        // Secondary — inverted between light and dark themes
+        secondary:
+          'rounded-[10px] bg-primary-dark text-neutral-50 hover:bg-neutral-700 hover:shadow-[inset_0_0_0_1px_#f8f4f1,1px_1px_4px_rgba(255,255,255,0.75),inset_0_0_5px_1px_rgba(255,255,255,0.75)] dark:bg-neutral-50 dark:text-primary-dark dark:hover:bg-neutral-700 dark:hover:text-neutral-50',
+        // Animated pill — single-element approximation (CMSLink renders the full two-layer structure)
+        animated:
+          'rounded-full bg-primary-mid text-primary-pale px-[14px] py-2 hover:bg-primary-dark dark:bg-primary-pale dark:text-primary-dark dark:hover:bg-primary-base',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         ghost: 'hover:bg-card hover:text-accent-foreground',
         link: 'text-primary items-start justify-start underline-offset-4 hover:underline',
         outline: 'border border-border bg-background hover:bg-card hover:text-accent-foreground',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
       },
     },
   },
 )
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean
   ref?: React.Ref<HTMLButtonElement>
 }

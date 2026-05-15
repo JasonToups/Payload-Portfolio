@@ -519,7 +519,9 @@ export interface Page {
             /**
              * Choose how the link should be rendered.
              */
-            appearance?: ('default' | 'outline') | null;
+            appearance?:
+              | ('default' | 'large' | 'secondary' | 'animated' | 'outline' | 'ghost' | 'link' | 'destructive')
+              | null;
           };
           id?: string | null;
         }[]
@@ -694,7 +696,9 @@ export interface ContentBlock {
           /**
            * Choose how the link should be rendered.
            */
-          appearance?: ('default' | 'outline') | null;
+          appearance?:
+            | ('default' | 'large' | 'secondary' | 'animated' | 'outline' | 'ghost' | 'link' | 'destructive')
+            | null;
         };
         id?: string | null;
       }[]

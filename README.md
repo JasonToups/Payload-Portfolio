@@ -42,7 +42,8 @@ Core features:
 ## Documentation
 
 - [Development Guide](./documentation/Development.md) — Local setup, database workflows, and dev scripts
-- [Penpot](./documentation/Penpot.md) — Design tool setup and usage
+- # [Penpot](./documentation/Penpot.md) — Design tool setup and usage
+  > > > > > > > 52dcd4c (adds shell script to pull the latest db from Neon and run the db locally)
 
 ## Quick Start
 
