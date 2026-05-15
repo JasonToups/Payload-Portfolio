@@ -49,11 +49,7 @@ export const ArchiveBlock: React.FC<
   }
 
   return (
-    <section
-      className="px-6 md:px-12 py-24"
-      id={`block-${id}`}
-      style={{ borderTop: '1px solid var(--border)' }}
-    >
+    <section className="px-6 md:px-12 py-24" id={`block-${id}`}>
       <div className="flex justify-between items-baseline mb-12">
         <div>
           {eyebrow && (
