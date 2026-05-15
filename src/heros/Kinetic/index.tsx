@@ -13,7 +13,7 @@ export const KineticHero: React.FC<Page['hero']> = ({
   const rotatingWords = headline?.rotatingWords ?? []
 
   return (
-    <section className="relative overflow-hidden px-12 pt-20 pb-12">
+    <section data-component="KineticHero" className="relative overflow-hidden px-12 pt-20 pb-12">
       <div
         className="blob blob-a"
         style={{ width: 520, height: 520, top: -160, left: '40%' }}
