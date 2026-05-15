@@ -124,7 +124,11 @@ function TileCta({ tile }: { tile: Tile }) {
         )}
         {cta.buttonLabel && cta.buttonHref && (
           <Button asChild variant="large-secondary">
-            <Link href={cta.buttonHref}>
+            <Link
+              href={cta.buttonHref}
+              target={cta.buttonNewTab !== false ? '_blank' : undefined}
+              rel={cta.buttonNewTab !== false ? 'noopener noreferrer' : undefined}
+            >
               <span>{cta.buttonLabel}</span>
               <span aria-hidden="true">→</span>
             </Link>

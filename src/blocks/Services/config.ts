@@ -126,6 +126,12 @@ export const Services: Block = {
             { name: 'body', type: 'textarea' },
             { name: 'buttonLabel', type: 'text' },
             { name: 'buttonHref', type: 'text' },
+            {
+              name: 'buttonNewTab',
+              type: 'checkbox',
+              defaultValue: true,
+              admin: { description: 'Open the link in a new tab' },
+            },
           ],
         },
         // ── Currently Building tile fields ──────────────────────────────

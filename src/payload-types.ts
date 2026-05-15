@@ -1086,6 +1086,10 @@ export interface ServicesBlock {
           body?: string | null;
           buttonLabel?: string | null;
           buttonHref?: string | null;
+          /**
+           * Open the link in a new tab
+           */
+          buttonNewTab?: boolean | null;
         };
         building?: {
           /**
@@ -1733,6 +1737,7 @@ export interface ServicesBlockSelect<T extends boolean = true> {
               body?: T;
               buttonLabel?: T;
               buttonHref?: T;
+              buttonNewTab?: T;
             };
         building?:
           | T
