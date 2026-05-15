@@ -15,11 +15,15 @@ export const BUTTON_ICONS = [
 
 export type ButtonIconName = (typeof BUTTON_ICONS)[number]['value']
 
-export const buttonIconField = (overrides: Partial<SelectField> = {}): SelectField => ({
-  name: 'buttonIcon',
-  type: 'select',
-  defaultValue: 'none',
-  admin: { description: 'Icon displayed inside the button' },
-  options: BUTTON_ICONS.map(({ label, value }) => ({ label, value })),
-  ...overrides,
-})
+export const buttonIconField = (
+  overrides: Omit<Partial<SelectField>, 'type' | 'hasMany'> = {},
+): SelectField =>
+  ({
+    name: 'buttonIcon',
+    type: 'select',
+    hasMany: false,
+    defaultValue: 'none',
+    admin: { description: 'Icon displayed inside the button' },
+    options: BUTTON_ICONS.map(({ label, value }) => ({ label, value })),
+    ...overrides,
+  }) as SelectField
