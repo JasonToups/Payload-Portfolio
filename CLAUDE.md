@@ -122,6 +122,18 @@ The system follows a standard Payload CMS template architecture where:
 
 ## Design System
 
-Whenever we are building new features, or evaluating current ones, we need to comply by the latest developments in accessibility. This is our prime directive. We should never include text below 16px. We should always use semantic HTML and ARIA.
+### Penpot — Single Source of Truth
+
+Penpot is the single source of truth for all redesign work. Components must be implemented **exactly** as designed in Penpot — sizes, colors, spacing, shadows, and typography must match the spec precisely. Do not override or adjust Penpot-specified values based on personal judgement or general guidelines.
+
+If a Penpot spec appears to conflict with an accessibility or code-quality guideline (e.g. a font size below 16px), implement the design as specified and **flag the discrepancy** in the output summary for the designer to address in Penpot. Do not silently change the design.
+
+### Accessibility
+
+The 16px minimum text size and semantic HTML/ARIA requirements are design directives — they are guidelines the designer follows when creating Penpot specs. When implementing a Penpot design, implement the spec exactly; flag any sub-16px text as an accessibility concern for the designer rather than upscaling it in code.
+
+We should always use semantic HTML and ARIA attributes wherever an element's purpose is not self-evident from its HTML tag alone.
+
+### Reusability
 
 We should always favor building reusable components instead of relying only on bespoke solutions.
