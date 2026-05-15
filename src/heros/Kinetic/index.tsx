@@ -88,27 +88,14 @@ export const KineticHero: React.FC<Page['hero']> = ({
           </div>
 
           <div aria-hidden="true" />
-          {/* I want this div to be placed in the second column, second row of the parent div */}
           <div className="row-start-2 col-start-2 md:col-start-3 col-span-2 md:col-span-1">
             {Array.isArray(links) && links.length > 0 && (
               <ul className="flex flex-col gap-3">
-                {links.map(({ link }, i) => {
-                  const arrow = i === 0 ? '→' : '↗'
-                  return (
-                    <li key={i}>
-                      <CMSLink
-                        {...link}
-                        label={null}
-                        className="flex items-center justify-between w-full"
-                      >
-                        <span>{link.label}</span>
-                        <span aria-hidden="true" className={i !== 0 ? 'text-muted-foreground' : ''}>
-                          {arrow}
-                        </span>
-                      </CMSLink>
-                    </li>
-                  )
-                })}
+                {links.map(({ link }, i) => (
+                  <li key={i}>
+                    <CMSLink {...link} />
+                  </li>
+                ))}
               </ul>
             )}
           </div>

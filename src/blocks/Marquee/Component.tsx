@@ -57,6 +57,7 @@ function ImageTrack({ logos }: { logos: LogoItem[] }) {
             style={{
               height: '80px',
               width: 'auto',
+              maxWidth: '300px',
               objectFit: 'contain',
               display: 'block',
               flexShrink: 0,

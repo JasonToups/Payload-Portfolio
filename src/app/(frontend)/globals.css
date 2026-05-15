@@ -16,8 +16,8 @@
   /* Primary (amber) scale — all raw oklch values declared here */
   --primary-pale: oklch(93% 0.13 216);
   --primary-light: oklch(82% 0.13 216);
-  --primary-bright: oklch(70% 0.13 216);
-  --primary-base: oklch(71% 0.13 216);
+  --primary-bright: oklch(75% 0.13 216);
+  --primary-base: oklch(70% 0.13 216);
   --primary-muted: oklch(55% 0.13 216);
   --primary-mid: oklch(48% 0.13 216);
   --primary-deep: oklch(42% 0.13 216);

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import type { SubscribeBlock as SubscribeBlockProps } from '@/payload-types'
+import { Button } from '@/components/ui/button'
 
 export const SubscribeBlock: React.FC<SubscribeBlockProps> = ({
   eyebrow = '— Newsletter',
@@ -119,29 +120,18 @@ export const SubscribeBlock: React.FC<SubscribeBlockProps> = ({
                       fontSize: '0.9375rem',
                     }}
                   />
-                  <button
+                  <Button
                     type="submit"
+                    variant="large"
                     disabled={status === 'loading' || !email.trim()}
                     aria-live="polite"
-                    style={{
-                      background: 'var(--primary)',
-                      color: 'var(--primary-foreground)',
-                      borderRadius: '0.5rem',
-                      padding: '0.75rem 1.25rem',
-                      fontWeight: 500,
-                      fontSize: '0.9375rem',
-                      border: 'none',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      transition: 'transform 200ms, opacity 200ms',
-                    }}
                   >
                     {status === 'loading' ? (
                       <span aria-label="Submitting">Subscribing&hellip;</span>
                     ) : (
                       buttonText
                     )}
-                  </button>
+                  </Button>
                 </div>
 
                 {status === 'error' && (
