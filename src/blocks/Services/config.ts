@@ -1,5 +1,6 @@
 import type { Block } from 'payload'
 import { lexicalEditor, FixedToolbarFeature, InlineToolbarFeature } from '@payloadcms/richtext-lexical'
+import { buttonIconField } from '@/fields/buttonIcon'
 
 const descriptionRichText = {
   name: 'description',
@@ -126,6 +127,7 @@ export const Services: Block = {
             { name: 'body', type: 'textarea' },
             { name: 'buttonLabel', type: 'text' },
             { name: 'buttonHref', type: 'text' },
+            buttonIconField({ defaultValue: 'arrow-right' }),
             {
               name: 'buttonNewTab',
               type: 'checkbox',

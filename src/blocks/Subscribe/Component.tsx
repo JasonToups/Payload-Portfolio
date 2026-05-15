@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react'
 import type { SubscribeBlock as SubscribeBlockProps } from '@/payload-types'
-import { Button } from '@/components/ui/button'
+import { Button, type ButtonProps } from '@/components/ui/button'
+import { ButtonIcon } from '@/components/ui/ButtonIcon'
 
 export const SubscribeBlock: React.FC<SubscribeBlockProps> = ({
   eyebrow = '— Newsletter',
@@ -10,6 +11,8 @@ export const SubscribeBlock: React.FC<SubscribeBlockProps> = ({
   description = 'One letter a month on shipping, hiring, and the work that sits between teams. No spam, no ladder content.',
   placeholder = 'you@studio.com',
   buttonText = 'Subscribe →',
+  buttonIcon,
+  buttonVariant = 'large',
   meta = '827 READERS · MONTHLY · UNSUBSCRIBE WHENEVER',
   source = 'homepage',
 }) => {
@@ -17,9 +20,22 @@ export const SubscribeBlock: React.FC<SubscribeBlockProps> = ({
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
+  const isValidEmail = (value: string): boolean =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!email.trim()) return
+
+    if (!email.trim()) {
+      setStatus('error')
+      setErrorMessage('Please enter your email address.')
+      return
+    }
+    if (!isValidEmail(email.trim())) {
+      setStatus('error')
+      setErrorMessage('Please enter a valid email address.')
+      return
+    }
 
     setStatus('loading')
     setErrorMessage('')
@@ -103,7 +119,13 @@ export const SubscribeBlock: React.FC<SubscribeBlockProps> = ({
                     id="subscribe-email"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value)
+                      if (status === 'error') {
+                        setStatus('idle')
+                        setErrorMessage('')
+                      }
+                    }}
                     placeholder={placeholder ?? 'you@studio.com'}
                     required
                     autoComplete="email"
@@ -122,14 +144,17 @@ export const SubscribeBlock: React.FC<SubscribeBlockProps> = ({
                   />
                   <Button
                     type="submit"
-                    variant="large"
-                    disabled={status === 'loading' || !email.trim()}
+                    variant={(buttonVariant as ButtonProps['variant']) ?? 'large'}
+                    disabled={status === 'loading'}
                     aria-live="polite"
                   >
                     {status === 'loading' ? (
                       <span aria-label="Submitting">Subscribing&hellip;</span>
                     ) : (
-                      buttonText
+                      <>
+                        {buttonText}
+                        <ButtonIcon name={buttonIcon} />
+                      </>
                     )}
                   </Button>
                 </div>
