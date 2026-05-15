@@ -61,20 +61,20 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
         {...newTabProps}
         className={cn(
           'group block rounded-full overflow-hidden transition-colors duration-300',
-          'bg-primary-dark hover:bg-primary-mid',
-          'dark:bg-primary-base dark:hover:bg-primary-pale',
+          'bg-primary-dark hover:bg-primary-mid focus-visible:bg-primary-mid',
+          'dark:bg-primary-base dark:hover:bg-primary-pale dark:focus-visible:bg-primary-pale',
           className,
         )}
       >
         <span
           className={cn(
-            'mr-3 group-hover:mx-0',
-            'flex items-center justify-start group-hover:justify-between gap-2',
+            'mr-3 group-hover:mx-0 group-focus-visible:mx-0',
+            'flex items-center justify-start group-hover:justify-between group-focus-visible:justify-between gap-2',
             'px-6 py-4',
             'rounded-full',
             'text-base font-medium',
             'transition-all duration-300',
-            'bg-primary-mid group-hover:bg-transparent',
+            'bg-primary-mid group-hover:bg-transparent group-focus-visible:bg-transparent',
             'text-primary-pale',
             'dark:bg-primary-pale dark:text-primary-dark',
           )}
