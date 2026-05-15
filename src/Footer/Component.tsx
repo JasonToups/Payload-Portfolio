@@ -19,6 +19,7 @@ export async function Footer() {
 
   return (
     <footer
+      data-component="Footer"
       className="mt-auto"
       style={{
         borderTop: '1px solid var(--border)',

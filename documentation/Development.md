@@ -20,12 +20,12 @@ cp .env.example .env
 
 Fill in the following key variables in `.env`:
 
-| Variable | Description |
-| -------- | ----------- |
-| `POSTGRES_URL` | Local Docker connection string (see below) |
-| `PAYLOAD_SECRET` | Random secret for JWT signing |
-| `NEXT_PUBLIC_SERVER_URL` | `http://localhost:3000` for local dev |
-| `DATABASE_URL_UNPOOLED` | Neon production URL (needed for `pnpm db:pull`) |
+| Variable                 | Description                                     |
+| ------------------------ | ----------------------------------------------- |
+| `POSTGRES_URL`           | Local Docker connection string (see below)      |
+| `PAYLOAD_SECRET`         | Random secret for JWT signing                   |
+| `NEXT_PUBLIC_SERVER_URL` | `http://localhost:3000` for local dev           |
+| `DATABASE_URL_UNPOOLED`  | Neon production URL (needed for `pnpm db:pull`) |
 
 For local development, set `POSTGRES_URL` to:
 
@@ -47,12 +47,12 @@ Open http://localhost:3000. Follow the on-screen prompt to create your first adm
 
 The local database is a PostgreSQL 17 container defined in `docker-compose.yml`, running on port `5433` to avoid conflicts with any system Postgres.
 
-| Detail | Value |
-| ------ | ----- |
-| Host | `127.0.0.1:5433` |
-| Database | `now-hiring` |
-| User | `postgres` |
-| Password | `password` |
+| Detail   | Value            |
+| -------- | ---------------- |
+| Host     | `127.0.0.1:5433` |
+| Database | `now-hiring`     |
+| User     | `postgres`       |
+| Password | `password`       |
 
 ```bash
 pnpm db:local          # start the container
@@ -79,36 +79,37 @@ pnpm db:pull
 
 ## Database Migrations
 
-Payload tracks schema changes as migration files. After pulling from Neon or making collection changes, run:
-
-```bash
-pnpm migrate
-```
-
-To create a new migration after changing a collection or field:
+Payload tracks schema changes as migration files.
+After pulling from Neon or making collection changes, create a new migration
 
 ```bash
 pnpm payload migrate:create
+```
+
+Then migrate the changes.
+
+```bash
+pnpm migrate
 ```
 
 Commit the generated migration file alongside your config changes.
 
 ## Dev Scripts Reference
 
-| Script | Description |
-| ------ | ----------- |
-| `pnpm dev` | Start the dev server |
-| `pnpm build` | Production build |
-| `pnpm start` | Serve the production build |
-| `pnpm db:local` | Start the local Docker Postgres |
-| `pnpm db:pull` | Sync Neon production DB to local |
-| `pnpm migrate` | Run pending Payload migrations |
-| `pnpm generate:types` | Regenerate Payload TypeScript types |
-| `pnpm generate:importmap` | Regenerate Payload import map |
-| `pnpm lint` | Lint the codebase |
-| `pnpm lint:fix` | Lint and auto-fix |
-| `pnpm test` | Run all tests |
-| `pnpm test:int` | Unit/integration tests only (Vitest) |
-| `pnpm test:e2e` | Playwright E2E tests |
-| `pnpm reinstall` | Clean reinstall all dependencies |
-| `pnpm clear:next` | Delete the `.next` build directory |
+| Script                    | Description                          |
+| ------------------------- | ------------------------------------ |
+| `pnpm dev`                | Start the dev server                 |
+| `pnpm build`              | Production build                     |
+| `pnpm start`              | Serve the production build           |
+| `pnpm db:local`           | Start the local Docker Postgres      |
+| `pnpm db:pull`            | Sync Neon production DB to local     |
+| `pnpm migrate`            | Run pending Payload migrations       |
+| `pnpm generate:types`     | Regenerate Payload TypeScript types  |
+| `pnpm generate:importmap` | Regenerate Payload import map        |
+| `pnpm lint`               | Lint the codebase                    |
+| `pnpm lint:fix`           | Lint and auto-fix                    |
+| `pnpm test`               | Run all tests                        |
+| `pnpm test:int`           | Unit/integration tests only (Vitest) |
+| `pnpm test:e2e`           | Playwright E2E tests                 |
+| `pnpm reinstall`          | Clean reinstall all dependencies     |
+| `pnpm clear:next`         | Delete the `.next` build directory   |

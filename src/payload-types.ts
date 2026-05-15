@@ -1087,6 +1087,23 @@ export interface ServicesBlock {
           buttonLabel?: string | null;
           buttonHref?: string | null;
           /**
+           * Icon displayed inside the button
+           */
+          buttonIcon?:
+            | (
+                | 'none'
+                | 'arrow-right'
+                | 'arrow-up-right'
+                | 'chevron-right'
+                | 'external-link'
+                | 'send'
+                | 'mail'
+                | 'download'
+                | 'plus'
+                | 'check'
+              )
+            | null;
+          /**
            * Open the link in a new tab
            */
           buttonNewTab?: boolean | null;
@@ -1152,6 +1169,39 @@ export interface SubscribeBlock {
   description?: string | null;
   placeholder?: string | null;
   buttonText?: string | null;
+  /**
+   * Icon displayed inside the button
+   */
+  buttonIcon?:
+    | (
+        | 'none'
+        | 'arrow-right'
+        | 'arrow-up-right'
+        | 'chevron-right'
+        | 'external-link'
+        | 'send'
+        | 'mail'
+        | 'download'
+        | 'plus'
+        | 'check'
+      )
+    | null;
+  /**
+   * Visual style of the subscribe button
+   */
+  buttonVariant?:
+    | (
+        | 'default'
+        | 'large'
+        | 'secondary'
+        | 'large-secondary'
+        | 'animated'
+        | 'destructive'
+        | 'ghost'
+        | 'link'
+        | 'outline'
+      )
+    | null;
   /**
    * Stat line shown below the form
    */
@@ -1737,6 +1787,7 @@ export interface ServicesBlockSelect<T extends boolean = true> {
               body?: T;
               buttonLabel?: T;
               buttonHref?: T;
+              buttonIcon?: T;
               buttonNewTab?: T;
             };
         building?:
@@ -1790,6 +1841,8 @@ export interface SubscribeBlockSelect<T extends boolean = true> {
   description?: T;
   placeholder?: T;
   buttonText?: T;
+  buttonIcon?: T;
+  buttonVariant?: T;
   meta?: T;
   source?: T;
   id?: T;

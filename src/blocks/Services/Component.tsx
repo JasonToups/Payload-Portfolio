@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { cn } from '@/utilities/ui'
 import { Button } from '@/components/ui/button'
+import { ButtonIcon } from '@/components/ui/ButtonIcon'
 import { RevealOnScroll } from '@/components/RevealOnScroll'
 import type { ServicesBlock as ServicesBlockProps } from '@/payload-types'
 import RichText from '@/components/RichText'
@@ -130,7 +131,7 @@ function TileCta({ tile }: { tile: Tile }) {
               rel={cta.buttonNewTab !== false ? 'noopener noreferrer' : undefined}
             >
               <span>{cta.buttonLabel}</span>
-              <span aria-hidden="true">→</span>
+              <ButtonIcon name={cta.buttonIcon} />
             </Link>
           </Button>
         )}

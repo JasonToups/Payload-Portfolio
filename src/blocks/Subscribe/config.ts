@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { buttonIconField } from '@/fields/buttonIcon'
 
 /**
  * Subscribe Block
@@ -42,6 +43,24 @@ export const Subscribe: Block = {
       name: 'buttonText',
       type: 'text',
       defaultValue: 'Subscribe →',
+    },
+    buttonIconField(),
+    {
+      name: 'buttonVariant',
+      type: 'select',
+      defaultValue: 'large',
+      admin: { description: 'Visual style of the subscribe button' },
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Large', value: 'large' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Large Secondary', value: 'large-secondary' },
+        { label: 'Animated', value: 'animated' },
+        { label: 'Destructive', value: 'destructive' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Link', value: 'link' },
+        { label: 'Outline', value: 'outline' },
+      ],
     },
     {
       name: 'meta',
