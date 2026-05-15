@@ -1,10 +1,11 @@
 import Link from 'next/link'
-import React, { Fragment } from 'react'
+import React from 'react'
 
 import type { Post } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 import { KeywordPill } from '@/components/ui/keyword-pill'
+import { cn } from '@/utilities/ui'
 import { getReadMinutes, formatPostDate } from '@/utilities/postMeta'
 
 export type CardPostData = Pick<
@@ -37,11 +38,24 @@ export const Card: React.FC<{
 
   return (
     <article
-      className={`post-card relative flex flex-row items-center md:flex-col md:items-stretch${className ? ` ${className}` : ''}`}
+      className={cn(
+        'post-card relative overflow-hidden rounded-[6px] bg-card',
+        'flex flex-row items-center',
+        'md:flex-col md:items-stretch',
+        className,
+      )}
     >
-      {/* Invisible overlay — makes the entire card navigate to the post */}
+      {/* Full-card overlay link — keyboard users navigate via the title link below */}
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
-      <div className="post-thumb w-28 h-28 shrink-0 md:w-full md:h-auto md:aspect-[4/3]">
+
+      {/* Thumbnail */}
+      <div
+        className={cn(
+          'relative shrink-0 overflow-hidden bg-[#2e2c2a]',
+          'w-28 h-28',
+          'md:w-full md:h-[304px] md:rounded-t-[6px] md:rounded-b-none',
+        )}
+      >
         {metaImage && typeof metaImage !== 'string' && (
           <Media
             resource={metaImage}
@@ -50,135 +64,88 @@ export const Card: React.FC<{
             fill
           />
         )}
-        {/* Badge — desktop only, overlaid on thumbnail */}
-        <div
-          className="hidden md:block"
-          style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 1 }}
-        >
+
+        {/* Badge — desktop only, overlaid top-left on thumbnail */}
+        <div className="hidden md:block absolute top-4 left-4 z-[1]">
           <span
-            className="font-mono"
-            style={{
-              fontSize: '0.75rem',
-              padding: '0.25rem 0.5rem',
-              background: 'color-mix(in oklch, var(--background) 80%, transparent)',
-              backdropFilter: 'blur(6px)',
-              borderRadius: '4px',
-              letterSpacing: '0.08em',
-            }}
+            className={cn(
+              'font-mono text-base tracking-[0.1em]',
+              'px-2 py-1 rounded-[4px]',
+              'bg-card/85 backdrop-blur-sm text-foreground',
+            )}
           >
             {cardNumber}
           </span>
         </div>
       </div>
 
-      {/* Content grid: meta / title / description(1fr) / footer */}
+      {/* Card body */}
       <div
-        style={{
-          padding: '1rem 1.75rem',
-          flex: 1,
-          display: 'grid',
-          gridTemplateRows: 'auto auto 1fr auto',
-          gap: '0.75rem',
-          minWidth: 0,
-          alignContent: 'start',
-        }}
+        className={cn(
+          'flex-1 min-w-0 px-4 py-3',
+          'md:px-5 md:pt-4 md:pb-5',
+          'flex flex-col gap-[6px]',
+        )}
       >
-        {/* Row 1 — number (mobile) · pills · date */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span
-            className="font-mono md:hidden"
-            style={{
-              fontSize: '0.75rem',
-              letterSpacing: '0.08em',
-              color: 'var(--primary-on-bg)',
-              flexShrink: 0,
-            }}
-          >
-            {cardNumber} /
-          </span>
-
-          <div className="relative z-20 flex flex-wrap gap-1.5 flex-1 min-w-0">
-            {showCategories && hasCategories && (
-              <Fragment>
-                {categories?.map((category, i) => {
-                  if (typeof category === 'object') {
-                    return (
-                      <span key={i} className="tag">
-                        {category.title || 'Untitled'}
-                      </span>
-                    )
-                  }
-                  return null
-                })}
-              </Fragment>
-            )}
-            {hasKeywords && (
-              <Fragment>
-                {keywords!.map((kw) =>
-                  typeof kw === 'object' ? <KeywordPill key={kw.id} keyword={kw} /> : null,
-                )}
-              </Fragment>
-            )}
+        {/* Meta — categories left, date right */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 flex-1 min-w-0 relative z-20">
+            {/* Mobile card number */}
+            <span className="font-mono text-base text-primary-on-bg tracking-[0.08em] shrink-0 md:hidden">
+              {cardNumber} /
+            </span>
+            {showCategories && hasCategories &&
+              categories?.map((category, i) =>
+                typeof category === 'object' ? (
+                  <span key={i} className="tag truncate">
+                    {category.title || 'Untitled'}
+                  </span>
+                ) : null,
+              )}
           </div>
-
           {formattedDate && (
-            <span
-              className="font-mono"
-              style={{
-                fontSize: '0.75rem',
-                color: 'var(--muted-foreground)',
-                letterSpacing: '0.08em',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-              }}
-            >
+            <span className="font-mono text-base text-muted-foreground tracking-[0.05em] whitespace-nowrap shrink-0">
               {formattedDate}
             </span>
           )}
         </div>
 
-        {/* Row 2 — title */}
-        {titleToUse && (
-          <h3
-            className="font-display"
-            style={{ fontWeight: 600, fontSize: '1.375rem', lineHeight: 1.2 }}
-          >
-            <Link
-              className="not-prose no-underline relative z-20"
-              href={href}
-              style={{ color: 'inherit' }}
+        {/* Title + Description */}
+        <div className="flex flex-col gap-[6px]">
+          {titleToUse && (
+            <h3
+              className="font-display text-[1.375rem] leading-[1.2] font-semibold text-foreground"
             >
-              {titleToUse}
-            </Link>
-          </h3>
+              <Link className="not-prose no-underline relative z-20" href={href} style={{ color: 'inherit' }}>
+                {titleToUse}
+              </Link>
+            </h3>
+          )}
+          {sanitizedDescription && (
+            <p className="text-base leading-[1.55] text-muted-foreground">
+              {sanitizedDescription}
+            </p>
+          )}
+        </div>
+
+        {/* Keywords */}
+        {hasKeywords && (
+          <div className="relative z-20 flex flex-wrap gap-x-1.5 gap-y-[11px]">
+            {keywords!.map((kw) =>
+              typeof kw === 'object' ? <KeywordPill key={kw.id} keyword={kw} /> : null,
+            )}
+          </div>
         )}
 
-        {/* Row 3 — description (1fr, fills remaining height) */}
-        <p style={{ fontSize: '0.9375rem', color: 'var(--muted-foreground)', lineHeight: 1.55 }}>
-          {sanitizedDescription ?? ''}
-        </p>
+        {/* Separator */}
+        <div className="border-t border-border w-full" role="separator" />
 
-        {/* Row 4 — footer */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingTop: '1.25rem',
-            borderTop: '1px solid var(--border)',
-          }}
-        >
-          <span
-            className="font-mono"
-            style={{
-              fontSize: '0.75rem',
-              color: 'var(--muted-foreground)',
-              letterSpacing: '0.08em',
-            }}
-          >
+        {/* Footer */}
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-base text-muted-foreground tracking-[0.05em]">
             {readMinutes} MIN READ
           </span>
-          <span style={{ color: 'var(--primary-on-bg)' }} aria-hidden="true">
+          <span className="text-primary" aria-hidden="true">
             →
           </span>
         </div>
