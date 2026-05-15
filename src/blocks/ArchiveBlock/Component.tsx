@@ -49,8 +49,8 @@ export const ArchiveBlock: React.FC<
   }
 
   return (
-    <section className="px-6 md:px-12 py-24" id={`block-${id}`}>
-      <div className="flex justify-between items-baseline mb-12">
+    <section className="md:px-12 py-24" id={`block-${id}`}>
+      <div className="px-6 flex justify-between items-baseline mb-12">
         <div>
           {eyebrow && (
             <span
@@ -78,8 +78,9 @@ export const ArchiveBlock: React.FC<
           ALL POSTS →
         </Link>
       </div>
-
-      <CollectionArchive posts={posts} />
+      <div className="px-1 md:px-0">
+        <CollectionArchive posts={posts} />
+      </div>
     </section>
   )
 }

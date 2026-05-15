@@ -40,32 +40,38 @@ export const Card: React.FC<{
     <article
       className={cn(
         'post-card relative overflow-hidden rounded-[6px] bg-card',
-        'flex flex-row items-center',
-        'md:flex-col md:items-stretch',
+        'md:flex md:flex-col',
         className,
       )}
     >
       {/* Full-card overlay link — keyboard users navigate via the title link below */}
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
 
-      {/* Thumbnail */}
+      {/* Image: mobile = blurred full-card backdrop | desktop = top thumbnail */}
       <div
         className={cn(
-          'relative shrink-0 overflow-hidden bg-[#2e2c2a]',
-          'w-28 h-28',
-          'md:w-full md:h-[304px] md:rounded-t-[6px] md:rounded-b-none',
+          'bg-[#2e2c2a] overflow-hidden',
+          'absolute inset-0',
+          'md:relative md:inset-auto md:h-[304px] md:rounded-t-[6px] md:rounded-b-none',
         )}
       >
         {metaImage && typeof metaImage !== 'string' && (
           <Media
             resource={metaImage}
             size="33vw"
-            imgClassName="absolute inset-0 w-full h-full object-cover object-center"
+            imgClassName={cn(
+              'absolute inset-0 w-full h-full object-cover object-center',
+              'blur-[10px] dark:blur-[19px] scale-110',
+              'md:blur-none md:scale-100',
+            )}
             fill
           />
         )}
 
-        {/* Badge — desktop only, overlaid top-left on thumbnail */}
+        {/* Mobile: white overlay on blurred backdrop */}
+        <div className="absolute inset-0 bg-white/20 dark:bg-black/20 md:hidden" />
+
+        {/* Desktop badge */}
         <div className="hidden md:block absolute top-4 left-4 z-[1]">
           <span
             className={cn(
@@ -81,15 +87,15 @@ export const Card: React.FC<{
 
       {/* Card body */}
       <div
-        className={cn('flex-1 min-w-0 px-4 py-3', 'md:px-5 md:pt-4 md:pb-5', 'flex flex-col gap-6')}
+        className={cn(
+          'relative z-20 flex flex-col',
+          'px-[10px] py-[6px] gap-[6px]',
+          'md:px-5 md:pt-4 md:pb-5 md:gap-6',
+        )}
       >
         {/* Meta — categories left, date right */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 flex-1 min-w-0 relative z-20">
-            {/* Mobile card number */}
-            <span className="font-mono text-base text-primary-on-bg tracking-[0.08em] shrink-0 md:hidden">
-              {cardNumber} /
-            </span>
             {showCategories &&
               hasCategories &&
               categories?.map((category, i) =>
