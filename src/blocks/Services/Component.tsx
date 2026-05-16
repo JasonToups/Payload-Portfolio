@@ -299,7 +299,7 @@ function ServicesBento({
 
   return (
     <section className="py-12 md:py-24 px-6 md:px-12">
-      <div className="grid grid-cols-2 gap-8 mb-12 items-end">
+      <div className="grid grid-cols-2 gap-8 mb-16 items-end">
         <div>{heading && <h2 className="text-headline">{heading}</h2>}</div>
         {description && (
           <RichText

@@ -42,6 +42,8 @@
   --neutral-950: oklch(11% 0.01 58);
 
   /* Utility color scales */
+  --white: oklch(1 0 0);
+  --black: oklch(0 0 0);
   --destructive-base: oklch(60% 0.21 25);
   --destructive-dark: oklch(40% 0.15 25);
   --success-base: oklch(55% 0.14 155);
@@ -53,7 +55,7 @@
   /* ── Semantic tokens — light mode ─────────────────────────────────────── */
   --background: var(--neutral-50);
   --foreground: var(--neutral-900);
-  --card: var(--neutral-150);
+  --card: var(--white);
   --card-foreground: var(--neutral-900);
   --popover: var(--neutral-50);
   --popover-foreground: var(--neutral-900);
