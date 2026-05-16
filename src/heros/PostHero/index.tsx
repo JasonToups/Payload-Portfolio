@@ -36,14 +36,14 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
         </div>
       )}
 
-      <div className="container relative z-10 py-[26px] md:py-[71px]">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+      <div className="relative z-10 py-6.5 md:py-17.75">
+        <div className="flex flex-col md:flex-row md:justify-around md:items-center">
           {/* Content block */}
           <div
             className={cn(
               'flex flex-col justify-between overflow-hidden',
-              'gap-[21px] px-5 py-[26px] pb-[40px]',
-              'md:w-[570px] md:h-[405px] md:gap-[14px] md:pb-[26px]',
+              'gap-5.25 px-5 py-6.5 pb-10',
+              'md:w-160 md:h-full md:gap-3.5 md:pb-6.5',
             )}
           >
             {/* Breadcrumb */}
@@ -112,19 +112,8 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
 
           {/* Hero image — stacks below content on mobile, floats right on desktop */}
           {hasImage && (
-            <div
-              className={cn(
-                'relative overflow-hidden flex-shrink-0',
-                'w-full h-[283px]',
-                'md:w-[679px] md:h-[405px] md:rounded-lg',
-              )}
-            >
-              <Media
-                resource={heroImage}
-                priority
-                fill
-                imgClassName="object-cover object-center"
-              />
+            <div className="overflow-hidden shrink w-full md:w-170 md:rounded-lg">
+              <Media resource={heroImage} priority imgClassName="w-full h-auto block" />
             </div>
           )}
         </div>
