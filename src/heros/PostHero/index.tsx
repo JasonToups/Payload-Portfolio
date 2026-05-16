@@ -32,18 +32,16 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
             fill
             imgClassName="object-cover object-center blur-[18px] scale-110"
           />
-          <div className="absolute inset-0 bg-white dark:bg-background md:bg-white/80 dark:md:bg-background/80" />
+          <div className="absolute inset-0 bg-white dark:bg-background md:bg-white/80 dark:md:bg-background/95" />
         </div>
       )}
 
-      <div className="relative z-10 py-6.5 md:py-17.75">
-        <div className="flex flex-col md:flex-row md:justify-around md:items-center">
+      <div className="relative z-10 pt-15 pb-7.5 md:pt-25 md:pb-15">
+        <div className="flex flex-col gap-5 px-5 md:flex-row md:justify-around md:items-center">
           {/* Content block */}
           <div
             className={cn(
-              'flex flex-col justify-between overflow-hidden',
-              'gap-5.25 px-5 py-6.5 pb-10',
-              'md:w-160 md:h-full md:gap-3.5 md:pb-6.5',
+              'flex flex-col justify-between overflow-hidden gap-5.25 px-5 md:px-0 py-6.5 pb-10 md:w-160 md:h-full md:gap-3.5 md:pb-6.5',
             )}
           >
             {/* Breadcrumb */}
