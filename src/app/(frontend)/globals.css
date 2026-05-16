@@ -80,9 +80,9 @@
 }
 
 [data-theme='dark'] {
-  --background: var(--neutral-850);
+  --background: var(--neutral-950);
   --foreground: var(--neutral-100);
-  --card: var(--neutral-950);
+  --card: var(--neutral-850);
   --card-foreground: var(--neutral-100);
   --popover: var(--neutral-950);
   --popover-foreground: var(--neutral-100);
