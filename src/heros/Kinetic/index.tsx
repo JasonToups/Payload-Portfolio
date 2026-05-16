@@ -15,6 +15,7 @@ export const KineticHero: React.FC<Page['hero']> = ({
   return (
     <section data-component="KineticHero" className="relative overflow-hidden px-12 pt-20 pb-12">
       <div
+        data-component="kinetic-blob"
         className="blob blob-a"
         style={{ width: 520, height: 520, top: -160, left: '40%' }}
         aria-hidden="true"
@@ -22,7 +23,7 @@ export const KineticHero: React.FC<Page['hero']> = ({
 
       <div className="relative">
         {(eyebrow || version) && (
-          <div className="flex items-center gap-3 mb-12">
+          <div data-component="kinetic-eyebrow" className="flex items-center gap-3 mb-12">
             {eyebrow && (
               <span
                 className="font-mono text-muted-foreground"
@@ -44,6 +45,7 @@ export const KineticHero: React.FC<Page['hero']> = ({
         )}
 
         <h1
+          data-component="kinetic-headline"
           className="text-display"
           style={{ fontSize: 'clamp(3rem, 9vw, 8rem)', fontWeight: 700 }}
         >
@@ -74,7 +76,7 @@ export const KineticHero: React.FC<Page['hero']> = ({
           )}
         </h1>
 
-        <div className="grid grid-cols-3 gap-8 mt-10 md:mt-16 items-start">
+        <div data-component="kinetic-grid" className="grid grid-cols-3 gap-8 mt-10 md:mt-16 items-start">
           <div className="col-start-1 col-span-3">
             {manifesto && (
               <div style={{ fontSize: '1.0625rem', maxWidth: '38ch' }}>
