@@ -62,24 +62,23 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero post={post} />
 
-      <div className="container py-8">
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start">
+      <div className="pt-0 pb-8">
+        <div className="flex flex-col-reverse lg:flex-row lg:justify-between lg:items-start">
           {/* Share: LEFT on desktop, BELOW post body on mobile (right-aligned) */}
-          <aside
-            aria-label="Share this post"
-            className="order-2 lg:order-none mt-16 lg:mt-0 flex items-end lg:items-start lg:sticky lg:top-8 lg:self-start lg:shrink-0 lg:w-60 lg:px-[22px] lg:py-2"
-          >
-            <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
-          </aside>
+          <div className="flex justify-center w-full">
+            <aside
+              aria-label="Share this post"
+              className="order-2 lg:order-none mt-16 lg:mt-0 flex items-end lg:items-start lg:sticky lg:top-8 lg:self-start lg:shrink-0 lg:w-60 py-8 px-10"
+            >
+              <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
+            </aside>
+          </div>
 
           {/* Post Body + Related Posts: RIGHT on desktop, ABOVE on mobile */}
-          <div className="order-1 lg:order-none max-w-[55rem] min-w-0">
+          <div className="order-1 lg:order-none max-w-250 min-w-0 py-8 px-10 bg-white dark:bg-black">
             <RichText data={post.content} enableGutter={false} />
             {relatedPosts.length > 0 && (
-              <section
-                className="mt-16 pt-8"
-                style={{ borderTop: '1px solid var(--border)' }}
-              >
+              <section className="mt-16 pt-8" style={{ borderTop: '1px solid var(--border)' }}>
                 <p
                   className="font-mono mb-6"
                   style={{
