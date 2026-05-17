@@ -32,7 +32,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
             fill
             imgClassName="object-cover object-center blur-[18px] scale-110"
           />
-          <div className="absolute inset-0 bg-white dark:bg-background md:bg-white/80 dark:md:bg-background/95" />
+          <div className="absolute inset-0 bg-white dark:bg-black md:bg-white/80 dark:md:bg-black/80" />
         </div>
       )}
 

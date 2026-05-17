@@ -75,7 +75,7 @@ pnpm penpot:up
 ### Run the Penpot MCP Server
 
 ```shell
-npx @penpot/mcp@stable
+pnpm penpot:mcp
 ```
 
 ### Stop Penpot Container

@@ -26,7 +26,8 @@
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "penpot:up": "docker compose -f docker-compose.penpot.yml -p penpot up -d",
     "penpot:down": "docker compose -f docker-compose.penpot.yml -p penpot down",
-    "penpot:backup": "bash scripts/penpot-backup.sh"
+    "penpot:backup": "bash scripts/penpot-backup.sh",
+    "penpot:mcp": "npx @penpot/mcp@stable"
   },
   "dependencies": {
     "@payloadcms/admin-bar": "3.76.1",
