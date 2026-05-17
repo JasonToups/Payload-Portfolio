@@ -125,8 +125,13 @@ const SocialShareButton: React.FC = () => {
                 type="button"
                 onClick={() => handleShare(value)}
                 disabled={!isPublished || loadingPlatform !== null}
-                className="btn btn--style-secondary btn--size-small"
-                style={!isPublished ? { pointerEvents: 'none' } : undefined}
+                className="btn btn--style-secondary btn--size-medium"
+                style={{
+                  fontSize: '1rem',
+                  padding: '0.625rem 1.25rem',
+                  margin: '0.5rem 1rem',
+                  ...(!isPublished ? { pointerEvents: 'none' } : {}),
+                }}
               >
                 {isLoading ? 'Sharing…' : wasShared ? `${label} ✓` : `Share on ${label}`}
               </button>
