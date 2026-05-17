@@ -7,6 +7,7 @@ import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 import RichText from '@/components/RichText'
+import { SocialShareBar } from '@/components/SocialShareBar'
 
 import type { Post } from '@/payload-types'
 
@@ -61,26 +62,39 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero post={post} />
 
-      <div className="container py-16">
-        <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
-        {relatedPosts.length > 0 && (
-          <section
-            className="max-w-[48rem] mx-auto mt-16 pt-8"
-            style={{ borderTop: '1px solid var(--border)' }}
+      <div className="container py-8">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start">
+          {/* Share: LEFT on desktop, BELOW post body on mobile (right-aligned) */}
+          <aside
+            aria-label="Share this post"
+            className="order-2 lg:order-none mt-16 lg:mt-0 flex items-end lg:items-start lg:sticky lg:top-8 lg:self-start lg:shrink-0 lg:w-60 lg:px-[22px] lg:py-2"
           >
-            <p
-              className="font-mono mb-6"
-              style={{
-                fontSize: '0.75rem',
-                letterSpacing: '0.08em',
-                color: 'var(--muted-foreground)',
-              }}
-            >
-              RELATED POSTS
-            </p>
-            <RelatedPosts docs={relatedPosts} />
-          </section>
-        )}
+            <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
+          </aside>
+
+          {/* Post Body + Related Posts: RIGHT on desktop, ABOVE on mobile */}
+          <div className="order-1 lg:order-none max-w-[55rem] min-w-0">
+            <RichText data={post.content} enableGutter={false} />
+            {relatedPosts.length > 0 && (
+              <section
+                className="mt-16 pt-8"
+                style={{ borderTop: '1px solid var(--border)' }}
+              >
+                <p
+                  className="font-mono mb-6"
+                  style={{
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.08em',
+                    color: 'var(--muted-foreground)',
+                  }}
+                >
+                  RELATED POSTS
+                </p>
+                <RelatedPosts docs={relatedPosts} />
+              </section>
+            )}
+          </div>
+        </div>
       </div>
     </article>
   )

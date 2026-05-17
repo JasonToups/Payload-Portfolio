@@ -3,7 +3,7 @@
 import { useDocumentInfo } from '@payloadcms/ui'
 import { useState } from 'react'
 
-type SocialPlatform = 'twitter' | 'threads' | 'bluesky' | 'linkedin'
+import { buildShareUrl, type SocialPlatform } from '@/utilities/buildShareUrl'
 
 type SocialShare = {
   platform: SocialPlatform
@@ -22,22 +22,6 @@ const PLATFORMS: { value: SocialPlatform; label: string }[] = [
   { value: 'bluesky', label: 'Bluesky' },
   { value: 'linkedin', label: 'LinkedIn' },
 ]
-
-function buildShareUrl(platform: SocialPlatform, postUrl: string, title: string): string {
-  const encodedUrl = encodeURIComponent(postUrl)
-  const encodedText = encodeURIComponent(`${title}\n\n${postUrl}`)
-
-  switch (platform) {
-    case 'twitter':
-      return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodeURIComponent(title)}`
-    case 'threads':
-      return `https://www.threads.net/intent/post?text=${encodedText}`
-    case 'bluesky':
-      return `https://bsky.app/intent/compose?text=${encodedText}`
-    case 'linkedin':
-      return `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`
-  }
-}
 
 const SocialShareButton: React.FC = () => {
   const [loadingPlatform, setLoadingPlatform] = useState<SocialPlatform | null>(null)
