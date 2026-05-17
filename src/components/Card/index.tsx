@@ -7,6 +7,7 @@ import { Media } from '@/components/Media'
 import { KeywordPill } from '@/components/ui/keyword-pill'
 import { cn } from '@/utilities/ui'
 import { getReadMinutes, formatPostDate } from '@/utilities/postMeta'
+import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
 
 export type CardPostData = Pick<
   Post,
@@ -148,9 +149,7 @@ export const Card: React.FC<{
           <span className="font-mono text-[12px] text-muted-foreground tracking-[1px]">
             {readMinutes} MIN READ
           </span>
-          <span className="text-primary" aria-hidden="true">
-            →
-          </span>
+          <ArrowRight size={16} className="text-primary" aria-hidden="true" />
         </div>
       </div>
     </article>

@@ -6,6 +6,7 @@ import { Media } from '@/components/Media'
 import { KeywordPill } from '@/components/ui/keyword-pill'
 import { cn } from '@/utilities/ui'
 import { formatPostDate, getReadMinutes } from '@/utilities/postMeta'
+import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
 
 interface PostCardFeaturedProps {
   className?: string
@@ -101,9 +102,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
           <span className="font-mono text-[12px] text-muted-foreground tracking-[1px]">
             {readMinutes} MIN READ
           </span>
-          <span className="text-primary-base dark:text-primary-pale" aria-hidden="true">
-            →
-          </span>
+          <ArrowRight size={16} className="text-primary-base dark:text-primary-pale" aria-hidden="true" />
         </div>
       </div>
       {/* Thumb */}

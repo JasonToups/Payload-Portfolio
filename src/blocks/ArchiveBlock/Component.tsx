@@ -2,6 +2,7 @@ import type { Post, ArchiveBlock as ArchiveBlockProps } from '@/payload-types'
 
 import React from 'react'
 import Link from 'next/link'
+import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { getPostsByFilters } from '@/utilities/getPostsByFilters'
@@ -72,10 +73,10 @@ export const ArchiveBlock: React.FC<
         </div>
         <Link
           href="/posts"
-          className="font-mono"
+          className="font-mono flex items-center gap-1.5"
           style={{ fontSize: '0.875rem', color: 'var(--foreground)', textDecoration: 'none' }}
         >
-          ALL POSTS →
+          ALL POSTS <ArrowRight size={14} aria-hidden="true" />
         </Link>
       </div>
       <div className="px-1 md:px-0">

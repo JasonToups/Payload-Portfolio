@@ -1,5 +1,6 @@
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { cn } from '@/utilities/ui'
+import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
 import Link from 'next/link'
 import React from 'react'
 
@@ -80,7 +81,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
           )}
         >
           <span>{label ?? children}</span>
-          <span aria-hidden="true">→</span>
+          <ArrowRight size={16} aria-hidden="true" />
         </span>
       </Link>
     )
@@ -91,7 +92,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
       <Button asChild className={className} variant={appearance}>
         <Link href={href || url || ''} {...newTabProps}>
           <span>{label ?? children}</span>
-          <span aria-hidden="true">→</span>
+          <ArrowRight size={16} aria-hidden="true" />
         </Link>
       </Button>
     )
