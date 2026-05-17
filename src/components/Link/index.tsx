@@ -81,7 +81,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
           )}
         >
           <span>{label ?? children}</span>
-          <ArrowRight size={16} aria-hidden="true" />
+          <ArrowRight size={24} aria-hidden="true" />
         </span>
       </Link>
     )
@@ -92,7 +92,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
       <Button asChild className={className} variant={appearance}>
         <Link href={href || url || ''} {...newTabProps}>
           <span>{label ?? children}</span>
-          <ArrowRight size={16} aria-hidden="true" />
+          <ArrowRight size={24} aria-hidden="true" />
         </Link>
       </Button>
     )

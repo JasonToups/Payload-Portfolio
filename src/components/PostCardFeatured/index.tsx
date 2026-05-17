@@ -102,7 +102,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
           <span className="font-mono text-[12px] text-muted-foreground tracking-[1px]">
             {readMinutes} MIN READ
           </span>
-          <ArrowRight size={16} className="text-primary-base dark:text-primary-pale" aria-hidden="true" />
+          <ArrowRight size={24} className="text-primary-base dark:text-primary-pale" aria-hidden="true" />
         </div>
       </div>
       {/* Thumb */}

@@ -76,7 +76,7 @@ export const ArchiveBlock: React.FC<
           className="font-mono flex items-center gap-1.5"
           style={{ fontSize: '0.875rem', color: 'var(--foreground)', textDecoration: 'none' }}
         >
-          ALL POSTS <ArrowRight size={14} aria-hidden="true" />
+          ALL POSTS <ArrowRight size={21} aria-hidden="true" />
         </Link>
       </div>
       <div className="px-1 md:px-0">

@@ -11,7 +11,7 @@ export const BackLink: React.FC = () => {
       onClick={() => router.back()}
       className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors mt-2"
     >
-      <ArrowLeft size={14} aria-hidden="true" /> back
+      <ArrowLeft size={21} aria-hidden="true" /> back
     </button>
   )
 }
