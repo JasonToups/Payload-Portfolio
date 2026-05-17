@@ -47,32 +47,30 @@ export const Card: React.FC<{
       {/* Full-card overlay link — keyboard users navigate via the title link below */}
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
 
-      {/* Image: mobile = blurred full-card backdrop | desktop = top thumbnail */}
-      <div
-        className={cn(
-          'bg-[#2e2c2a] overflow-hidden',
-          'absolute inset-0',
-          'md:relative md:inset-auto md:h-76 md:rounded-t-[6px] md:rounded-b-none',
-        )}
-      >
+      {/* Mobile: blurred full-card backdrop */}
+      <div className="bg-[#2e2c2a] overflow-hidden absolute inset-0 md:hidden">
         {metaImage && typeof metaImage !== 'string' && (
           <Media
             resource={metaImage}
             size="33vw"
-            imgClassName={cn(
-              'absolute inset-0 w-full h-full object-cover object-center',
-              'blur-[10px] md:blur-none',
-              'scale-110 md:scale-100',
-            )}
+            imgClassName="absolute inset-0 w-full h-full object-cover object-center blur-[10px] scale-110"
             fill
           />
         )}
+        <div className="absolute inset-0 bg-white/75 dark:bg-black/75" />
+      </div>
 
-        {/* Mobile: white overlay on blurred backdrop */}
-        <div className="absolute inset-0 bg-white/75 dark:bg-black/75 md:hidden" />
-
-        {/* Desktop badge */}
-        <div className="hidden md:block absolute top-4 left-4 z-1">
+      {/* Desktop: full natural-size image at top of card */}
+      <div className="hidden md:block relative overflow-hidden rounded-t-[6px] bg-[#2e2c2a]">
+        {metaImage && typeof metaImage !== 'string' && (
+          <Media
+            resource={metaImage}
+            size="33vw"
+            pictureClassName="block w-full"
+            imgClassName="w-full h-auto block"
+          />
+        )}
+        <div className="absolute top-4 left-4 z-1">
           <span
             className={cn(
               'font-mono text-[12px] tracking-widest',
