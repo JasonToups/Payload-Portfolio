@@ -57,7 +57,7 @@ export const Posts: CollectionConfig<'posts'> = {
     },
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'broadcasts', 'updatedAt'],
+    defaultColumns: ['title', 'slug', 'socialShares', 'broadcasts', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
@@ -315,6 +315,62 @@ export const Posts: CollectionConfig<'posts'> = {
             },
           ],
           label: 'Broadcast',
+        },
+        {
+          label: 'Share',
+          fields: [
+            {
+              name: 'socialShares',
+              type: 'array',
+              label: 'Share History',
+              admin: {
+                description: 'Record of social media shares for this post',
+                components: {
+                  Cell: '@/collections/Posts/components/SocialSharesCell',
+                },
+              },
+              fields: [
+                {
+                  name: 'platform',
+                  type: 'select',
+                  label: 'Platform',
+                  required: true,
+                  options: [
+                    { label: 'Twitter / X', value: 'twitter' },
+                    { label: 'Threads', value: 'threads' },
+                    { label: 'BlueSky', value: 'bluesky' },
+                    { label: 'LinkedIn', value: 'linkedin' },
+                  ],
+                },
+                {
+                  name: 'sharedAt',
+                  type: 'date',
+                  label: 'Shared At',
+                  required: true,
+                  admin: {
+                    date: { pickerAppearance: 'dayAndTime' },
+                  },
+                },
+                {
+                  name: 'shareUrl',
+                  type: 'text',
+                  label: 'Share URL',
+                  admin: {
+                    description: 'Optional: URL of the published social post',
+                  },
+                },
+              ],
+            },
+            {
+              name: 'socialShareActions',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '@/collections/Posts/components/SocialShareButton',
+                },
+              },
+            },
+          ],
         },
       ],
     },

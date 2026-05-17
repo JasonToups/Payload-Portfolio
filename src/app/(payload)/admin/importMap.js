@@ -38,6 +38,8 @@ import { default as default_000ace4bf1f9ff748ac15c677b9ef3f5 } from '@/collectio
 import { default as default_89f405e955f669bee627473ef93dbd1b } from '@/collections/Posts/components/SocialPreviewField'
 import { default as default_72de2780787708611145fd8a30acae54 } from '@/collections/Posts/components/DraftBroadcastButton'
 import { default as default_9a0786c1d342d6df4705248ae531b25d } from '@/collections/Posts/components/BroadcastCell'
+import { default as default_42df5dbd8f2a8e7fd046f17ffe7f51e4 } from '@/collections/Posts/components/SocialSharesCell'
+import { default as default_b6555656dcd74c7005ae117623d68b06 } from '@/collections/Posts/components/SocialShareButton'
 import { FolderTableCell as FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { default as default_658cfd8dc45cc7d46433dcba42ec9f4c } from '@/collections/Resume/components/ResumeDownloadPanel'
@@ -92,6 +94,8 @@ export const importMap = {
   "@/collections/Posts/components/SocialPreviewField#default": default_89f405e955f669bee627473ef93dbd1b,
   "@/collections/Posts/components/DraftBroadcastButton#default": default_72de2780787708611145fd8a30acae54,
   "@/collections/Posts/components/BroadcastCell#default": default_9a0786c1d342d6df4705248ae531b25d,
+  "@/collections/Posts/components/SocialSharesCell#default": default_42df5dbd8f2a8e7fd046f17ffe7f51e4,
+  "@/collections/Posts/components/SocialShareButton#default": default_b6555656dcd74c7005ae117623d68b06,
   "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/next/rsc#FolderField": FolderField_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@/collections/Resume/components/ResumeDownloadPanel#default": default_658cfd8dc45cc7d46433dcba42ec9f4c,

@@ -316,6 +316,20 @@ export interface Post {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  /**
+   * Record of social media shares for this post
+   */
+  socialShares?:
+    | {
+        platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin';
+        sharedAt: string;
+        /**
+         * Optional: URL of the published social post
+         */
+        shareUrl?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -1899,6 +1913,14 @@ export interface PostsSelect<T extends boolean = true> {
         description?: T;
       };
   broadcasts?: T;
+  socialShares?:
+    | T
+    | {
+        platform?: T;
+        sharedAt?: T;
+        shareUrl?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -2428,6 +2450,18 @@ export interface SiteSetting {
    * Used as the site favicon (appears in browser tabs and bookmarks)
    */
   favicon?: (number | null) | Media;
+  socials?: {
+    /**
+     * The site owner's profiles on each social platform
+     */
+    profiles?:
+      | {
+          platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin';
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2605,6 +2639,17 @@ export interface FooterSelect<T extends boolean = true> {
 export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
   favicon?: T;
+  socials?:
+    | T
+    | {
+        profiles?:
+          | T
+          | {
+              platform?: T;
+              url?: T;
+              id?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
