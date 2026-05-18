@@ -21,7 +21,7 @@ export const BlockQuoteBlock: React.FC<Props & BlockQuoteBlockProps> = ({ classN
         aria-hidden="true"
         className="w-1 shrink-0 self-stretch rounded-[2px] bg-primary-muted dark:bg-primary-base"
       />
-      <div className="flex-1 font-['Plus_Jakarta_Sans'] text-2xl font-medium leading-[1.6] tracking-[0.5px] text-foreground">
+      <div className="flex-1 font-sans text-2xl font-medium leading-[1.6] tracking-[0.5px] text-foreground">
         <RichText data={content} enableGutter={false} enableProse={false} />
       </div>
     </blockquote>
