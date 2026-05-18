@@ -72,10 +72,8 @@ const SocialShareButton: React.FC = () => {
         .filter((k): k is KeywordRef => typeof k === 'object')
         .map((k) => k.name)
       const options: ShareOptions =
-        platform === 'twitter'
-          ? { text: postData.socialPostBody ?? title, hashtags }
-          : {}
-      window.open(buildShareUrl(platform, postUrl, title, options), '_blank', 'noopener,noreferrer')
+        platform === 'twitter' ? { text: postData.socialPostBody ?? title, hashtags } : {}
+      window.open(buildShareUrl(platform, postUrl, options), '_blank', 'noopener,noreferrer')
     } catch {
       setError('Request failed — check your network and try again.')
     } finally {

@@ -57,7 +57,7 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
   const handleShare = (platform: SocialPlatform): void => {
     const profileUrl = profiles?.find((p) => p.platform === platform)?.url
     window.open(
-      buildShareUrl(platform, getPostUrl(), title, { profileUrl, hashtags: keywords }),
+      buildShareUrl(platform, getPostUrl(), { profileUrl, hashtags: keywords }),
       '_blank',
       'noopener,noreferrer',
     )

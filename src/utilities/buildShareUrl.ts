@@ -37,7 +37,6 @@ function extractHandleFromUrl(platform: SocialPlatform, profileUrl: string): str
 export function buildShareUrl(
   platform: SocialPlatform,
   postUrl: string,
-  title: string,
   options: ShareOptions = {},
 ): string {
   const { profileUrl, text, hashtags } = options
@@ -46,20 +45,23 @@ export function buildShareUrl(
   switch (platform) {
     case 'twitter': {
       const params = new URLSearchParams({ url: postUrl })
-      const tweetText = text ?? title
-      if (tweetText) params.set('text', tweetText)
+      if (text) params.set('text', text)
       if (hashtags?.length)
         params.set('hashtags', hashtags.map((h) => h.replace(/ /g, '_')).join(','))
       if (handle) params.set('via', handle)
       return `https://twitter.com/intent/tweet?${params.toString()}`
     }
     case 'threads': {
-      const body = handle ? `${title}\n\n${postUrl}\n\nvia @${handle}` : `${title}\n\n${postUrl}`
-      return `https://www.threads.net/intent/post?text=${encodeURIComponent(body)}`
+      const parts: string[] = [postUrl]
+      if (text) parts.unshift(text)
+      if (handle) parts.push(`via @${handle}`)
+      return `https://www.threads.net/intent/post?text=${encodeURIComponent(parts.join('\n\n'))}`
     }
     case 'bluesky': {
-      const body = handle ? `${title}\n\n${postUrl}\n\nvia @${handle}` : `${title}\n\n${postUrl}`
-      return `https://bsky.app/intent/compose?text=${encodeURIComponent(body)}`
+      const parts: string[] = [postUrl]
+      if (text) parts.unshift(text)
+      if (handle) parts.push(`via @${handle}`)
+      return `https://bsky.app/intent/compose?text=${encodeURIComponent(parts.join('\n\n'))}`
     }
     case 'linkedin':
       return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`
