@@ -12,6 +12,7 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "migrate": "payload migrate",
+    "migrate:create": "payload migrate:create",
     "clear:next": "rm -rf .next",
     "db:local": "docker compose up -d postgres",
     "db:pull": "bash scripts/db-pull.sh",

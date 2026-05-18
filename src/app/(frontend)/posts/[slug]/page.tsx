@@ -7,6 +7,7 @@ import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 import RichText from '@/components/RichText'
+import { SocialShareBar } from '@/components/SocialShareBar'
 
 import type { Post } from '@/payload-types'
 
@@ -51,7 +52,7 @@ export default async function Post({ params: paramsPromise }: Args) {
         : []
 
   return (
-    <article className="pb-16">
+    <article>
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
@@ -61,26 +62,36 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero post={post} />
 
-      <div className="container py-16">
-        <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
-        {relatedPosts.length > 0 && (
-          <section
-            className="max-w-[48rem] mx-auto mt-16 pt-8"
-            style={{ borderTop: '1px solid var(--border)' }}
+      <div className="pt-0 pb-0">
+        <div className="flex bg-white dark:bg-black flex-col lg:grid lg:grid-cols-4">
+          {/* Post Body: top on mobile, center 50% (cols 2–3) on desktop */}
+          <div className="lg:col-start-2 lg:col-span-2 py-8 px-10 bg-white dark:bg-black">
+            <RichText data={post.content} enableGutter={false} />
+            {relatedPosts.length > 0 && (
+              <section className="mt-16 pt-8" style={{ borderTop: '1px solid var(--border)' }}>
+                <p
+                  className="font-mono mb-6"
+                  style={{
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.08em',
+                    color: 'var(--muted-foreground)',
+                  }}
+                >
+                  RELATED POSTS
+                </p>
+                <RelatedPosts docs={relatedPosts} />
+              </section>
+            )}
+          </div>
+
+          {/* Share: bottom on mobile, left 25% (col 1) on desktop — sticky */}
+          <aside
+            aria-label="Share this post"
+            className="mt-16 lg:mt-0 bg-background h-full flex justify-center lg:col-start-1 lg:row-start-1 lg:sticky lg:top-8 lg:self-start py-8 px-10"
           >
-            <p
-              className="font-mono mb-6"
-              style={{
-                fontSize: '0.75rem',
-                letterSpacing: '0.08em',
-                color: 'var(--muted-foreground)',
-              }}
-            >
-              RELATED POSTS
-            </p>
-            <RelatedPosts docs={relatedPosts} />
-          </section>
-        )}
+            <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
+          </aside>
+        </div>
       </div>
     </article>
   )

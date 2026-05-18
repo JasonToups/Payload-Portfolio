@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowRight, ArrowUpRight, CaretRight, type Icon } from '@phosphor-icons/react/dist/ssr'
+import { ArrowRight, ArrowUpRight, CaretRight } from '@phosphor-icons/react/dist/ssr'
 import {
   ExternalLink,
   Send,
@@ -12,7 +12,9 @@ import {
 
 type LucideIconComponent = React.FC<LucideProps>
 
-const phosphorIconMap: Record<string, Icon> = {
+type PhosphorIconComponent = typeof ArrowRight
+
+const phosphorIconMap: Record<string, PhosphorIconComponent> = {
   'arrow-right': ArrowRight,
   'arrow-up-right': ArrowUpRight,
   'chevron-right': CaretRight,
