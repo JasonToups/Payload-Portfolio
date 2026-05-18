@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
+import { SubscribePostBlock } from '@/components/SubscribePostBlock'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
@@ -9,7 +11,7 @@ import React, { cache } from 'react'
 import RichText from '@/components/RichText'
 import { SocialShareBar } from '@/components/SocialShareBar'
 
-import type { Post } from '@/payload-types'
+import type { Post, SubscribePostBlock as SubscribePostBlockType } from '@/payload-types'
 
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
@@ -36,6 +38,10 @@ export default async function Post({ params: paramsPromise }: Args) {
   const post = await queryPostBySlug({ slug: decodedSlug })
 
   if (!post) return <PayloadRedirects url={url} />
+
+  const subscribePostBlock = (await getCachedGlobal(
+    'subscribe-post-block',
+  )()) as SubscribePostBlockType
 
   const manualRelatedPosts = (post.relatedPosts ?? []).filter(
     (r): r is Post => typeof r === 'object',
@@ -87,9 +93,23 @@ export default async function Post({ params: paramsPromise }: Args) {
           {/* Share: bottom on mobile, left 25% (col 1) on desktop — sticky */}
           <aside
             aria-label="Share this post"
-            className="mt-16 lg:mt-0 bg-background h-full flex justify-center lg:col-start-1 lg:row-start-1 lg:sticky lg:top-8 lg:self-start py-8 px-10"
+            className="flex flex-col justify-between mt-16 sticky lg:mt-0 bg-white dark:bg-black lg:col-start-1 lg:row-start-1 py-8 px-10"
           >
-            <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
+            <div className="sticky top-0">
+              <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
+            </div>
+            <div
+              aria-label="subscribe-container"
+              className="sticky bottom-0 flex flex-col justify-center items-end lg:items-start lg:align-middle"
+            >
+              <SubscribePostBlock
+                description={subscribePostBlock.description}
+                placeholder={subscribePostBlock.placeholder}
+                buttonText={subscribePostBlock.buttonText}
+                meta={subscribePostBlock.meta}
+                source={subscribePostBlock.source}
+              />
+            </div>
           </aside>
         </div>
       </div>

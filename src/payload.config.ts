@@ -22,6 +22,7 @@ import { getServerSideURL } from './utilities/getURL'
 import { SiteSettings } from './SiteSettings/SiteSettings'
 import { EmailSettings } from './EmailSettings'
 import { EmailLayout } from './EmailLayout'
+import { SubscribePostBlock } from './SubscribePostBlock/config'
 import { subscribeForm } from './endpoints/seed/subscribe-form'
 
 const filename = fileURLToPath(import.meta.url)
@@ -113,7 +114,7 @@ export default buildConfig({
     defaultFromAddress: process.env.RESEND_FROM_ADDRESS!,
     defaultFromName: process.env.RESEND_FROM_NAME!,
   }),
-  globals: [Header, Footer, SiteSettings, EmailSettings, EmailLayout],
+  globals: [Header, Footer, SiteSettings, EmailSettings, EmailLayout, SubscribePostBlock],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   onInit: async (payload) => {

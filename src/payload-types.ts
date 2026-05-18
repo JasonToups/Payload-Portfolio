@@ -124,6 +124,7 @@ export interface Config {
     'site-settings': SiteSetting;
     'email-settings': EmailSetting;
     'email-layout': EmailLayout;
+    'subscribe-post-block': SubscribePostBlock;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -131,6 +132,7 @@ export interface Config {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'email-settings': EmailSettingsSelect<false> | EmailSettingsSelect<true>;
     'email-layout': EmailLayoutSelect<false> | EmailLayoutSelect<true>;
+    'subscribe-post-block': SubscribePostBlockSelect<false> | SubscribePostBlockSelect<true>;
   };
   locale: null;
   user: User;
@@ -2575,6 +2577,35 @@ export interface EmailLayout {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribe-post-block".
+ */
+export interface SubscribePostBlock {
+  id: number;
+  /**
+   * Short description shown above the email input
+   */
+  description?: string | null;
+  /**
+   * Email input placeholder text
+   */
+  placeholder?: string | null;
+  /**
+   * Subscribe button label
+   */
+  buttonText?: string | null;
+  /**
+   * Stat line shown below the form (e.g. "UNSUBSCRIBE WHENEVER")
+   */
+  meta?: string | null;
+  /**
+   * Stored with subscriber record to track signup origin
+   */
+  source?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -2699,6 +2730,20 @@ export interface EmailLayoutSelect<T extends boolean = true> {
         bgColor?: T;
         textColor?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribe-post-block_select".
+ */
+export interface SubscribePostBlockSelect<T extends boolean = true> {
+  description?: T;
+  placeholder?: T;
+  buttonText?: T;
+  meta?: T;
+  source?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
