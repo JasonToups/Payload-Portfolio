@@ -69,11 +69,13 @@ export default async function Post({ params: paramsPromise }: Args) {
       <PostHero post={post} />
 
       <div className="pt-0 pb-0">
-        <div className="flex bg-white dark:bg-black flex-row">
-          {/* Sidebar: hidden on mobile, flex-grow-1 sticky panel on desktop */}
+        <div
+          aria-label="post-content-container"
+          className="flex flex-col-reverse lg:flex-row bg-white dark:bg-black"
+        >
           <aside
             aria-label="Post sidebar"
-            className="hidden w-full lg:flex lg:flex-col lg:justify-between lg:flex-1 lg:sticky lg:top-0 lg:h-screen py-8 px-6 bg-background"
+            className="w-full flex flex-row lg:flex-col lg:justify-between lg:sticky lg:top-0 lg:h-screen py-8 px-6 bg-background"
           >
             <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
             <div className="flex flex-column justify-end">
@@ -89,24 +91,11 @@ export default async function Post({ params: paramsPromise }: Args) {
 
           {/* Post Body: full-width on mobile, flex-grow-2 on desktop */}
 
-          <div className="lg:flex:2 w-full py-8 px-10 bg-white dark:bg-black">
+          <div className="w-full py-8 px-10 bg-white dark:bg-black">
             <div className="flex justify-center">
               <div className="max-w-3xl">
                 <RichText data={post.content} enableGutter={false} />
               </div>
-            </div>
-            {/* Mobile-only: Share + Subscribe between content and related posts */}
-            <div className="lg:hidden mt-8 pt-8">
-              <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
-            </div>
-            <div className="lg:hidden flex justify-end">
-              <SubscribePostBlock
-                description={subscribePostBlock.description}
-                placeholder={subscribePostBlock.placeholder}
-                buttonText={subscribePostBlock.buttonText}
-                meta={subscribePostBlock.meta}
-                source={subscribePostBlock.source}
-              />
             </div>
 
             {relatedPosts.length > 0 && (
