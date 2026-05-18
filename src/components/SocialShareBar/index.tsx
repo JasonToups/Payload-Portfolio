@@ -1,7 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { buildShareUrl, type SocialPlatform, type SocialProfile } from '@/utilities/buildShareUrl'
+import {
+  buildShareUrl,
+  type SocialPlatform,
+  type SocialProfile,
+} from '@/utilities/buildShareUrl'
 
 type IconButtonProps = {
   iconSrc: string
@@ -26,9 +30,15 @@ type SocialShareBarProps = {
   slug: string
   title: string
   profiles?: SocialProfile[]
+  keywords?: string[]
 }
 
-export const SocialShareBar: React.FC<SocialShareBarProps> = ({ slug, title, profiles }) => {
+export const SocialShareBar: React.FC<SocialShareBarProps> = ({
+  slug,
+  title,
+  profiles,
+  keywords,
+}) => {
   const [copied, setCopied] = useState(false)
 
   const getPostUrl = (): string => `${window.location.origin}/posts/${slug}`
@@ -46,7 +56,11 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({ slug, title, pro
 
   const handleShare = (platform: SocialPlatform): void => {
     const profileUrl = profiles?.find((p) => p.platform === platform)?.url
-    window.open(buildShareUrl(platform, getPostUrl(), title, profileUrl), '_blank', 'noopener,noreferrer')
+    window.open(
+      buildShareUrl(platform, getPostUrl(), title, { profileUrl, hashtags: keywords }),
+      '_blank',
+      'noopener,noreferrer',
+    )
   }
 
   return (

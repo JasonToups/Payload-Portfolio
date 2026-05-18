@@ -6,6 +6,12 @@ export type SocialProfile = {
   id?: string | null
 }
 
+export type ShareOptions = {
+  profileUrl?: string
+  text?: string
+  hashtags?: string[]
+}
+
 function extractHandleFromUrl(platform: SocialPlatform, profileUrl: string): string {
   try {
     const url = new URL(profileUrl)
@@ -32,25 +38,30 @@ export function buildShareUrl(
   platform: SocialPlatform,
   postUrl: string,
   title: string,
-  profileUrl?: string,
+  options: ShareOptions = {},
 ): string {
-  const encodedUrl = encodeURIComponent(postUrl)
+  const { profileUrl, text, hashtags } = options
   const handle = profileUrl ? extractHandleFromUrl(platform, profileUrl) : ''
 
   switch (platform) {
     case 'twitter': {
-      const base = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodeURIComponent(title)}`
-      return handle ? `${base}&via=${handle}` : base
+      const params = new URLSearchParams({ url: postUrl })
+      const tweetText = text ?? title
+      if (tweetText) params.set('text', tweetText)
+      if (hashtags?.length)
+        params.set('hashtags', hashtags.map((h) => h.replace(/ /g, '_')).join(','))
+      if (handle) params.set('via', handle)
+      return `https://twitter.com/intent/tweet?${params.toString()}`
     }
     case 'threads': {
-      const text = handle ? `${title}\n\n${postUrl}\n\nvia @${handle}` : `${title}\n\n${postUrl}`
-      return `https://www.threads.net/intent/post?text=${encodeURIComponent(text)}`
+      const body = handle ? `${title}\n\n${postUrl}\n\nvia @${handle}` : `${title}\n\n${postUrl}`
+      return `https://www.threads.net/intent/post?text=${encodeURIComponent(body)}`
     }
     case 'bluesky': {
-      const text = handle ? `${title}\n\n${postUrl}\n\nvia @${handle}` : `${title}\n\n${postUrl}`
-      return `https://bsky.app/intent/compose?text=${encodeURIComponent(text)}`
+      const body = handle ? `${title}\n\n${postUrl}\n\nvia @${handle}` : `${title}\n\n${postUrl}`
+      return `https://bsky.app/intent/compose?text=${encodeURIComponent(body)}`
     }
     case 'linkedin':
-      return `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`
+      return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`
   }
 }

@@ -12,7 +12,7 @@ import React, { cache } from 'react'
 import RichText from '@/components/RichText'
 import { SocialShareBar } from '@/components/SocialShareBar'
 
-import type { Post, SubscribePostBlock as SubscribePostBlockType } from '@/payload-types'
+import type { Keyword, Post, SubscribePostBlock as SubscribePostBlockType } from '@/payload-types'
 
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
@@ -42,6 +42,9 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   const siteSettings = await getSiteSettings()
   const socialProfiles = siteSettings?.socials?.profiles ?? []
+  const keywordNames = (post.keywords ?? [])
+    .filter((k): k is Keyword => typeof k === 'object')
+    .map((k) => k.name)
 
   const subscribePostBlock = (await getCachedGlobal(
     'subscribe-post-block',
@@ -100,7 +103,12 @@ export default async function Post({ params: paramsPromise }: Args) {
             className="flex flex-col justify-between mt-16 sticky lg:mt-0 bg-post lg:col-start-1 lg:row-start-1 py-8 px-10"
           >
             <div className="sticky top-0">
-              <SocialShareBar slug={decodedSlug} title={post.title ?? ''} profiles={socialProfiles} />
+              <SocialShareBar
+                slug={decodedSlug}
+                title={post.title ?? ''}
+                profiles={socialProfiles}
+                keywords={keywordNames}
+              />
             </div>
             {subscribePostBlock && (
               <div

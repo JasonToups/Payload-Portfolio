@@ -3,7 +3,7 @@
 import { useDocumentInfo } from '@payloadcms/ui'
 import { useState } from 'react'
 
-import { buildShareUrl, type SocialPlatform } from '@/utilities/buildShareUrl'
+import { buildShareUrl, type ShareOptions, type SocialPlatform } from '@/utilities/buildShareUrl'
 
 type SocialShare = {
   platform: SocialPlatform
@@ -12,8 +12,12 @@ type SocialShare = {
   id?: string | null
 }
 
+type KeywordRef = { id: number; name: string }
+
 type PostData = {
   socialShares?: SocialShare[] | null
+  keywords?: (number | KeywordRef)[] | null
+  socialPostBody?: string | null
 }
 
 const PLATFORMS: { value: SocialPlatform; label: string }[] = [
@@ -34,7 +38,6 @@ const SocialShareButton: React.FC = () => {
   const isPublished = savedDocumentData?._status === 'published'
   const slug = savedDocumentData?.slug as string | undefined
   const title = (savedDocumentData?.title as string | undefined) ?? ''
-
   if (isNewDoc) return null
 
   const postUrl =
@@ -47,7 +50,7 @@ const SocialShareButton: React.FC = () => {
     setError(null)
 
     try {
-      const fetchRes = await fetch(`/api/posts/${id}?depth=0`)
+      const fetchRes = await fetch(`/api/posts/${id}?depth=1`)
       const postData = (await fetchRes.json()) as PostData
       const existingShares: SocialShare[] = postData.socialShares ?? []
 
@@ -65,7 +68,14 @@ const SocialShareButton: React.FC = () => {
       }
 
       setConfirmedShares((prev) => [...prev, platform])
-      window.open(buildShareUrl(platform, postUrl, title), '_blank', 'noopener,noreferrer')
+      const hashtags = (postData.keywords ?? [])
+        .filter((k): k is KeywordRef => typeof k === 'object')
+        .map((k) => k.name)
+      const options: ShareOptions =
+        platform === 'twitter'
+          ? { text: postData.socialPostBody ?? title, hashtags }
+          : {}
+      window.open(buildShareUrl(platform, postUrl, title, options), '_blank', 'noopener,noreferrer')
     } catch {
       setError('Request failed — check your network and try again.')
     } finally {
