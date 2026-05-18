@@ -89,11 +89,6 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
           label="Share on Bluesky"
           onClick={() => handleShare('bluesky')}
         />
-        <IconButton
-          iconSrc="/icons/linkedin-logo-bold.svg"
-          label="Share on LinkedIn"
-          onClick={() => handleShare('linkedin')}
-        />
       </div>
     </div>
   )

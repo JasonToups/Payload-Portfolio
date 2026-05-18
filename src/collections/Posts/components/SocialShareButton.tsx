@@ -18,6 +18,7 @@ type PostData = {
   socialShares?: SocialShare[] | null
   keywords?: (number | KeywordRef)[] | null
   socialPostBody?: string | null
+  meta?: { description?: string | null } | null
 }
 
 
@@ -82,7 +83,11 @@ const SocialShareButton: React.FC = () => {
           ? { text: postData.socialPostBody ?? title, hashtags }
           : platform === 'threads'
             ? { text: postData.socialPostBody ?? title, tag }
-            : {}
+            : platform === 'bluesky'
+              ? { text: postData.socialPostBody ?? title, hashtags }
+              : platform === 'linkedin'
+                ? { title, summary: postData.meta?.description ?? '' }
+                : {}
       window.open(buildShareUrl(platform, postUrl, options), '_blank', 'noopener,noreferrer')
     } catch {
       setError('Request failed — check your network and try again.')

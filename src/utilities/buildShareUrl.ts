@@ -11,6 +11,9 @@ export type ShareOptions = {
   text?: string
   hashtags?: string[]
   tag?: string
+  title?: string
+  summary?: string
+  source?: string
   replyControl?: 'everyone' | 'accounts_you_follow' | 'mentioned_only' | 'followers_only'
 }
 
@@ -41,7 +44,7 @@ export function buildShareUrl(
   postUrl: string,
   options: ShareOptions = {},
 ): string {
-  const { profileUrl, text, hashtags, tag, replyControl } = options
+  const { profileUrl, text, hashtags, tag, title, summary, source, replyControl } = options
   const handle = profileUrl ? extractHandleFromUrl(platform, profileUrl) : ''
 
   switch (platform) {
@@ -69,12 +72,18 @@ export function buildShareUrl(
       return `https://www.threads.com/intent/post?${params.toString()}`
     }
     case 'bluesky': {
-      const parts: string[] = [postUrl]
-      if (text) parts.unshift(text)
-      if (handle) parts.push(`via @${handle}`)
+      const hashtagString = hashtags?.length ? hashtags.map((h) => `#${h.replace(/ /g, '_')}`).join(' ') : ''
+      const parts = [text, `${postUrl} `, handle ? `via @${handle}` : '', hashtagString].filter(
+        Boolean,
+      )
       return `https://bsky.app/intent/compose?text=${encodeURIComponent(parts.join('\n\n'))}`
     }
-    case 'linkedin':
-      return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`
+    case 'linkedin': {
+      const params = new URLSearchParams({ url: postUrl })
+      if (title) params.set('title', title)
+      if (summary) params.set('summary', summary)
+      if (source) params.set('source', source)
+      return `https://www.linkedin.com/sharing/share-offsite/?${params.toString()}`
+    }
   }
 }
