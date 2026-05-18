@@ -134,7 +134,7 @@ export const Card: React.FC<{
 
         {/* Keywords */}
         {hasKeywords && (
-          <div className="relative z-20 flex flex-wrap gap-x-1.5 gap-y-2.7">
+          <div className="relative z-20 flex flex-wrap gap-x-1.5 gap-y-2.5">
             {keywords!.map((kw) =>
               typeof kw === 'object' ? <KeywordPill key={kw.id} keyword={kw} /> : null,
             )}
