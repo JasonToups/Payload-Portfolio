@@ -69,9 +69,9 @@ export default async function Post({ params: paramsPromise }: Args) {
       <PostHero post={post} />
 
       <div className="pt-0 pb-0">
-        <div className="flex bg-white dark:bg-black flex-col lg:grid lg:grid-cols-4">
+        <div className="bg-post flex flex-col lg:grid lg:grid-cols-4">
           {/* Post Body: top on mobile, center 50% (cols 2–3) on desktop */}
-          <div className="lg:col-start-2 lg:col-span-2 py-8 px-10 bg-white dark:bg-black">
+          <div className="bg-post lg:col-start-2 lg:col-span-2 py-8 px-10">
             <RichText data={post.content} enableGutter={false} />
             {relatedPosts.length > 0 && (
               <section className="mt-16 pt-8" style={{ borderTop: '1px solid var(--border)' }}>
