@@ -93,12 +93,15 @@ export default async function Post({ params: paramsPromise }: Args) {
           {/* Share: bottom on mobile, left 25% (col 1) on desktop — sticky */}
           <aside
             aria-label="Share this post"
-            className="h-full flex flex-col mt-16 lg:mt-0 bg-background lg:col-start-1 lg:row-start-1  lg:top-8 lg:self-start py-8 px-10"
+            className="flex flex-col justify-between mt-16 sticky lg:mt-0 bg-white dark:bg-black lg:col-start-1 lg:row-start-1 py-8 px-10"
           >
             <div className="sticky top-0">
               <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
             </div>
-            <div className="sticky-bottom bottom-0 h-full flex flex-col justify-center align-middle">
+            <div
+              aria-label="subscribe-container"
+              className="sticky bottom-0 flex flex-col justify-center items-end lg:items-start lg:align-middle"
+            >
               <SubscribePostBlock
                 description={subscribePostBlock.description}
                 placeholder={subscribePostBlock.placeholder}

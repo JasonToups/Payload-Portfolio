@@ -68,7 +68,7 @@ export const SubscribePostBlock: React.FC<SubscribePostBlockProps> = ({
   return (
     <section
       aria-label="Newsletter subscribe"
-      className={cn('sticky-bottom bottom-0 flex flex-col h-fit py-[31px]', className)}
+      className={cn('flex flex-col sticky bottom-0 w-fit h-fit py-[31px]', className)}
     >
       {status === 'success' ? (
         <div role="status">
