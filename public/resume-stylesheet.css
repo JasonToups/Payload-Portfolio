@@ -675,6 +675,67 @@ sub {
 }
 
 /* ==========================================================================
+   Dark mode — mirrors [data-theme='dark'] tokens from globals.css
+   (browser only; wkhtmltopdf does not support prefers-color-scheme)
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    background-color: #1b1918;
+    color: #f4f2ee;
+  }
+
+  a {
+    color: #8cbfe4;
+  }
+
+  h1 {
+    color: #8cbfe4;
+  }
+
+  h2 {
+    color: #6da9d6;
+    border-bottom-color: #38342f;
+  }
+
+  h3 {
+    color: #5495cc;
+  }
+
+  h4,
+  h5 {
+    color: #f4f2ee;
+  }
+
+  h6 {
+    color: #c9c5bf;
+  }
+
+  hr {
+    color: #38342f;
+  }
+
+  blockquote {
+    border-left-color: #38342f;
+    color: #c9c5bf;
+  }
+
+  code,
+  tt {
+    background-color: #252220;
+    border-color: #38342f;
+    color: #f4f2ee;
+  }
+
+  .highlight pre,
+  pre {
+    background-color: #252220;
+    border-color: #38342f;
+  }
+}
+
+/* ==========================================================================
    Syntax highlighting
    ========================================================================== */
 
