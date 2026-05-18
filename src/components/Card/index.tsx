@@ -58,7 +58,7 @@ export const Card: React.FC<{
             fill
           />
         )}
-        <div className="absolute inset-0 bg-white/75 dark:bg-black/75" />
+        <div className="absolute inset-0 bg-card/75" />
       </div>
 
       {/* Desktop: full natural-size image at top of card */}

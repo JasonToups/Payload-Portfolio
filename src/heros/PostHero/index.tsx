@@ -78,7 +78,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
 
             {/* Description */}
             {description && (
-              <p className="font-['Plus_Jakarta_Sans'] text-[24px] font-normal leading-[1.1] text-foreground">
+              <p className="mb-12 font-sans text-xl font-normal leading-relaxed text-foreground">
                 {description}
               </p>
             )}
