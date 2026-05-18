@@ -320,6 +320,15 @@ export const Posts: CollectionConfig<'posts'> = {
           label: 'Share',
           fields: [
             {
+              name: 'socialShareActions',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '@/collections/Posts/components/SocialShareButton',
+                },
+              },
+            },
+            {
               name: 'socialShares',
               type: 'array',
               label: 'Share History',
@@ -360,15 +369,6 @@ export const Posts: CollectionConfig<'posts'> = {
                   },
                 },
               ],
-            },
-            {
-              name: 'socialShareActions',
-              type: 'ui',
-              admin: {
-                components: {
-                  Field: '@/collections/Posts/components/SocialShareButton',
-                },
-              },
             },
           ],
         },
