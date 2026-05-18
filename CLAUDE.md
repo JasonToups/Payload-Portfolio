@@ -49,6 +49,50 @@ pnpm generate:importmap
 pnpm payload
 ```
 
+### Adding a New Data Field — Full Workflow
+
+When adding any field that stores data (type: `text`, `textarea`, `number`, `date`, `select`, `array`, `relationship`, etc.) to a collection or global, follow these steps **in order** before committing.
+
+**Step 1 — Edit the collection config**
+Add the field to the appropriate file in `src/collections/` or `src/globals/`.
+
+**Step 2 — Start the dev server to sync the local database**
+```bash
+pnpm dev
+```
+Payload dev mode auto-pushes the schema change (e.g. `ALTER TABLE ... ADD COLUMN`) directly to your local database. Wait until the server is fully started, then stop it (`Ctrl+C`).
+
+> Do NOT run `pnpm migrate` against your local database after this step — the column already exists and the migration will fail with "column already exists".
+
+**Step 3 — Regenerate TypeScript types**
+```bash
+pnpm generate:types
+```
+This updates `src/payload-types.ts` to include the new field so TypeScript code referencing it compiles correctly.
+
+**Step 4 — Create the production migration file**
+```bash
+pnpm migrate:create
+```
+This generates a new `src/migrations/<timestamp>.ts` file with the `ALTER TABLE ... ADD COLUMN` SQL. This file is what production uses — it does **not** run locally.
+
+**Step 5 — Commit everything together**
+Stage and commit all four artifacts as a single atomic commit:
+- The collection/global config change
+- `src/payload-types.ts` (regenerated types)
+- `src/migrations/<timestamp>.ts` (new migration file)
+- `src/migrations/<timestamp>.json` (migration snapshot)
+- `src/migrations/index.ts` (updated migration registry)
+
+**Step 6 — Push to your feature branch**
+Production deployment (`pnpm build`) automatically runs `payload migrate` before the Next.js build, applying the migration to the production database.
+
+#### Why not run `pnpm migrate` locally?
+
+`pnpm dev` (dev mode push) and `pnpm migrate` are two separate schema-sync mechanisms. After `pnpm dev` runs, your local DB already has the column. Running `pnpm migrate` against the same DB will fail because the SQL tries to add a column that already exists.
+
+`pnpm migrate` is only useful locally if you are testing a migration against a **clean database** that has never had dev mode run against it. In that case, you may need to add `IF NOT EXISTS` to any `ADD COLUMN` statements in the generated migration file to make it idempotent.
+
 ## Key Architecture Components
 
 ### Core Structure

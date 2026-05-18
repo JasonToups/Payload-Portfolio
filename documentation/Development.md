@@ -77,22 +77,66 @@ pnpm db:pull
 
 > **Warning:** This overwrites all local data. Your `.env` must contain a valid `DATABASE_URL_UNPOOLED` pointing to Neon.
 
-## Database Migrations
+## Adding a New Data Field
 
-Payload tracks schema changes as migration files.
-After pulling from Neon or making collection changes, create a new migration
+When adding any field that stores data (`text`, `textarea`, `number`, `date`, `select`, `array`, `relationship`, etc.) to a collection or global, follow these steps **in order** before committing.
+
+### Step 1 — Edit the collection config
+
+Add the field to the appropriate file in `src/collections/` or `src/globals/`.
+
+### Step 2 — Start the dev server to sync the local database
 
 ```bash
-pnpm payload migrate:create
+pnpm dev
 ```
 
-Then migrate the changes.
+Payload dev mode auto-pushes the schema change (`ALTER TABLE … ADD COLUMN`) directly to your local database. Wait until the server is fully started, then stop it (`Ctrl+C`).
+
+> **Do not run `pnpm migrate` against your local database after this.** The column already exists from the dev-mode push, and the migration will fail with `column already exists`.
+
+### Step 3 — Regenerate TypeScript types
 
 ```bash
-pnpm migrate
+pnpm generate:types
 ```
 
-Commit the generated migration file alongside your config changes.
+Updates `src/payload-types.ts` so TypeScript code referencing the new field compiles correctly.
+
+### Step 4 — Create the production migration file
+
+```bash
+pnpm migrate:create
+```
+
+Generates a new `src/migrations/<timestamp>.ts` file with the `ALTER TABLE … ADD COLUMN` SQL. This is what production uses — it does **not** run locally.
+
+### Step 5 — Commit everything together
+
+Stage and commit all of these as one atomic commit:
+
+- The collection/global config change
+- `src/payload-types.ts` (regenerated types)
+- `src/migrations/<timestamp>.ts` (new migration)
+- `src/migrations/<timestamp>.json` (migration snapshot)
+- `src/migrations/index.ts` (updated migration registry)
+
+### Step 6 — Push to your feature branch
+
+Production deployment (`pnpm build`) automatically runs `payload migrate` before the Next.js build, applying the migration to the production database.
+
+---
+
+### Why not run `pnpm migrate` locally?
+
+`pnpm dev` (dev-mode push) and `pnpm migrate` are two separate schema-sync mechanisms that conflict when used against the same database:
+
+- **Dev mode push** — immediately applies schema changes to whatever database `POSTGRES_URL` points to; no migration file written.
+- **Migrations** — versioned SQL files executed in order; used for production and CI.
+
+After `pnpm dev` runs, your local DB already has the column. Running `pnpm migrate` against the same DB tries to add it again and fails.
+
+`pnpm migrate` is safe to run locally **only** against a clean database that has never had dev mode run against it (e.g., a freshly restored `pnpm db:pull` snapshot). In that case, add `IF NOT EXISTS` to any `ADD COLUMN` statements in the generated migration file first to make it idempotent.
 
 ## Dev Scripts Reference
 

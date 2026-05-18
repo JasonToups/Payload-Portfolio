@@ -85,11 +85,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   )
 }
 
+async function getTwitterCreator(): Promise<string | undefined> {
+  const settings = await getSiteSettings()
+  const profile = settings?.socials?.profiles?.find((p) => p.platform === 'twitter')
+  if (!profile?.url) return undefined
+  try {
+    const handle = new URL(profile.url).pathname.split('/').filter(Boolean)[0]
+    return handle ? `@${handle}` : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL(getServerSideURL()),
   openGraph: await mergeOpenGraph(),
   twitter: {
     card: 'summary_large_image',
-    creator: '@payloadcms',
+    creator: await getTwitterCreator(),
   },
 }

@@ -1,7 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { buildShareUrl, type SocialPlatform } from '@/utilities/buildShareUrl'
+import {
+  buildShareUrl,
+  type SocialPlatform,
+  type SocialProfile,
+} from '@/utilities/buildShareUrl'
 
 type IconButtonProps = {
   iconSrc: string
@@ -25,9 +29,16 @@ const IconButton: React.FC<IconButtonProps> = ({ iconSrc, label, onClick }) => (
 type SocialShareBarProps = {
   slug: string
   title: string
+  profiles?: SocialProfile[]
+  keywords?: string[]
 }
 
-export const SocialShareBar: React.FC<SocialShareBarProps> = ({ slug, title }) => {
+export const SocialShareBar: React.FC<SocialShareBarProps> = ({
+  slug,
+  title,
+  profiles,
+  keywords,
+}) => {
   const [copied, setCopied] = useState(false)
 
   const getPostUrl = (): string => `${window.location.origin}/posts/${slug}`
@@ -44,7 +55,12 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({ slug, title }) =
   }
 
   const handleShare = (platform: SocialPlatform): void => {
-    window.open(buildShareUrl(platform, getPostUrl(), title), '_blank', 'noopener,noreferrer')
+    const profileUrl = profiles?.find((p) => p.platform === platform)?.url
+    const options =
+      platform === 'threads'
+        ? { text: title, tag: keywords?.[0], profileUrl }
+        : { profileUrl, hashtags: keywords }
+    window.open(buildShareUrl(platform, getPostUrl(), options), '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -72,11 +88,6 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({ slug, title }) =
           iconSrc="/icons/bluesky-bold.svg"
           label="Share on Bluesky"
           onClick={() => handleShare('bluesky')}
-        />
-        <IconButton
-          iconSrc="/icons/linkedin-logo-bold.svg"
-          label="Share on LinkedIn"
-          onClick={() => handleShare('linkedin')}
         />
       </div>
     </div>

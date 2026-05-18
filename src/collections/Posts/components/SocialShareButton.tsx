@@ -3,7 +3,7 @@
 import { useDocumentInfo } from '@payloadcms/ui'
 import { useState } from 'react'
 
-import { buildShareUrl, type SocialPlatform } from '@/utilities/buildShareUrl'
+import { buildShareUrl, type ShareOptions, type SocialPlatform } from '@/utilities/buildShareUrl'
 
 type SocialShare = {
   platform: SocialPlatform
@@ -12,9 +12,15 @@ type SocialShare = {
   id?: string | null
 }
 
+type KeywordRef = { id: number; name: string }
+
 type PostData = {
   socialShares?: SocialShare[] | null
+  keywords?: (number | KeywordRef)[] | null
+  socialPostBody?: string | null
+  meta?: { description?: string | null } | null
 }
+
 
 const PLATFORMS: { value: SocialPlatform; label: string }[] = [
   { value: 'twitter', label: 'X / Twitter' },
@@ -24,17 +30,20 @@ const PLATFORMS: { value: SocialPlatform; label: string }[] = [
 ]
 
 const SocialShareButton: React.FC = () => {
+  const { id, savedDocumentData } = useDocumentInfo()
+
   const [loadingPlatform, setLoadingPlatform] = useState<SocialPlatform | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [confirmedShares, setConfirmedShares] = useState<SocialPlatform[]>([])
-
-  const { id, savedDocumentData } = useDocumentInfo()
+  const [confirmedShares, setConfirmedShares] = useState<SocialPlatform[]>(() =>
+    (savedDocumentData?.socialShares as SocialShare[] | null | undefined ?? []).map(
+      (s) => s.platform,
+    ),
+  )
 
   const isNewDoc = !id
   const isPublished = savedDocumentData?._status === 'published'
   const slug = savedDocumentData?.slug as string | undefined
   const title = (savedDocumentData?.title as string | undefined) ?? ''
-
   if (isNewDoc) return null
 
   const postUrl =
@@ -47,7 +56,7 @@ const SocialShareButton: React.FC = () => {
     setError(null)
 
     try {
-      const fetchRes = await fetch(`/api/posts/${id}?depth=0`)
+      const fetchRes = await fetch(`/api/posts/${id}?depth=1`)
       const postData = (await fetchRes.json()) as PostData
       const existingShares: SocialShare[] = postData.socialShares ?? []
 
@@ -65,7 +74,21 @@ const SocialShareButton: React.FC = () => {
       }
 
       setConfirmedShares((prev) => [...prev, platform])
-      window.open(buildShareUrl(platform, postUrl, title), '_blank', 'noopener,noreferrer')
+      const hashtags = (postData.keywords ?? [])
+        .filter((k): k is KeywordRef => typeof k === 'object')
+        .map((k) => k.name)
+      const tag = hashtags[0]
+      const options: ShareOptions =
+        platform === 'twitter'
+          ? { text: postData.socialPostBody ?? title, hashtags }
+          : platform === 'threads'
+            ? { text: postData.socialPostBody ?? title, tag }
+            : platform === 'bluesky'
+              ? { text: postData.socialPostBody ?? title, hashtags }
+              : platform === 'linkedin'
+                ? { title, summary: postData.meta?.description ?? '' }
+                : {}
+      window.open(buildShareUrl(platform, postUrl, options), '_blank', 'noopener,noreferrer')
     } catch {
       setError('Request failed — check your network and try again.')
     } finally {

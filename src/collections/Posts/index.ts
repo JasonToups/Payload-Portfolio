@@ -320,6 +320,11 @@ export const Posts: CollectionConfig<'posts'> = {
           label: 'Share',
           fields: [
             {
+              name: 'socialPostBody',
+              type: 'textarea',
+              label: 'Social Post Body',
+            },
+            {
               name: 'socialShareActions',
               type: 'ui',
               admin: {

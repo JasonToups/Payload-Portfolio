@@ -318,6 +318,7 @@ export interface Post {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  socialPostBody?: string | null;
   /**
    * Record of social media shares for this post
    */
@@ -1915,6 +1916,7 @@ export interface PostsSelect<T extends boolean = true> {
         description?: T;
       };
   broadcasts?: T;
+  socialPostBody?: T;
   socialShares?:
     | T
     | {
