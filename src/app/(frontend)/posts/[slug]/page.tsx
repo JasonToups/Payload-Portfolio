@@ -88,9 +88,13 @@ export default async function Post({ params: paramsPromise }: Args) {
           </aside>
 
           {/* Post Body: full-width on mobile, flex-grow-2 on desktop */}
-          <div className="lg:flex:2 py-8 px-10 bg-white dark:bg-black">
-            <RichText data={post.content} enableGutter={false} />
 
+          <div className="lg:flex:2 w-full py-8 px-10 bg-white dark:bg-black">
+            <div className="flex justify-start">
+              <div className="max-w-3xl">
+                <RichText data={post.content} enableGutter={false} />
+              </div>
+            </div>
             {/* Mobile-only: Share + Subscribe between content and related posts */}
             <div className="lg:hidden mt-8 pt-8">
               <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
