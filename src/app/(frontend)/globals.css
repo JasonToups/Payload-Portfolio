@@ -87,7 +87,7 @@
   --foreground: var(--neutral-100);
   --card: var(--black);
   --card-foreground: var(--neutral-100);
-  --post: var(--white);
+  --post: var(--black);
   --post-foreground: var(--neutral-900);
   --popover: var(--neutral-950);
   --popover-foreground: var(--neutral-100);

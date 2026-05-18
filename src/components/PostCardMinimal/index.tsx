@@ -28,8 +28,8 @@ export const PostCardMinimal: React.FC<PostCardMinimalProps> = ({
   return (
     <article
       className={cn(
-        'post-card relative overflow-hidden bg-white dark:bg-card',
-        'flex flex-col justify-around px-[10px] py-[6px] gap-[6px]',
+        'post-card relative overflow-hidden bg-card',
+        'flex flex-col justify-around px-2.5 py-1.5 gap-1.5',
         className,
       )}
     >
@@ -37,7 +37,7 @@ export const PostCardMinimal: React.FC<PostCardMinimalProps> = ({
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
 
       {/* Title + Description */}
-      <div className="flex flex-col gap-[6px]">
+      <div className="flex flex-col gap-1.5">
         {title && (
           <h3 className="font-display text-[1.375rem] leading-[1.2] font-semibold text-foreground">
             <Link
@@ -58,7 +58,7 @@ export const PostCardMinimal: React.FC<PostCardMinimalProps> = ({
 
       {/* Keywords */}
       {hasKeywords && (
-        <div className="relative z-20 flex flex-wrap gap-x-1.5 gap-y-[11px]">
+        <div className="relative z-20 flex flex-wrap gap-x-1.5 gap-y-2.75">
           {keywords!.map((kw) =>
             typeof kw === 'object' ? <KeywordPill key={kw.id} keyword={kw} /> : null,
           )}

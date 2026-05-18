@@ -41,7 +41,7 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   const subscribePostBlock = (await getCachedGlobal(
     'subscribe-post-block',
-  )()) as SubscribePostBlockType
+  )()) as SubscribePostBlockType | null
 
   const manualRelatedPosts = (post.relatedPosts ?? []).filter(
     (r): r is Post => typeof r === 'object',
@@ -93,23 +93,25 @@ export default async function Post({ params: paramsPromise }: Args) {
           {/* Share: bottom on mobile, left 25% (col 1) on desktop — sticky */}
           <aside
             aria-label="Share this post"
-            className="flex flex-col justify-between mt-16 sticky lg:mt-0 bg-white dark:bg-black lg:col-start-1 lg:row-start-1 py-8 px-10"
+            className="flex flex-col justify-between mt-16 sticky lg:mt-0 bg-post lg:col-start-1 lg:row-start-1 py-8 px-10"
           >
             <div className="sticky top-0">
               <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
             </div>
-            <div
-              aria-label="subscribe-container"
-              className="sticky bottom-0 flex flex-col justify-center items-end lg:items-start lg:align-middle"
-            >
-              <SubscribePostBlock
-                description={subscribePostBlock.description}
-                placeholder={subscribePostBlock.placeholder}
-                buttonText={subscribePostBlock.buttonText}
-                meta={subscribePostBlock.meta}
-                source={subscribePostBlock.source}
-              />
-            </div>
+            {subscribePostBlock && (
+              <div
+                aria-label="subscribe-container"
+                className="sticky bottom-0 flex flex-col justify-center items-end lg:items-start lg:align-middle"
+              >
+                <SubscribePostBlock
+                  description={subscribePostBlock.description}
+                  placeholder={subscribePostBlock.placeholder}
+                  buttonText={subscribePostBlock.buttonText}
+                  meta={subscribePostBlock.meta}
+                  source={subscribePostBlock.source}
+                />
+              </div>
+            )}
           </aside>
         </div>
       </div>

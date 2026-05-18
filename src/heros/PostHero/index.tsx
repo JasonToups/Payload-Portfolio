@@ -23,7 +23,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
   const description = meta?.description
 
   return (
-    <section className="relative overflow-hidden bg-background">
+    <section className="relative overflow-hidden bg-post">
       {/* Blurred backdrop — desktop: frosted photo shows through; mobile: full-white overlay hides it */}
       {hasImage && (
         <div className="absolute inset-0" aria-hidden="true">
@@ -32,7 +32,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
             fill
             imgClassName="object-cover object-center blur-[18px] scale-110"
           />
-          <div className="absolute inset-0 bg-white dark:bg-black md:bg-white/80 dark:md:bg-black/80" />
+          <div className="absolute inset-0 bg-post md:bg-post/80 dark:md:bg-post/80" />
         </div>
       )}
 
