@@ -2,14 +2,14 @@ import type { Metadata } from 'next'
 
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
+import { SubscribePostBlock } from '@/components/SubscribePostBlock'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 import RichText from '@/components/RichText'
 import { SocialShareBar } from '@/components/SocialShareBar'
-import { SubscribePostBlock } from '@/components/SubscribePostBlock'
-import { getCachedGlobal } from '@/utilities/getGlobals'
 
 import type { Post, SubscribePostBlock as SubscribePostBlockType } from '@/payload-types'
 
@@ -69,35 +69,10 @@ export default async function Post({ params: paramsPromise }: Args) {
       <PostHero post={post} />
 
       <div className="pt-0 pb-0">
-        <div
-          aria-label="post-content-container"
-          className="flex flex-col-reverse lg:flex-row bg-white dark:bg-black"
-        >
-          <aside
-            aria-label="Post sidebar"
-            className="w-full flex flex-row lg:flex-col lg:justify-between lg:sticky lg:top-0 lg:h-screen py-8 px-6 bg-background"
-          >
-            <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
-            <div className="flex flex-column justify-end">
-              <SubscribePostBlock
-                description={subscribePostBlock.description}
-                placeholder={subscribePostBlock.placeholder}
-                buttonText={subscribePostBlock.buttonText}
-                meta={subscribePostBlock.meta}
-                source={subscribePostBlock.source}
-              />
-            </div>
-          </aside>
-
-          {/* Post Body: full-width on mobile, flex-grow-2 on desktop */}
-
-          <div className="w-full py-8 px-10 bg-white dark:bg-black">
-            <div className="flex justify-center">
-              <div className="max-w-3xl">
-                <RichText data={post.content} enableGutter={false} />
-              </div>
-            </div>
-
+        <div className="flex bg-white dark:bg-black flex-col lg:grid lg:grid-cols-4">
+          {/* Post Body: top on mobile, center 50% (cols 2–3) on desktop */}
+          <div className="lg:col-start-2 lg:col-span-2 py-8 px-10 bg-white dark:bg-black">
+            <RichText data={post.content} enableGutter={false} />
             {relatedPosts.length > 0 && (
               <section className="mt-16 pt-8" style={{ borderTop: '1px solid var(--border)' }}>
                 <p
@@ -114,6 +89,25 @@ export default async function Post({ params: paramsPromise }: Args) {
               </section>
             )}
           </div>
+
+          {/* Share: bottom on mobile, left 25% (col 1) on desktop — sticky */}
+          <aside
+            aria-label="Share this post"
+            className="h-full flex flex-col mt-16 lg:mt-0 bg-background lg:col-start-1 lg:row-start-1  lg:top-8 lg:self-start py-8 px-10"
+          >
+            <div className="sticky top-0">
+              <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
+            </div>
+            <div className="sticky-bottom bottom-0 h-full flex flex-col justify-center align-middle">
+              <SubscribePostBlock
+                description={subscribePostBlock.description}
+                placeholder={subscribePostBlock.placeholder}
+                buttonText={subscribePostBlock.buttonText}
+                meta={subscribePostBlock.meta}
+                source={subscribePostBlock.source}
+              />
+            </div>
+          </aside>
         </div>
       </div>
     </article>

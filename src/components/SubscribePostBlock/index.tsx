@@ -66,7 +66,10 @@ export const SubscribePostBlock: React.FC<SubscribePostBlockProps> = ({
   }
 
   return (
-    <section aria-label="Newsletter subscribe" className={cn('flex flex-col py-[31px]', className)}>
+    <section
+      aria-label="Newsletter subscribe"
+      className={cn('sticky-bottom bottom-0 flex flex-col h-fit py-[31px]', className)}
+    >
       {status === 'success' ? (
         <div role="status">
           <p className="text-base font-medium text-foreground">You&rsquo;re in.</p>
@@ -78,7 +81,11 @@ export const SubscribePostBlock: React.FC<SubscribePostBlockProps> = ({
             <p className="text-base text-muted-foreground font-plus-jakara-sans">{description}</p>
           )}
 
-          <form onSubmit={handleSubmit} noValidate className="mt-4 flex gap-2">
+          <form
+            onSubmit={handleSubmit}
+            noValidate
+            className="mt-4 flex flex-wrap justify-end w-full gap-2"
+          >
             <label htmlFor="post-subscribe-email" className="sr-only">
               Email address
             </label>
