@@ -28,11 +28,15 @@ const PLATFORMS: { value: SocialPlatform; label: string }[] = [
 ]
 
 const SocialShareButton: React.FC = () => {
+  const { id, savedDocumentData } = useDocumentInfo()
+
   const [loadingPlatform, setLoadingPlatform] = useState<SocialPlatform | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [confirmedShares, setConfirmedShares] = useState<SocialPlatform[]>([])
-
-  const { id, savedDocumentData } = useDocumentInfo()
+  const [confirmedShares, setConfirmedShares] = useState<SocialPlatform[]>(() =>
+    (savedDocumentData?.socialShares as SocialShare[] | null | undefined ?? []).map(
+      (s) => s.platform,
+    ),
+  )
 
   const isNewDoc = !id
   const isPublished = savedDocumentData?._status === 'published'
