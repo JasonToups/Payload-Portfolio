@@ -52,7 +52,7 @@ export default async function Post({ params: paramsPromise }: Args) {
         : []
 
   return (
-    <article className="pb-16">
+    <article>
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
@@ -62,20 +62,10 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero post={post} />
 
-      <div className="pt-0 pb-8">
-        <div className="flex flex-col-reverse lg:flex-row lg:justify-between lg:items-start">
-          {/* Share: LEFT on desktop, BELOW post body on mobile (right-aligned) */}
-          <div className="flex justify-center w-full">
-            <aside
-              aria-label="Share this post"
-              className="order-2 lg:order-none mt-16 lg:mt-0 flex items-end lg:items-start lg:sticky lg:top-8 lg:self-start lg:shrink-0 lg:w-60 py-8 px-10"
-            >
-              <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
-            </aside>
-          </div>
-
-          {/* Post Body + Related Posts: RIGHT on desktop, ABOVE on mobile */}
-          <div className="order-1 lg:order-none max-w-250 min-w-0 py-8 px-10 bg-white dark:bg-black">
+      <div className="pt-0 pb-0">
+        <div className="flex bg-white dark:bg-black flex-col lg:grid lg:grid-cols-4">
+          {/* Post Body: top on mobile, center 50% (cols 2–3) on desktop */}
+          <div className="lg:col-start-2 lg:col-span-2 py-8 px-10 bg-white dark:bg-black">
             <RichText data={post.content} enableGutter={false} />
             {relatedPosts.length > 0 && (
               <section className="mt-16 pt-8" style={{ borderTop: '1px solid var(--border)' }}>
@@ -93,6 +83,14 @@ export default async function Post({ params: paramsPromise }: Args) {
               </section>
             )}
           </div>
+
+          {/* Share: bottom on mobile, left 25% (col 1) on desktop — sticky */}
+          <aside
+            aria-label="Share this post"
+            className="mt-16 lg:mt-0 bg-background h-full flex justify-center lg:col-start-1 lg:row-start-1 lg:sticky lg:top-8 lg:self-start py-8 px-10"
+          >
+            <SocialShareBar slug={decodedSlug} title={post.title ?? ''} />
+          </aside>
         </div>
       </div>
     </article>
