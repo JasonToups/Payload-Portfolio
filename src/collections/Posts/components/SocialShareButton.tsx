@@ -20,6 +20,7 @@ type PostData = {
   socialPostBody?: string | null
 }
 
+
 const PLATFORMS: { value: SocialPlatform; label: string }[] = [
   { value: 'twitter', label: 'X / Twitter' },
   { value: 'threads', label: 'Threads' },
@@ -75,8 +76,13 @@ const SocialShareButton: React.FC = () => {
       const hashtags = (postData.keywords ?? [])
         .filter((k): k is KeywordRef => typeof k === 'object')
         .map((k) => k.name)
+      const tag = hashtags[0]
       const options: ShareOptions =
-        platform === 'twitter' ? { text: postData.socialPostBody ?? title, hashtags } : {}
+        platform === 'twitter'
+          ? { text: postData.socialPostBody ?? title, hashtags }
+          : platform === 'threads'
+            ? { text: postData.socialPostBody ?? title, tag }
+            : {}
       window.open(buildShareUrl(platform, postUrl, options), '_blank', 'noopener,noreferrer')
     } catch {
       setError('Request failed — check your network and try again.')

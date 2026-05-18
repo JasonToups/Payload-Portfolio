@@ -10,6 +10,8 @@ export type ShareOptions = {
   profileUrl?: string
   text?: string
   hashtags?: string[]
+  tag?: string
+  replyControl?: 'everyone' | 'accounts_you_follow' | 'mentioned_only' | 'followers_only'
 }
 
 function extractHandleFromUrl(platform: SocialPlatform, profileUrl: string): string {
@@ -39,7 +41,7 @@ export function buildShareUrl(
   postUrl: string,
   options: ShareOptions = {},
 ): string {
-  const { profileUrl, text, hashtags } = options
+  const { profileUrl, text, hashtags, tag, replyControl } = options
   const handle = profileUrl ? extractHandleFromUrl(platform, profileUrl) : ''
 
   switch (platform) {
@@ -52,10 +54,19 @@ export function buildShareUrl(
       return `https://twitter.com/intent/tweet?${params.toString()}`
     }
     case 'threads': {
-      const parts: string[] = [postUrl]
-      if (text) parts.unshift(text)
+      const rawTag = tag ?? hashtags?.[0]
+      const sanitizedTag = rawTag?.replace(/[.\n\t&]/g, '').trim().slice(0, 50)
+
+      const parts: string[] = []
+      if (text) parts.push(text)
+      parts.push(postUrl)
       if (handle) parts.push(`via @${handle}`)
-      return `https://www.threads.net/intent/post?text=${encodeURIComponent(parts.join('\n\n'))}`
+
+      const params = new URLSearchParams({ url: postUrl })
+      if (parts.length) params.set('text', parts.join('\n\n'))
+      if (sanitizedTag) params.set('tag', sanitizedTag)
+      params.set('reply_control', replyControl ?? 'everyone')
+      return `https://www.threads.com/intent/post?${params.toString()}`
     }
     case 'bluesky': {
       const parts: string[] = [postUrl]
