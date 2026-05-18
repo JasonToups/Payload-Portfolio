@@ -379,7 +379,7 @@ h4 {
 h5 {
   font-family: 'Plus Jakarta Sans', system-ui, Helvetica, sans-serif;
   font-size: 16px;
-  line-height: 1.4;
+  line-height: 1.75;
   color: #1c1a18;
   text-align: center;
 }
@@ -406,6 +406,7 @@ pre {
   margin: 0;
   padding: 0 0 10px 0;
   font-size: 16px;
+  line-height: 2;
 }
 
 ul {
@@ -531,7 +532,7 @@ table {
   border-spacing: 0;
   font: inherit;
   vertical-align: top;
-  --table-padding: 0px 13px 6px 0px;
+  --table-padding: 0px 16px 8px 0px;
 }
 
 table th {
@@ -542,7 +543,8 @@ table th {
 }
 
 table td {
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.5;
   border: none;
   vertical-align: top;
   padding: var(--table-padding);
