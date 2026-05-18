@@ -48,8 +48,8 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({ slug, title }) =
   }
 
   return (
-    <div className="flex flex-col gap-[18px]">
-      <span className="font-['Plus_Jakarta_Sans'] text-[24px] font-normal leading-none text-foreground">
+    <div className="flex flex-col gap-4.5 py-6">
+      <span className="font-plus-Jakarta-Sans text-[24px] font-normal leading-none text-foreground">
         Share
       </span>
       <div className="flex flex-row items-center gap-4">
