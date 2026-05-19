@@ -148,19 +148,23 @@ Before opening a pull request, run the appropriate steps below.
 2. **Stop** the dev server (`Ctrl+C`)
 3. **Regenerate types** — `pnpm generate:types`
 4. **Create migration** — `pnpm migrate:create`
-5. **Make migration idempotent** — open the generated `src/migrations/<timestamp>.ts` and change any `CREATE TABLE` to `CREATE TABLE IF NOT EXISTS` (prevents the local build from failing; see [Why not run pnpm migrate locally?](#why-not-run-pnpm-migrate-locally))
-6. **Verify the build** — `pnpm build:local` (skips the migrate step; tests Next.js compilation against your already-up-to-date local schema)
+5. **Make migration idempotent** — open the generated `src/migrations/<timestamp>.ts` and change any `CREATE TABLE` to `CREATE TABLE IF NOT EXISTS`
+6. **Verify the build** — `pnpm build` (Next.js compilation only — migrations run in Vercel, not locally)
 7. **Commit** — stage the collection/global config, `payload-types.ts`, and all migration files as one atomic commit
 
 ### If you only changed non-schema code
 
-`pnpm build:local` is sufficient — no migration steps needed.
+`pnpm build` is sufficient — no migration steps needed.
 
 ---
 
-> **`pnpm build` vs `pnpm build:local`**
-> - `pnpm build` — runs `payload migrate` then `next build`. Used by Vercel/CI; correct for production.
-> - `pnpm build:local` — runs `next build` only. Use this locally after `pnpm dev` to verify compilation without hitting the migrate conflict.
+> **How migrations reach production**
+>
+> `pnpm build` compiles the app only. Migrations run in Vercel via the configured build command:
+> ```
+> npx payload migrate --force-accept-warning && pnpm build
+> ```
+> This keeps local builds clean after `pnpm dev` and ensures a bad migration fails the deployment atomically before any code goes live.
 
 ---
 
@@ -169,8 +173,7 @@ Before opening a pull request, run the appropriate steps below.
 | Script                    | Description                          |
 | ------------------------- | ------------------------------------ |
 | `pnpm dev`                | Start the dev server                 |
-| `pnpm build`              | Production build (runs migrations + Next.js build) |
-| `pnpm build:local`        | Next.js build only — skips migrations (use after `pnpm dev`) |
+| `pnpm build`              | Next.js build (migrations run in Vercel, not locally) |
 | `pnpm start`              | Serve the production build           |
 | `pnpm db:local`           | Start the local Docker Postgres      |
 | `pnpm db:pull`            | Sync Neon production DB to local     |
