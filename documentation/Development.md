@@ -30,7 +30,7 @@ Fill in the following key variables in `.env`:
 For local development, set `POSTGRES_URL` to:
 
 ```
-postgresql://postgres:password@127.0.0.1:5433/now-hiring
+postgresql://postgres:password@127.0.0.1:5433/toupsi
 ```
 
 ## Running the Project
@@ -50,7 +50,7 @@ The local database is a PostgreSQL 17 container defined in `docker-compose.yml`,
 | Detail   | Value            |
 | -------- | ---------------- |
 | Host     | `127.0.0.1:5433` |
-| Database | `now-hiring`     |
+| Database | `toupsi`         |
 | User     | `postgres`       |
 | Password | `password`       |
 

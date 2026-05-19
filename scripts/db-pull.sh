@@ -19,7 +19,7 @@ if [ -f .env.local ]; then
 fi
 
 # After .env.local loads, POSTGRES_URL is the local docker URL
-LOCAL_URL="${POSTGRES_URL:-postgresql://postgres:password@localhost:5433/now-hiring}"
+LOCAL_URL="${POSTGRES_URL:-postgresql://postgres:password@localhost:5433/toupsi}"
 LOCAL_ADMIN_URL="${LOCAL_URL%/*}/postgres"
 DB_NAME="${LOCAL_URL##*/}"
 DUMP_FILE="/tmp/neon_dump.dump"
