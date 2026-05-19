@@ -9,6 +9,7 @@ type PublishRequest = {
   url: string
   title: string
   description?: string
+  imageUrl?: string
 }
 
 type LinkedInSettingsData = {
@@ -24,6 +25,46 @@ type ExistingShare = {
   id?: string | null
 }
 
+type LinkedInInitUploadResponse = { value: { uploadUrl: string; image: string } }
+
+async function uploadImageToLinkedIn(
+  imageUrl: string,
+  ownerUrn: string,
+  accessToken: string,
+): Promise<string | null> {
+  const initRes = await fetch('https://api.linkedin.com/rest/images?action=initializeUpload', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'LinkedIn-Version': '202604',
+      'X-Restli-Protocol-Version': '2.0.0',
+    },
+    body: JSON.stringify({ initializeUploadRequest: { owner: ownerUrn } }),
+  })
+  if (!initRes.ok) return null
+
+  const { value } = (await initRes.json()) as LinkedInInitUploadResponse
+  const { uploadUrl, image: imageUrn } = value
+
+  const imgRes = await fetch(imageUrl)
+  if (!imgRes.ok) return null
+  const imgBuffer = await imgRes.arrayBuffer()
+  const contentType = imgRes.headers.get('content-type') ?? 'image/jpeg'
+
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': contentType,
+    },
+    body: imgBuffer,
+  })
+  if (!uploadRes.ok) return null
+
+  return imageUrn
+}
+
 export async function POST(request: NextRequest) {
   const payload = await getPayload({ config: configPromise })
 
@@ -33,7 +74,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = (await request.json()) as PublishRequest
-  const { postId, text, url, title, description } = body
+  const { postId, text, url, title, description, imageUrl } = body
 
   if (!postId || !text || !url || !title) {
     return NextResponse.json({ error: 'postId, text, url, and title are required.' }, { status: 400 })
@@ -57,6 +98,11 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  let thumbnailUrn: string | null = null
+  if (imageUrl) {
+    thumbnailUrn = await uploadImageToLinkedIn(imageUrl, settings.personUrn, settings.accessToken)
+  }
+
   const linkedInBody = {
     author: settings.personUrn,
     commentary: text,
@@ -67,6 +113,7 @@ export async function POST(request: NextRequest) {
         source: url,
         title,
         ...(description ? { description } : {}),
+        ...(thumbnailUrn ? { thumbnail: thumbnailUrn } : {}),
       },
     },
     lifecycleState: 'PUBLISHED',
