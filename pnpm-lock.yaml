@@ -186,9 +186,15 @@ importers:
       prettier:
         specifier: ^3.4.2
         version: 3.7.4
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
       tailwindcss:
         specifier: ^4.2.4
         version: 4.2.4
+      tsx:
+        specifier: 4.21.0
+        version: 4.21.0
       typescript:
         specifier: 5.7.3
         version: 5.7.3
@@ -10115,7 +10121,7 @@ snapshots:
   tsx@4.21.0:
     dependencies:
       esbuild: 0.27.3
-      get-tsconfig: 4.8.1
+      get-tsconfig: 4.13.6
     optionalDependencies:
       fsevents: 2.3.3
 

@@ -50,6 +50,4 @@ export const subscribeForm: RequiredDataFromCollectionSlug<'forms'> = {
       width: 100,
     },
   ],
-
-  redirect: undefined,
 }

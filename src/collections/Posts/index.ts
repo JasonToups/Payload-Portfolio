@@ -48,6 +48,7 @@ export const Posts: CollectionConfig<'posts'> = {
   // Type safe if the collection slug generic is passed to `CollectionConfig` - `CollectionConfig<'posts'>
   defaultPopulate: {
     title: true,
+    postDescription: true,
     slug: true,
     categories: true,
     keywords: true,
@@ -86,6 +87,14 @@ export const Posts: CollectionConfig<'posts'> = {
       },
     },
     {
+      name: 'postDescription',
+      type: 'textarea',
+      label: 'Description',
+      admin: {
+        description: 'Displayed in the post hero. Auto-syncs to meta description.',
+      },
+    },
+    {
       type: 'tabs',
       tabs: [
         {
@@ -120,7 +129,7 @@ export const Posts: CollectionConfig<'posts'> = {
                   ]
                 },
               }),
-              label: false,
+              label: 'Body',
               required: true,
             },
             {

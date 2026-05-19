@@ -45,6 +45,8 @@ psql "$LOCAL_ADMIN_URL" \
   -c "CREATE DATABASE \"$DB_NAME\";"
 
 echo "→ Restoring to local postgres..."
-pg_restore --no-owner --no-acl -d "$LOCAL_URL" "$DUMP_FILE"
+TOC_FILE="/tmp/neon_toc.txt"
+pg_restore --list "$DUMP_FILE" | grep -v "pg_session_jwt" > "$TOC_FILE"
+pg_restore --no-owner --no-acl --use-list="$TOC_FILE" -d "$LOCAL_URL" "$DUMP_FILE"
 
 echo "✓ db:pull complete — local database is now in sync with Neon."

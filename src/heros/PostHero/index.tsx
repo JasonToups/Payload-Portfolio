@@ -10,8 +10,16 @@ import { formatAuthors } from '@/utilities/formatAuthors'
 import { getReadMinutes, formatPostDate } from '@/utilities/postMeta'
 
 export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
-  const { categories, heroImage, keywords, populatedAuthors, publishedAt, title, content, meta } =
-    post
+  const {
+    categories,
+    heroImage,
+    postDescription,
+    keywords,
+    populatedAuthors,
+    publishedAt,
+    title,
+    content,
+  } = post
 
   const hasAuthors =
     populatedAuthors && populatedAuthors.length > 0 && formatAuthors(populatedAuthors) !== ''
@@ -20,7 +28,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
   const hasCategories = categories && Array.isArray(categories) && categories.length > 0
   const hasKeywords = keywords && Array.isArray(keywords) && keywords.length > 0
   const hasImage = heroImage && typeof heroImage !== 'string'
-  const description = meta?.description
+  const description = postDescription
 
   return (
     <section className="relative overflow-hidden bg-post">

@@ -268,6 +268,10 @@ export interface Category {
 export interface Post {
   id: number;
   title: string;
+  /**
+   * Displayed in the post hero. Auto-syncs to meta description.
+   */
+  postDescription?: string | null;
   categories?: (number | Category)[] | null;
   heroImage?: (number | null) | Media;
   content: {
@@ -1894,6 +1898,7 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
  */
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
+  postDescription?: T;
   categories?: T;
   heroImage?: T;
   content?: T;
