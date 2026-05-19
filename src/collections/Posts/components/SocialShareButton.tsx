@@ -34,14 +34,14 @@ type LinkedInData = {
 
 const CHAR_LIMIT = 3000
 
-function buildComposedText(text: string, hashtags: string[]): string {
+function buildComposedText(text: string, url: string, hashtags: string[]): string {
   const hashtagString = hashtags.length
     ? hashtags.map((h) => `#${h.replace(/ /g, '_')}`).join(' ')
     : ''
-  return [text, hashtagString].filter(Boolean).join('\n\n')
+  return [text, url, hashtagString].filter(Boolean).join('\n\n')
 }
 
-type LinkedInModalProps = {
+type LinkedInComposeProps = {
   postId: number
   postUrl: string
   defaultText: string
@@ -52,7 +52,7 @@ type LinkedInModalProps = {
   onPublished: () => void
 }
 
-const LinkedInModal: React.FC<LinkedInModalProps> = ({
+const LinkedInCompose: React.FC<LinkedInComposeProps> = ({
   postId,
   postUrl,
   defaultText,
@@ -63,7 +63,7 @@ const LinkedInModal: React.FC<LinkedInModalProps> = ({
   onPublished,
 }) => {
   const [status, setStatus] = useState<'loading' | 'connected' | 'disconnected'>('loading')
-  const [text, setText] = useState(() => buildComposedText(defaultText, hashtags))
+  const [text, setText] = useState(() => buildComposedText(defaultText, postUrl, hashtags))
   const [publishing, setPublishing] = useState(false)
   const [result, setResult] = useState<ModalResult | null>(null)
 
@@ -80,7 +80,7 @@ const LinkedInModal: React.FC<LinkedInModalProps> = ({
     const popup = window.open(
       '/api/linkedin/auth',
       'linkedin-oauth',
-      'width=600,height=700,noopener',
+      'width=600,height=700',
     )
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return
@@ -128,160 +128,127 @@ const LinkedInModal: React.FC<LinkedInModalProps> = ({
   return (
     <div
       style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-        background: 'rgba(0,0,0,0.5)',
+        marginTop: '16px',
+        border: '1px solid var(--theme-border)',
+        borderRadius: '6px',
+        padding: '16px',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: '12px',
       }}
     >
-      <div
-        style={{
-          background: 'var(--theme-bg)',
-          borderRadius: '8px',
-          padding: '24px',
-          width: '560px',
-          maxWidth: '90vw',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>Post to LinkedIn</h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span
+          style={{
+            display: 'inline-block',
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: statusColor,
+            flexShrink: 0,
+          }}
+        />
+        <span style={{ fontSize: '13px', color: 'var(--theme-text-dim)' }}>{statusLabel}</span>
+        {status === 'disconnected' && (
           <button
             type="button"
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '20px',
-              lineHeight: 1,
-              color: 'var(--theme-text)',
-            }}
-            aria-label="Close"
+            onClick={handleConnect}
+            className="btn btn--style-secondary btn--size-small"
+            style={{ marginLeft: '8px' }}
           >
-            ×
+            Connect LinkedIn
           </button>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span
-            style={{
-              display: 'inline-block',
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: statusColor,
-              flexShrink: 0,
-            }}
-          />
-          <span style={{ fontSize: '13px', color: 'var(--theme-text-dim)' }}>{statusLabel}</span>
-          {status === 'disconnected' && (
-            <button
-              type="button"
-              onClick={handleConnect}
-              className="btn btn--style-secondary btn--size-small"
-              style={{ marginLeft: '8px' }}
-            >
-              Connect LinkedIn
-            </button>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <label
-            style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              letterSpacing: '0.05em',
-              textTransform: 'uppercase',
-              color: 'var(--theme-text-dim)',
-            }}
-          >
-            Post Text
-          </label>
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            rows={6}
-            style={{
-              width: '100%',
-              resize: 'vertical',
-              padding: '8px',
-              border: '1px solid var(--theme-border)',
-              borderRadius: '4px',
-              fontSize: '14px',
-              fontFamily: 'inherit',
-              background: 'var(--theme-input-bg)',
-              color: text.length > CHAR_LIMIT ? '#ef4444' : 'var(--theme-text)',
-              boxSizing: 'border-box',
-            }}
-          />
-          <span
-            style={{
-              fontSize: '12px',
-              color: text.length > CHAR_LIMIT ? '#ef4444' : 'var(--theme-text-dim)',
-              textAlign: 'right',
-            }}
-          >
-            {text.length} / {CHAR_LIMIT}
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <span
-            style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              letterSpacing: '0.05em',
-              textTransform: 'uppercase',
-              color: 'var(--theme-text-dim)',
-            }}
-          >
-            Link Card URL
-          </span>
-          <p
-            style={{
-              margin: 0,
-              fontSize: '13px',
-              color: 'var(--theme-text-dim)',
-              wordBreak: 'break-all',
-            }}
-          >
-            {postUrl}
-          </p>
-        </div>
-
-        {result && (
-          <p style={{ margin: 0, fontSize: '13px', color: result.success ? '#22c55e' : '#ef4444' }}>
-            {result.message}
-          </p>
         )}
+      </div>
 
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-          <button
-            type="button"
-            onClick={onClose}
-            className="btn btn--style-secondary btn--size-medium"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={() => void handlePublish()}
-            disabled={
-              status !== 'connected' || publishing || text.length > CHAR_LIMIT || text.length === 0
-            }
-            className="btn btn--style-primary btn--size-medium"
-          >
-            {publishing ? 'Publishing…' : 'Publish'}
-          </button>
-        </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <label
+          style={{
+            fontSize: '11px',
+            fontWeight: 600,
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            color: 'var(--theme-text-dim)',
+          }}
+        >
+          Post Text
+        </label>
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={6}
+          style={{
+            width: '100%',
+            resize: 'vertical',
+            padding: '8px',
+            border: '1px solid var(--theme-border)',
+            borderRadius: '4px',
+            fontSize: '14px',
+            fontFamily: 'inherit',
+            background: 'var(--theme-input-bg)',
+            color: text.length > CHAR_LIMIT ? '#ef4444' : 'var(--theme-text)',
+            boxSizing: 'border-box',
+          }}
+        />
+        <span
+          style={{
+            fontSize: '12px',
+            color: text.length > CHAR_LIMIT ? '#ef4444' : 'var(--theme-text-dim)',
+            textAlign: 'right',
+          }}
+        >
+          {text.length} / {CHAR_LIMIT}
+        </span>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <span
+          style={{
+            fontSize: '11px',
+            fontWeight: 600,
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            color: 'var(--theme-text-dim)',
+          }}
+        >
+          Link Card URL
+        </span>
+        <p
+          style={{
+            margin: 0,
+            fontSize: '13px',
+            color: 'var(--theme-text-dim)',
+            wordBreak: 'break-all',
+          }}
+        >
+          {postUrl}
+        </p>
+      </div>
+
+      {result && (
+        <p style={{ margin: 0, fontSize: '13px', color: result.success ? '#22c55e' : '#ef4444' }}>
+          {result.message}
+        </p>
+      )}
+
+      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+        <button
+          type="button"
+          onClick={onClose}
+          className="btn btn--style-secondary btn--size-medium"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={() => void handlePublish()}
+          disabled={
+            status !== 'connected' || publishing || text.length > CHAR_LIMIT || text.length === 0
+          }
+          className="btn btn--style-primary btn--size-medium"
+        >
+          {publishing ? 'Publishing…' : 'Publish'}
+        </button>
       </div>
     </div>
   )
@@ -374,7 +341,7 @@ const SocialShareButton: React.FC = () => {
         .filter((k): k is KeywordRef => typeof k === 'object')
         .map((k) => k.name)
       setLinkedInData({
-        defaultText: postData.socialPostBody ?? title,
+        defaultText: postData.socialPostBody ?? '',
         hashtags,
         description: postData.meta?.description ?? '',
       })
@@ -461,7 +428,7 @@ const SocialShareButton: React.FC = () => {
       )}
 
       {linkedInModalOpen && linkedInData && (
-        <LinkedInModal
+        <LinkedInCompose
           postId={id as number}
           postUrl={postUrl}
           defaultText={linkedInData.defaultText}
