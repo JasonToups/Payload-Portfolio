@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { type SocialPlatform } from '@/utilities/buildShareUrl'
+import { getServerSideURL } from '@/utilities/getURL'
 
 type PublishRequest = {
   postId: number
@@ -47,7 +48,10 @@ async function uploadImageToLinkedIn(
   const { value } = (await initRes.json()) as LinkedInInitUploadResponse
   const { uploadUrl, image: imageUrn } = value
 
-  const imgRes = await fetch(imageUrl)
+  const absoluteImageUrl = imageUrl.startsWith('http')
+    ? imageUrl
+    : `${getServerSideURL()}${imageUrl}`
+  const imgRes = await fetch(absoluteImageUrl)
   if (!imgRes.ok) return null
   const imgBuffer = await imgRes.arrayBuffer()
   const contentType = imgRes.headers.get('content-type') ?? 'image/jpeg'
