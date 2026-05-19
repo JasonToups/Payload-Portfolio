@@ -34,11 +34,11 @@ type LinkedInData = {
 
 const CHAR_LIMIT = 3000
 
-function buildComposedText(text: string, hashtags: string[]): string {
+function buildComposedText(text: string, url: string, hashtags: string[]): string {
   const hashtagString = hashtags.length
     ? hashtags.map((h) => `#${h.replace(/ /g, '_')}`).join(' ')
     : ''
-  return [text, hashtagString].filter(Boolean).join('\n\n')
+  return [text, url, hashtagString].filter(Boolean).join('\n\n')
 }
 
 type LinkedInModalProps = {
@@ -63,7 +63,7 @@ const LinkedInModal: React.FC<LinkedInModalProps> = ({
   onPublished,
 }) => {
   const [status, setStatus] = useState<'loading' | 'connected' | 'disconnected'>('loading')
-  const [text, setText] = useState(() => buildComposedText(defaultText, hashtags))
+  const [text, setText] = useState(() => buildComposedText(defaultText, postUrl, hashtags))
   const [publishing, setPublishing] = useState(false)
   const [result, setResult] = useState<ModalResult | null>(null)
 
@@ -80,7 +80,7 @@ const LinkedInModal: React.FC<LinkedInModalProps> = ({
     const popup = window.open(
       '/api/linkedin/auth',
       'linkedin-oauth',
-      'width=600,height=700,noopener',
+      'width=600,height=700',
     )
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return
@@ -374,7 +374,7 @@ const SocialShareButton: React.FC = () => {
         .filter((k): k is KeywordRef => typeof k === 'object')
         .map((k) => k.name)
       setLinkedInData({
-        defaultText: postData.socialPostBody ?? title,
+        defaultText: postData.socialPostBody ?? '',
         hashtags,
         description: postData.meta?.description ?? '',
       })
