@@ -84,6 +84,13 @@ export const syncContentToMetaDescription: CollectionBeforeChangeHook<Post> = as
   originalDoc,
   req: { payload },
 }) => {
+  if (data.postDescription) {
+    return {
+      ...data,
+      meta: { ...data.meta, description: data.postDescription as string },
+    }
+  }
+
   if (!data.content?.root) return data
 
   const contentText = extractLexicalText(data.content.root)
