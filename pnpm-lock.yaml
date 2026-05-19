@@ -186,6 +186,9 @@ importers:
       prettier:
         specifier: ^3.4.2
         version: 3.7.4
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
       tailwindcss:
         specifier: ^4.2.4
         version: 4.2.4

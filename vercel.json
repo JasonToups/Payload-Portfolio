@@ -1,0 +1,3 @@
+{
+  "buildCommand": "pnpm migrate:ci && pnpm build"
+}
