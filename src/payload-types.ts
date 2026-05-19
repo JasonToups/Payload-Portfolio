@@ -125,6 +125,7 @@ export interface Config {
     'email-settings': EmailSetting;
     'email-layout': EmailLayout;
     'subscribe-post-block': SubscribePostBlock;
+    'linkedin-settings': LinkedinSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -133,6 +134,7 @@ export interface Config {
     'email-settings': EmailSettingsSelect<false> | EmailSettingsSelect<true>;
     'email-layout': EmailLayoutSelect<false> | EmailLayoutSelect<true>;
     'subscribe-post-block': SubscribePostBlockSelect<false> | SubscribePostBlockSelect<true>;
+    'linkedin-settings': LinkedinSettingsSelect<false> | LinkedinSettingsSelect<true>;
   };
   locale: null;
   user: User;
@@ -2608,6 +2610,18 @@ export interface SubscribePostBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "linkedin-settings".
+ */
+export interface LinkedinSetting {
+  id: number;
+  accessToken?: string | null;
+  expiresAt?: string | null;
+  personUrn?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -2746,6 +2760,18 @@ export interface SubscribePostBlockSelect<T extends boolean = true> {
   buttonText?: T;
   meta?: T;
   source?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "linkedin-settings_select".
+ */
+export interface LinkedinSettingsSelect<T extends boolean = true> {
+  accessToken?: T;
+  expiresAt?: T;
+  personUrn?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

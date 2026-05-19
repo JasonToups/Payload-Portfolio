@@ -1,7 +1,7 @@
 'use client'
 
 import { useDocumentInfo } from '@payloadcms/ui'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { buildShareUrl, type ShareOptions, type SocialPlatform } from '@/utilities/buildShareUrl'
 
@@ -21,6 +21,271 @@ type PostData = {
   meta?: { description?: string | null } | null
 }
 
+type LinkedInStatusResponse = { connected: boolean }
+type LinkedInPublishResponse = { success?: boolean; error?: string; linkedInPostId?: string }
+
+type ModalResult = { success: boolean; message: string }
+
+type LinkedInData = {
+  defaultText: string
+  hashtags: string[]
+  description: string
+}
+
+const CHAR_LIMIT = 3000
+
+function buildComposedText(text: string, hashtags: string[]): string {
+  const hashtagString = hashtags.length
+    ? hashtags.map((h) => `#${h.replace(/ /g, '_')}`).join(' ')
+    : ''
+  return [text, hashtagString].filter(Boolean).join('\n\n')
+}
+
+type LinkedInModalProps = {
+  postId: number
+  postUrl: string
+  defaultText: string
+  hashtags: string[]
+  title: string
+  description: string
+  onClose: () => void
+  onPublished: () => void
+}
+
+const LinkedInModal: React.FC<LinkedInModalProps> = ({
+  postId,
+  postUrl,
+  defaultText,
+  hashtags,
+  title,
+  description,
+  onClose,
+  onPublished,
+}) => {
+  const [status, setStatus] = useState<'loading' | 'connected' | 'disconnected'>('loading')
+  const [text, setText] = useState(() => buildComposedText(defaultText, hashtags))
+  const [publishing, setPublishing] = useState(false)
+  const [result, setResult] = useState<ModalResult | null>(null)
+
+  useEffect(() => {
+    fetch('/api/linkedin/status')
+      .then((r) => r.json())
+      .then((data: LinkedInStatusResponse) =>
+        setStatus(data.connected ? 'connected' : 'disconnected'),
+      )
+      .catch(() => setStatus('disconnected'))
+  }, [])
+
+  const handleConnect = () => {
+    const popup = window.open(
+      '/api/linkedin/auth',
+      'linkedin-oauth',
+      'width=600,height=700,noopener',
+    )
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return
+      if (event.data === 'linkedin-connected') {
+        setStatus('connected')
+        window.removeEventListener('message', handleMessage)
+        popup?.close()
+      }
+    }
+    window.addEventListener('message', handleMessage)
+  }
+
+  const handlePublish = async () => {
+    setPublishing(true)
+    setResult(null)
+    try {
+      const res = await fetch('/api/linkedin/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId, text, url: postUrl, title, description }),
+      })
+      const data = (await res.json()) as LinkedInPublishResponse
+      if (data.success) {
+        setResult({ success: true, message: 'Published to LinkedIn!' })
+        onPublished()
+      } else {
+        setResult({ success: false, message: data.error ?? 'Publish failed.' })
+      }
+    } catch {
+      setResult({ success: false, message: 'Network error — try again.' })
+    } finally {
+      setPublishing(false)
+    }
+  }
+
+  const statusColor =
+    status === 'connected' ? '#22c55e' : status === 'disconnected' ? '#ef4444' : '#9ca3af'
+  const statusLabel =
+    status === 'loading'
+      ? 'Checking connection…'
+      : status === 'connected'
+        ? 'Connected'
+        : 'Not connected'
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <div
+        style={{
+          background: 'var(--theme-bg)',
+          borderRadius: '8px',
+          padding: '24px',
+          width: '560px',
+          maxWidth: '90vw',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>Post to LinkedIn</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '20px',
+              lineHeight: 1,
+              color: 'var(--theme-text)',
+            }}
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span
+            style={{
+              display: 'inline-block',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: statusColor,
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ fontSize: '13px', color: 'var(--theme-text-dim)' }}>{statusLabel}</span>
+          {status === 'disconnected' && (
+            <button
+              type="button"
+              onClick={handleConnect}
+              className="btn btn--style-secondary btn--size-small"
+              style={{ marginLeft: '8px' }}
+            >
+              Connect LinkedIn
+            </button>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <label
+            style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              color: 'var(--theme-text-dim)',
+            }}
+          >
+            Post Text
+          </label>
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            rows={6}
+            style={{
+              width: '100%',
+              resize: 'vertical',
+              padding: '8px',
+              border: '1px solid var(--theme-border)',
+              borderRadius: '4px',
+              fontSize: '14px',
+              fontFamily: 'inherit',
+              background: 'var(--theme-input-bg)',
+              color: text.length > CHAR_LIMIT ? '#ef4444' : 'var(--theme-text)',
+              boxSizing: 'border-box',
+            }}
+          />
+          <span
+            style={{
+              fontSize: '12px',
+              color: text.length > CHAR_LIMIT ? '#ef4444' : 'var(--theme-text-dim)',
+              textAlign: 'right',
+            }}
+          >
+            {text.length} / {CHAR_LIMIT}
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <span
+            style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              color: 'var(--theme-text-dim)',
+            }}
+          >
+            Link Card URL
+          </span>
+          <p
+            style={{
+              margin: 0,
+              fontSize: '13px',
+              color: 'var(--theme-text-dim)',
+              wordBreak: 'break-all',
+            }}
+          >
+            {postUrl}
+          </p>
+        </div>
+
+        {result && (
+          <p style={{ margin: 0, fontSize: '13px', color: result.success ? '#22c55e' : '#ef4444' }}>
+            {result.message}
+          </p>
+        )}
+
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <button
+            type="button"
+            onClick={onClose}
+            className="btn btn--style-secondary btn--size-medium"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => void handlePublish()}
+            disabled={
+              status !== 'connected' || publishing || text.length > CHAR_LIMIT || text.length === 0
+            }
+            className="btn btn--style-primary btn--size-medium"
+          >
+            {publishing ? 'Publishing…' : 'Publish'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const PLATFORMS: { value: SocialPlatform; label: string }[] = [
   { value: 'twitter', label: 'X / Twitter' },
@@ -35,10 +300,12 @@ const SocialShareButton: React.FC = () => {
   const [loadingPlatform, setLoadingPlatform] = useState<SocialPlatform | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [confirmedShares, setConfirmedShares] = useState<SocialPlatform[]>(() =>
-    (savedDocumentData?.socialShares as SocialShare[] | null | undefined ?? []).map(
+    ((savedDocumentData?.socialShares as SocialShare[] | null | undefined) ?? []).map(
       (s) => s.platform,
     ),
   )
+  const [linkedInModalOpen, setLinkedInModalOpen] = useState(false)
+  const [linkedInData, setLinkedInData] = useState<LinkedInData | null>(null)
 
   const isNewDoc = !id
   const isPublished = savedDocumentData?._status === 'published'
@@ -85,10 +352,33 @@ const SocialShareButton: React.FC = () => {
             ? { text: postData.socialPostBody ?? title, tag }
             : platform === 'bluesky'
               ? { text: postData.socialPostBody ?? title, hashtags }
-              : platform === 'linkedin'
-                ? { title, summary: postData.meta?.description ?? '' }
-                : {}
+              : {}
       window.open(buildShareUrl(platform, postUrl, options), '_blank', 'noopener,noreferrer')
+    } catch {
+      setError('Request failed — check your network and try again.')
+    } finally {
+      setLoadingPlatform(null)
+    }
+  }
+
+  const handleLinkedInClick = async () => {
+    if (!isPublished || !id || !postUrl) return
+
+    setLoadingPlatform('linkedin')
+    setError(null)
+
+    try {
+      const fetchRes = await fetch(`/api/posts/${id}?depth=1`)
+      const postData = (await fetchRes.json()) as PostData
+      const hashtags = (postData.keywords ?? [])
+        .filter((k): k is KeywordRef => typeof k === 'object')
+        .map((k) => k.name)
+      setLinkedInData({
+        defaultText: postData.socialPostBody ?? title,
+        hashtags,
+        description: postData.meta?.description ?? '',
+      })
+      setLinkedInModalOpen(true)
     } catch {
       setError('Request failed — check your network and try again.')
     } finally {
@@ -121,6 +411,7 @@ const SocialShareButton: React.FC = () => {
         {PLATFORMS.map(({ value, label }) => {
           const wasShared = confirmedShares.includes(value)
           const isLoading = loadingPlatform === value
+          const isLinkedIn = value === 'linkedin'
 
           return (
             <div
@@ -130,7 +421,9 @@ const SocialShareButton: React.FC = () => {
             >
               <button
                 type="button"
-                onClick={() => handleShare(value)}
+                onClick={() =>
+                  isLinkedIn ? void handleLinkedInClick() : void handleShare(value)
+                }
                 disabled={!isPublished || loadingPlatform !== null}
                 className="btn btn--style-secondary btn--size-medium"
                 style={{
@@ -140,7 +433,15 @@ const SocialShareButton: React.FC = () => {
                   ...(!isPublished ? { pointerEvents: 'none' } : {}),
                 }}
               >
-                {isLoading ? 'Sharing…' : wasShared ? `${label} ✓` : `Share on ${label}`}
+                {isLoading
+                  ? isLinkedIn
+                    ? 'Loading…'
+                    : 'Sharing…'
+                  : wasShared
+                    ? `${label} ✓`
+                    : isLinkedIn
+                      ? `Post to ${label}`
+                      : `Share on ${label}`}
               </button>
             </div>
           )
@@ -157,6 +458,22 @@ const SocialShareButton: React.FC = () => {
         <p style={{ marginTop: '8px', fontSize: '13px', color: 'var(--theme-error-500)' }}>
           {error}
         </p>
+      )}
+
+      {linkedInModalOpen && linkedInData && (
+        <LinkedInModal
+          postId={id as number}
+          postUrl={postUrl}
+          defaultText={linkedInData.defaultText}
+          hashtags={linkedInData.hashtags}
+          title={title}
+          description={linkedInData.description}
+          onClose={() => setLinkedInModalOpen(false)}
+          onPublished={() => {
+            setConfirmedShares((prev) => [...prev, 'linkedin'])
+            setLinkedInModalOpen(false)
+          }}
+        />
       )}
     </div>
   )
