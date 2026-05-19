@@ -23,7 +23,8 @@ type PostData = {
   socialShares?: SocialShare[] | null
   keywords?: (number | KeywordRef)[] | null
   socialPostBody?: string | null
-  meta?: { description?: string | null; image?: MediaObject | number | null } | null
+  heroImage?: MediaObject | number | null
+  meta?: { description?: string | null } | null
 }
 
 type LinkedInStatusResponse = { connected: boolean }
@@ -348,10 +349,10 @@ const SocialShareButton: React.FC = () => {
       const hashtags = (postData.keywords ?? [])
         .filter((k): k is KeywordRef => typeof k === 'object')
         .map((k) => k.name)
-      const image = postData.meta?.image
+      const hero = postData.heroImage
       const ogImageUrl =
-        image && typeof image === 'object'
-          ? (image.sizes?.og?.url ?? image.url ?? null)
+        hero && typeof hero === 'object'
+          ? (hero.sizes?.og?.url ?? hero.url ?? null)
           : null
       setLinkedInData({
         defaultText: postData.socialPostBody ?? '',
