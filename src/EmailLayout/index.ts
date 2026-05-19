@@ -5,7 +5,8 @@ export const EmailLayout: GlobalConfig = {
   label: 'Email Layout',
   admin: {
     group: 'Email',
-    description: 'Controls the visual design of all outgoing emails — header, footer, colors, and branding.',
+    description:
+      'Controls the visual design of all outgoing emails — header, footer, colors, and branding.',
   },
   access: {
     read: () => true,
@@ -66,7 +67,8 @@ export const EmailLayout: GlobalConfig = {
           type: 'text',
           required: false,
           admin: {
-            description: 'Copyright line or short tagline shown in the footer (e.g. "© 2026 Now Hiring").',
+            description:
+              'Copyright line or short tagline shown in the footer (e.g. "© 2026 Jason Toups").',
           },
         },
         {

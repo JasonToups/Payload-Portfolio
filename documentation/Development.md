@@ -138,12 +138,42 @@ After `pnpm dev` runs, your local DB already has the column. Running `pnpm migra
 
 `pnpm migrate` is safe to run locally **only** against a clean database that has never had dev mode run against it (e.g., a freshly restored `pnpm db:pull` snapshot). In that case, add `IF NOT EXISTS` to any `ADD COLUMN` statements in the generated migration file first to make it idempotent.
 
+## Pre-PR Checklist
+
+Before opening a pull request, run the appropriate steps below.
+
+### If you added a new field, collection, or global
+
+1. **Dev server** — `pnpm dev` (Payload auto-pushes the schema change to your local database)
+2. **Stop** the dev server (`Ctrl+C`)
+3. **Regenerate types** — `pnpm generate:types`
+4. **Create migration** — `pnpm migrate:create`
+5. **Make migration idempotent** — open the generated `src/migrations/<timestamp>.ts` and change any `CREATE TABLE` to `CREATE TABLE IF NOT EXISTS`
+6. **Verify the build** — `pnpm build` (Next.js compilation only — migrations run in Vercel, not locally)
+7. **Commit** — stage the collection/global config, `payload-types.ts`, and all migration files as one atomic commit
+
+### If you only changed non-schema code
+
+`pnpm build` is sufficient — no migration steps needed.
+
+---
+
+> **How migrations reach production**
+>
+> `pnpm build` compiles the app only. Migrations run in Vercel via the configured build command:
+> ```
+> npx payload migrate --force-accept-warning && pnpm build
+> ```
+> This keeps local builds clean after `pnpm dev` and ensures a bad migration fails the deployment atomically before any code goes live.
+
+---
+
 ## Dev Scripts Reference
 
 | Script                    | Description                          |
 | ------------------------- | ------------------------------------ |
 | `pnpm dev`                | Start the dev server                 |
-| `pnpm build`              | Production build                     |
+| `pnpm build`              | Next.js build (migrations run in Vercel, not locally) |
 | `pnpm start`              | Serve the production build           |
 | `pnpm db:local`           | Start the local Docker Postgres      |
 | `pnpm db:pull`            | Sync Neon production DB to local     |

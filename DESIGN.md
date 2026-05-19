@@ -1,11 +1,13 @@
 <!-- SEED — re-run $impeccable document once there's code to capture the actual tokens and components. -->
 
 ---
-name: Now Hiring — Engineer Portfolio Template
+
+name: Jason Toups — Engineer Portfolio Template
 description: Warm, choreographed portfolio for engineers who show up like a product
+
 ---
 
-# Design System: Now Hiring — Engineer Portfolio Template
+# Design System: Jason Toups — Engineer Portfolio Template
 
 ## 1. Overview
 
@@ -20,6 +22,7 @@ Motion is choreographed, not sprinkled. Page entrances are orchestrated. Section
 This system explicitly rejects the LinkedIn aesthetic: performative professionalism, flat blue hierarchies, engagement-bait structure, the visual grammar of a platform optimized for corporate anxiety. It also rejects the "dark SaaS hero + gradient blob + 47 feature cards" pattern — the first AI template reflex. And it rejects the cold minimal portfolio that feels like a mood board rather than a person.
 
 **Key Characteristics:**
+
 - Amber as atmosphere, not accent — committed, not cautious
 - Bold serif display that commands authority without distance
 - Shader-animated hero surfaces from shaders.com (WaveDistortion, Glass, LinearGradient)
@@ -32,12 +35,15 @@ This system explicitly rejects the LinkedIn aesthetic: performative professional
 A committed warm amber palette: one saturated color carries the room. Neutrals exist to amplify it, not compete with it.
 
 ### Primary
+
 - **Warm Amber** `[to be resolved during implementation — anchor: warm amber, OKLCH ~65% chroma ~0.18 hue ~60–70°]`: The load-bearing color. Used in hero backgrounds, section washes, CTA buttons, and hover states. At 30–60% surface presence on key pages.
 
 ### Secondary
+
 - **Deep Amber / Burnt Sienna** `[to be resolved — OKLCH ~45% chroma ~0.15 hue ~55°]`: Used for pressed/active states, emphasized text, inline links, and depth layering within amber sections.
 
 ### Neutral
+
 - **Warm Off-White** `[to be resolved — OKLCH ~97% chroma ~0.005 hue ~70°]`: Page background in light sections. Tinted toward amber — never pure white.
 - **Warm Near-Black** `[to be resolved — OKLCH ~12% chroma ~0.01 hue ~60°]`: Primary text. Tinted toward amber — never pure black.
 - **Warm Mid-Gray** `[to be resolved — OKLCH ~55% chroma ~0.005 hue ~65°]`: Secondary text, captions, metadata, dividers.
@@ -57,6 +63,7 @@ A committed warm amber palette: one saturated color carries the room. Neutrals e
 **Character:** Fraunces is a warm, optical-size serif with visible personality — it reads like a person who has opinions, not a brand that has guidelines. At heavy weights it commands space without becoming aggressive. Plus Jakarta Sans is humanist and warm, never geometric-cold — it complements Fraunces without competing. The pairing says: I think carefully and I communicate clearly.
 
 ### Hierarchy
+
 - **Display** (Fraunces 900, clamp(3rem, 8vw, 6rem), line-height 0.9–1.0): Hero headlines, above-the-fold value proposition. Set tight. One or two lines maximum.
 - **Headline** (Fraunces 800, clamp(2rem, 5vw, 3.5rem), line-height 1.05): Section introductions, post titles, feature headers.
 - **Title** (Fraunces 700 or Plus Jakarta Sans 700, clamp(1.25rem, 2.5vw, 1.75rem), line-height 1.2): Card headers, subsection titles, pull quotes.
@@ -83,9 +90,10 @@ Traditional box shadows are used sparingly and structurally: only on interactive
 
 ## 5. Components
 
-*Components are omitted in seed mode. Document in a follow-up `$impeccable document` pass once implementation begins.*
+_Components are omitted in seed mode. Document in a follow-up `$impeccable document` pass once implementation begins._
 
 **Planned signature components to document at that time:**
+
 - Hero section with shaders.com animated background (WaveDistortion or LinearGradient)
 - Newsletter subscribe CTA (primary conversion — warrants its own component documentation)
 - Post card with hover lift and amber accent
@@ -95,6 +103,7 @@ Traditional box shadows are used sparingly and structurally: only on interactive
 ## 6. Do's and Don'ts
 
 ### Do:
+
 - **Do** use warm amber as atmosphere — commit to 30–60% surface presence on hero and feature sections, not as a button highlight on an otherwise gray page.
 - **Do** use Fraunces at Black or Extra Bold weight for all display and headline use. The "bold choice" directive is non-negotiable — light or regular weight collapses the intended authority.
 - **Do** place the newsletter subscribe CTA above the fold, or within the first two scroll stops. It is the primary conversion goal; it earns prime real estate.
@@ -106,6 +115,7 @@ Traditional box shadows are used sparingly and structurally: only on interactive
 - **Do** make focus rings visible, amber-tinted, and consistent across all interactive elements. Keyboard navigation is a first-class experience.
 
 ### Don't:
+
 - **Don't** design anything that looks or feels like LinkedIn — no flat blue hierarchies, no engagement-bait card layouts, no performative professional tone, no "Top Voice" badge energy. LinkedIn is the anti-reference. If a component could appear on LinkedIn without modification, redesign it.
 - **Don't** use the "dark SaaS hero + gradient blob + 47 feature cards" pattern. This is the first AI template reflex and the project's primary aesthetic anti-reference.
 - **Don't** build a cold, minimal portfolio that reads as a mood board instead of a person. Warmth is not optional — it is the differentiator.

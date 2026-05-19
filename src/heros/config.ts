@@ -82,7 +82,7 @@ export const hero: Field = {
       type: 'text',
       admin: {
         condition: (_, { type } = {}) => type === 'kinetic',
-        description: 'Short label left of the rule, e.g. "NOW HIRING ME — INDEX"',
+        description: 'Short label left of the rule, e.g. "Jason Toups ME — INDEX"',
       },
     },
     {
@@ -101,16 +101,22 @@ export const hero: Field = {
       },
       fields: [
         { name: 'before', type: 'text', admin: { description: 'e.g. "I build"' } },
-        { name: 'emphasis', type: 'text', admin: { description: 'Italic accent word, e.g. "software"' } },
-        { name: 'middle', type: 'text', admin: { description: 'e.g. "that earns its place on the"' } },
+        {
+          name: 'emphasis',
+          type: 'text',
+          admin: { description: 'Italic accent word, e.g. "software"' },
+        },
+        {
+          name: 'middle',
+          type: 'text',
+          admin: { description: 'e.g. "that earns its place on the"' },
+        },
         {
           name: 'rotatingWords',
           type: 'array',
           maxRows: 3,
           admin: { description: 'Up to 3 words that cycle in the headline' },
-          fields: [
-            { name: 'word', type: 'text', required: true },
-          ],
+          fields: [{ name: 'word', type: 'text', required: true }],
         },
       ],
     },
@@ -119,11 +125,7 @@ export const hero: Field = {
       type: 'richText',
       editor: lexicalEditor({
         features: ({ rootFeatures }) => {
-          return [
-            ...rootFeatures,
-            FixedToolbarFeature(),
-            InlineToolbarFeature(),
-          ]
+          return [...rootFeatures, FixedToolbarFeature(), InlineToolbarFeature()]
         },
       }),
       admin: {
