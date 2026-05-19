@@ -48,7 +48,7 @@ export async function sendWelcomeEmail(
       return { status: 'skipped', reason: 'disabled_in_settings' }
     }
 
-    const fromName: string = emailSettings.fromName || 'Now Hiring'
+    const fromName: string = emailSettings.fromName || 'Jason Toups'
     const replyTo: string | undefined = emailSettings.replyTo || undefined
     const subject: string = emailSettings.welcomeSubject || 'Welcome to the newsletter!'
 
@@ -114,4 +114,3 @@ export async function handleNewsletterSubscribe(
 
   return { contact, segment }
 }
-

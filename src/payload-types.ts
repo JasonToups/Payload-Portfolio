@@ -547,7 +547,7 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
     /**
-     * Short label left of the rule, e.g. "NOW HIRING ME — INDEX"
+     * Short label left of the rule, e.g. "Jason Toups ME — INDEX"
      */
     eyebrow?: string | null;
     /**
@@ -2546,7 +2546,7 @@ export interface EmailLayout {
   };
   footer: {
     /**
-     * Copyright line or short tagline shown in the footer (e.g. "© 2026 Now Hiring").
+     * Copyright line or short tagline shown in the footer (e.g. "© 2026 Jason Toups").
      */
     footerText?: string | null;
     /**

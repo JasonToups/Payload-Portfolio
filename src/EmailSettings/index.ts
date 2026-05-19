@@ -20,7 +20,7 @@ export const EmailSettings: GlobalConfig = {
       name: 'fromName',
       label: 'From Name',
       type: 'text',
-      defaultValue: 'Now Hiring',
+      defaultValue: 'Jason Toups',
       admin: {
         description:
           'Display name shown in the inbox. The actual sending address is configured via RESEND_FROM_ADDRESS in .env.',
@@ -79,7 +79,8 @@ export const EmailSettings: GlobalConfig = {
       admin: {
         condition: (_, siblingData) =>
           Boolean((siblingData as WelcomeEmailSiblingData)?.welcomeEmailEnabled),
-        description: 'WYSIWYG editor. Content is stored as Lexical JSON and converted to HTML when sending.',
+        description:
+          'WYSIWYG editor. Content is stored as Lexical JSON and converted to HTML when sending.',
       },
     },
   ],

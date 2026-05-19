@@ -55,13 +55,11 @@ export const sendBroadcastHandler: PayloadHandler = async (req) => {
   } catch {
     // No body or non-JSON — fine, proceed without it
   }
-  const scheduledAt = bodyScheduledAt ?? (broadcast.scheduledAt as string | null | undefined) ?? null
+  const scheduledAt =
+    bodyScheduledAt ?? (broadcast.scheduledAt as string | null | undefined) ?? null
 
   if (scheduledAt && new Date(scheduledAt) <= new Date()) {
-    return Response.json(
-      { error: 'Scheduled time must be in the future.' },
-      { status: 400 },
-    )
+    return Response.json({ error: 'Scheduled time must be in the future.' }, { status: 400 })
   }
 
   // Pull audience ID and from-name from the email-settings global.
@@ -77,14 +75,11 @@ export const sendBroadcastHandler: PayloadHandler = async (req) => {
     )
   }
 
-  const fromName = emailSettings?.fromName ?? 'Now Hiring'
+  const fromName = emailSettings?.fromName ?? 'Jason Toups'
   const from = buildFromAddress(fromName)
 
   if (!from) {
-    return Response.json(
-      { error: 'RESEND_FROM_ADDRESS is not configured.' },
-      { status: 500 },
-    )
+    return Response.json({ error: 'RESEND_FROM_ADDRESS is not configured.' }, { status: 500 })
   }
 
   // Resolve the audienceTopic relationship to a Resend topicId (depth: 2 already populated it)
