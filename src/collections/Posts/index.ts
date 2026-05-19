@@ -323,6 +323,11 @@ export const Posts: CollectionConfig<'posts'> = {
               name: 'socialPostBody',
               type: 'textarea',
               label: 'Social Post Body',
+              admin: {
+                components: {
+                  Field: '@/collections/Posts/components/DebouncedSocialPostBody',
+                },
+              },
             },
             {
               name: 'socialShareActions',
