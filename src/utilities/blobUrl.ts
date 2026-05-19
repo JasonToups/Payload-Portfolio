@@ -14,7 +14,7 @@ type ResolveOptions = {
   preview?: boolean
   /**
    * Serve images through the /media/ proxy route so URLs align with the
-   * sending domain (updates.jasontoups.com) rather than the Vercel Blob CDN.
+   * sending domain (updates.toupsi.com) rather than the Vercel Blob CDN.
    * Automatically ignored on localhost where the proxy URL is unreachable
    * for external email clients.
    */

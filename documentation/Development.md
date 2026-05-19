@@ -7,7 +7,8 @@ A guide to running this project locally, managing the database, and using the av
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) running
 - [pnpm](https://pnpm.io/installation) installed
 - [PostgreSQL 17](https://www.postgresql.org/) client binaries:
-  ```bash
+
+  ```shell
   brew install postgresql@17
   brew link --force libpq
   ```
@@ -29,8 +30,8 @@ Fill in the following key variables in `.env`:
 
 For local development, set `POSTGRES_URL` to:
 
-```
-postgresql://postgres:password@127.0.0.1:5433/now-hiring
+```shell
+postgresql://postgres:password@127.0.0.1:5433/toupsi
 ```
 
 ## Running the Project
@@ -50,7 +51,7 @@ The local database is a PostgreSQL 17 container defined in `docker-compose.yml`,
 | Detail   | Value            |
 | -------- | ---------------- |
 | Host     | `127.0.0.1:5433` |
-| Database | `now-hiring`     |
+| Database | `toupsi`         |
 | User     | `postgres`       |
 | Password | `password`       |
 
@@ -161,29 +162,39 @@ Before opening a pull request, run the appropriate steps below.
 > **How migrations reach production**
 >
 > `pnpm build` compiles the app only. Migrations run in Vercel via the configured build command:
-> ```
+>
+> ```shell
 > npx payload migrate --force-accept-warning && pnpm build
 > ```
+>
 > This keeps local builds clean after `pnpm dev` and ensures a bad migration fails the deployment atomically before any code goes live.
 
 ---
 
+## Trigger a Vercel Prod Deployment
+
+You would need to redeploy on Prod, if you updated an ENV variable.
+
+```shell
+vercel --prod
+```
+
 ## Dev Scripts Reference
 
-| Script                    | Description                          |
-| ------------------------- | ------------------------------------ |
-| `pnpm dev`                | Start the dev server                 |
+| Script                    | Description                                           |
+| ------------------------- | ----------------------------------------------------- |
+| `pnpm dev`                | Start the dev server                                  |
 | `pnpm build`              | Next.js build (migrations run in Vercel, not locally) |
-| `pnpm start`              | Serve the production build           |
-| `pnpm db:local`           | Start the local Docker Postgres      |
-| `pnpm db:pull`            | Sync Neon production DB to local     |
-| `pnpm migrate`            | Run pending Payload migrations       |
-| `pnpm generate:types`     | Regenerate Payload TypeScript types  |
-| `pnpm generate:importmap` | Regenerate Payload import map        |
-| `pnpm lint`               | Lint the codebase                    |
-| `pnpm lint:fix`           | Lint and auto-fix                    |
-| `pnpm test`               | Run all tests                        |
-| `pnpm test:int`           | Unit/integration tests only (Vitest) |
-| `pnpm test:e2e`           | Playwright E2E tests                 |
-| `pnpm reinstall`          | Clean reinstall all dependencies     |
-| `pnpm clear:next`         | Delete the `.next` build directory   |
+| `pnpm start`              | Serve the production build                            |
+| `pnpm db:local`           | Start the local Docker Postgres                       |
+| `pnpm db:pull`            | Sync Neon production DB to local                      |
+| `pnpm migrate`            | Run pending Payload migrations                        |
+| `pnpm generate:types`     | Regenerate Payload TypeScript types                   |
+| `pnpm generate:importmap` | Regenerate Payload import map                         |
+| `pnpm lint`               | Lint the codebase                                     |
+| `pnpm lint:fix`           | Lint and auto-fix                                     |
+| `pnpm test`               | Run all tests                                         |
+| `pnpm test:int`           | Unit/integration tests only (Vitest)                  |
+| `pnpm test:e2e`           | Playwright E2E tests                                  |
+| `pnpm reinstall`          | Clean reinstall all dependencies                      |
+| `pnpm clear:next`         | Delete the `.next` build directory                    |
