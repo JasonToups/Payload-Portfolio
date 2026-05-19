@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     headers: {
       Authorization: `Bearer ${settings.accessToken}`,
       'Content-Type': 'application/json',
-      'LinkedIn-Version': '202605',
+      'LinkedIn-Version': '202604',
       'X-Restli-Protocol-Version': '2.0.0',
     },
     body: JSON.stringify(linkedInBody),
