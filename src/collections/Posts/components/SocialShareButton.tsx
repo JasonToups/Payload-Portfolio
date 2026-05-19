@@ -14,11 +14,16 @@ type SocialShare = {
 
 type KeywordRef = { id: number; name: string }
 
+type MediaObject = {
+  url?: string | null
+  sizes?: { og?: { url?: string | null } | null } | null
+}
+
 type PostData = {
   socialShares?: SocialShare[] | null
   keywords?: (number | KeywordRef)[] | null
   socialPostBody?: string | null
-  meta?: { description?: string | null } | null
+  meta?: { description?: string | null; image?: MediaObject | number | null } | null
 }
 
 type LinkedInStatusResponse = { connected: boolean }
@@ -30,6 +35,7 @@ type LinkedInData = {
   defaultText: string
   hashtags: string[]
   description: string
+  ogImageUrl: string | null
 }
 
 const CHAR_LIMIT = 3000
@@ -48,6 +54,7 @@ type LinkedInComposeProps = {
   hashtags: string[]
   title: string
   description: string
+  ogImageUrl: string | null
   onClose: () => void
   onPublished: () => void
 }
@@ -59,6 +66,7 @@ const LinkedInCompose: React.FC<LinkedInComposeProps> = ({
   hashtags,
   title,
   description,
+  ogImageUrl,
   onClose,
   onPublished,
 }) => {
@@ -100,7 +108,7 @@ const LinkedInCompose: React.FC<LinkedInComposeProps> = ({
       const res = await fetch('/api/linkedin/publish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId, text, url: postUrl, title, description }),
+        body: JSON.stringify({ postId, text, url: postUrl, title, description, imageUrl: ogImageUrl }),
       })
       const data = (await res.json()) as LinkedInPublishResponse
       if (data.success) {
@@ -340,10 +348,16 @@ const SocialShareButton: React.FC = () => {
       const hashtags = (postData.keywords ?? [])
         .filter((k): k is KeywordRef => typeof k === 'object')
         .map((k) => k.name)
+      const image = postData.meta?.image
+      const ogImageUrl =
+        image && typeof image === 'object'
+          ? (image.sizes?.og?.url ?? image.url ?? null)
+          : null
       setLinkedInData({
         defaultText: postData.socialPostBody ?? '',
         hashtags,
         description: postData.meta?.description ?? '',
+        ogImageUrl,
       })
       setLinkedInModalOpen(true)
     } catch {
@@ -435,6 +449,7 @@ const SocialShareButton: React.FC = () => {
           hashtags={linkedInData.hashtags}
           title={title}
           description={linkedInData.description}
+          ogImageUrl={linkedInData.ogImageUrl}
           onClose={() => setLinkedInModalOpen(false)}
           onPublished={() => {
             setConfirmedShares((prev) => [...prev, 'linkedin'])
