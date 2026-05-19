@@ -94,7 +94,7 @@ pnpm dev
 
 Payload dev mode auto-pushes the schema change (`ALTER TABLE … ADD COLUMN`) directly to your local database. Wait until the server is fully started, then stop it (`Ctrl+C`).
 
-> **Do not run `pnpm migrate` against your local database after this.** The column already exists from the dev-mode push, and the migration will fail with `column already exists`.
+> **Do not run `payload migrate` against your local database after this.** The column already exists from the dev-mode push, and the migration will fail with `column already exists`.
 
 ### Step 3 — Regenerate TypeScript types
 
@@ -124,20 +124,20 @@ Stage and commit all of these as one atomic commit:
 
 ### Step 6 — Push to your feature branch
 
-Production deployment (`pnpm build`) automatically runs `payload migrate` before the Next.js build, applying the migration to the production database.
+Production deployment automatically runs `pnpm migrate:ci` before the Next.js build, applying the migration to the production database.
 
 ---
 
-### Why not run `pnpm migrate` locally?
+### Why not run migrations locally?
 
-`pnpm dev` (dev-mode push) and `pnpm migrate` are two separate schema-sync mechanisms that conflict when used against the same database:
+`pnpm dev` (dev-mode push) and `payload migrate` are two separate schema-sync mechanisms that conflict when used against the same database:
 
 - **Dev mode push** — immediately applies schema changes to whatever database `POSTGRES_URL` points to; no migration file written.
-- **Migrations** — versioned SQL files executed in order; used for production and CI.
+- **Migrations** — versioned SQL files executed in order; used for production and CI via `pnpm migrate:ci`.
 
-After `pnpm dev` runs, your local DB already has the column. Running `pnpm migrate` against the same DB tries to add it again and fails.
+After `pnpm dev` runs, your local DB already has the column. Running `payload migrate` against the same DB tries to add it again and fails.
 
-`pnpm migrate` is safe to run locally **only** against a clean database that has never had dev mode run against it (e.g., a freshly restored `pnpm db:pull` snapshot). In that case, add `IF NOT EXISTS` to any `ADD COLUMN` statements in the generated migration file first to make it idempotent.
+`payload migrate` is safe to run locally **only** against a clean database that has never had dev mode run against it (e.g., a freshly restored `pnpm db:pull` snapshot). In that case, add `IF NOT EXISTS` to any `ADD COLUMN` statements in the generated migration file first to make it idempotent.
 
 ## Pre-PR Checklist
 
@@ -161,13 +161,13 @@ Before opening a pull request, run the appropriate steps below.
 
 > **How migrations reach production**
 >
-> `pnpm build` compiles the app only. Migrations run in Vercel via the configured build command:
+> `pnpm build` compiles the app only. Migrations run in Vercel via the build command configured in `vercel.json`:
 >
 > ```shell
-> npx payload migrate --force-accept-warning && pnpm build
+> pnpm migrate:ci && pnpm build
 > ```
 >
-> This keeps local builds clean after `pnpm dev` and ensures a bad migration fails the deployment atomically before any code goes live.
+> `migrate:ci` (`scripts/migrate-ci.ts`) uses Payload's programmatic API to apply pending migrations without interactive prompts. This keeps local builds clean after `pnpm dev` and ensures a bad migration fails the deployment atomically before any code goes live.
 
 ---
 
@@ -188,7 +188,8 @@ vercel --prod
 | `pnpm start`              | Serve the production build                            |
 | `pnpm db:local`           | Start the local Docker Postgres                       |
 | `pnpm db:pull`            | Sync Neon production DB to local                      |
-| `pnpm migrate`            | Run pending Payload migrations                        |
+| `pnpm migrate:ci`         | Apply pending migrations (CI/Vercel — not for local)  |
+| `pnpm migrate:create`     | Generate a new migration file from schema changes     |
 | `pnpm generate:types`     | Regenerate Payload TypeScript types                   |
 | `pnpm generate:importmap` | Regenerate Payload import map                         |
 | `pnpm lint`               | Lint the codebase                                     |
