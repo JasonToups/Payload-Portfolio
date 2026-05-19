@@ -36,7 +36,8 @@ echo "→ Waiting for postgres to be ready..."
 until docker compose exec -T postgres pg_isready -U postgres -q; do sleep 1; done
 
 echo "→ Dumping from Neon (this may take a moment)..."
-pg_dump "$NEON_URL" --no-owner --no-acl -Fc -f "$DUMP_FILE"
+NEON_DUMP_URL="${NEON_URL}&keepalives=1&keepalives_idle=10&keepalives_interval=5&keepalives_count=5&connect_timeout=30"
+pg_dump "$NEON_DUMP_URL" --no-owner --no-acl -Fc -f "$DUMP_FILE"
 
 echo "→ Dropping and recreating local database..."
 psql "$LOCAL_ADMIN_URL" \

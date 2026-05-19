@@ -43,7 +43,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
       <div className="container flex justify-between w-full max-w-xl bg-background border-4 border-neutral-150 sm:rounded-full py-3 px-4 md:py-4 md:px-6">
         <Link href="/" className="flex items-center gap-3">
           {logoImage && typeof logoImage === 'object' && (
-            <div className="relative h-[34px] w-[34px]">
+            <div className="relative h-5 w-5">
               <Media
                 resource={logoImage}
                 imgClassName="object-contain invert-0 dark:invert"
