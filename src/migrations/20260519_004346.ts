@@ -2,7 +2,7 @@ import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-vercel-postg
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
-   CREATE TABLE "linkedin_settings" (
+   CREATE TABLE IF NOT EXISTS "linkedin_settings" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"access_token" varchar,
   	"expires_at" timestamp(3) with time zone,
