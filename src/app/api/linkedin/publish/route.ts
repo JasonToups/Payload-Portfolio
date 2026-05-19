@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { type SocialPlatform } from '@/utilities/buildShareUrl'
 
 type PublishRequest = {
   postId: number
@@ -17,7 +18,7 @@ type LinkedInSettingsData = {
 }
 
 type ExistingShare = {
-  platform: string
+  platform: SocialPlatform
   sharedAt: string
   shareUrl?: string | null
   id?: string | null
