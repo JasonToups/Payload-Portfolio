@@ -103,7 +103,7 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
       )}
 
       {/* Heading + Search */}
-      <div className="flex flex-col gap-4 md:flex-row items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row w-full items-center justify-between">
         <h2 className="font-display text-2xl font-semibold text-foreground">
           Posts tagged: {keyword.name}
         </h2>

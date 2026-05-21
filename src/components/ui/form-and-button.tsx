@@ -31,7 +31,10 @@ export const FormAndButton: React.FC<FormAndButtonProps> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className={cn('flex items-center gap-[10px]', className)}>
+    <form
+      onSubmit={handleSubmit}
+      className={cn('flex items-center justify-end w-full md:w-2xl gap-[10px]', className)}
+    >
       <div className="relative flex flex-1 items-center md:flex-none">
         <input
           type="text"
