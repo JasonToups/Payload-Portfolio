@@ -623,7 +623,7 @@
 
 .post-card {
   background: var(--card);
-  border-radius: var(--radius);
+  border-radius: 15px;
   border: 1px solid var(--border);
   overflow: hidden;
   transition:
