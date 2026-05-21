@@ -99,7 +99,6 @@ export default async function Page({ searchParams }: Args) {
         <div className="flex flex-col md:flex-row md:gap-[100px] items-start">
           {/* Featured Post */}
           <div className="flex flex-col gap-[35px] md:gap-[50px] flex-1">
-            <h2 className="font-display text-[41px] font-normal">Featured Post</h2>
             <PostCardFeatured doc={featuredPost} />
           </div>
 

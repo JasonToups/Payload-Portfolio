@@ -95,9 +95,6 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
       {/* Featured Post (if keyword has a featured post) */}
       {featuredPost && (
         <div className="flex flex-col gap-3">
-          <span className="font-mono text-[12px] uppercase tracking-[1px] text-muted-foreground">
-            Featured Post
-          </span>
           <PostCardFeatured doc={featuredPost} />
         </div>
       )}
