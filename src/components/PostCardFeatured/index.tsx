@@ -40,7 +40,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
 
       {/* Image — 627×421 aspect ratio */}
-      <div className="relative overflow-hidden rounded-[15px] bg-[#2e2c2a] aspect-[627/421]">
+      <div className="relative overflow-hidden rounded-[15px] aspect-[627/421]">
         {metaImage && typeof metaImage !== 'string' && (
           <Media
             resource={metaImage}
@@ -75,9 +75,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
             </h2>
           )}
           {sanitizedDescription && (
-            <p className="text-[15px] leading-[1.55] text-[#7e7c79]">
-              {sanitizedDescription}
-            </p>
+            <p className="text-[15px] leading-[1.55] text-[#7e7c79]">{sanitizedDescription}</p>
           )}
         </div>
 
