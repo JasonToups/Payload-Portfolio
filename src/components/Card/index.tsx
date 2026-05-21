@@ -11,7 +11,7 @@ import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
 
 export type CardPostData = Pick<
   Post,
-  'slug' | 'categories' | 'meta' | 'title' | 'keywords' | 'publishedAt'
+  'id' | 'slug' | 'categories' | 'meta' | 'title' | 'keywords' | 'publishedAt'
 > &
   Partial<Pick<Post, 'content'>>
 
