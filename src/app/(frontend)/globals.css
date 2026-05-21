@@ -83,7 +83,7 @@
 }
 
 [data-theme='dark'] {
-  --background: var(--neutral-950);
+  --background: var(--black);
   --foreground: var(--neutral-100);
   --card: var(--black);
   --card-foreground: var(--neutral-100);
@@ -623,7 +623,7 @@
 
 .post-card {
   background: var(--card);
-  border-radius: var(--radius);
+  border-radius: 15px;
   border: 1px solid var(--border);
   overflow: hidden;
   transition:
