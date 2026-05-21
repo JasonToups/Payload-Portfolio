@@ -67,10 +67,7 @@ export default async function Page({ searchParams }: Args) {
             overrideAccess: false,
             sort: '-publishedAt',
             where: {
-              and: [
-                { _status: { equals: 'published' } },
-                { id: { not_in: [featuredPost.id] } },
-              ],
+              and: [{ _status: { equals: 'published' } }, { id: { not_in: [featuredPost.id] } }],
             },
             select: {
               id: true,
@@ -104,17 +101,13 @@ export default async function Page({ searchParams }: Args) {
           <div className="flex flex-row gap-[100px] items-start">
             {/* Featured Post */}
             <div className="flex flex-col gap-[50px] flex-1">
-              <h2 className="font-display text-[41px] font-normal text-[#1e1a17]">
-                Featured Post
-              </h2>
+              <h2 className="font-display text-[41px] font-normal">Featured Post</h2>
               <PostCardFeatured doc={featuredPost} />
             </div>
 
             {/* Related Posts sidebar */}
             <div className="flex flex-col gap-[50px] w-[397px] shrink-0">
-              <h2 className="font-display text-[41px] font-normal text-[#1e1a17]">
-                Related Posts
-              </h2>
+              <h2 className="font-display text-[41px] font-normal">Related Posts</h2>
               <div className="flex flex-col gap-[21px]">
                 {relatedPosts.map((post, i) => (
                   <React.Fragment key={post.slug}>
@@ -131,7 +124,7 @@ export default async function Page({ searchParams }: Args) {
 
         {/* Section 2: Heading + Search */}
         <div className="flex flex-row items-center justify-between">
-          <h2 className="font-display text-[41px] font-normal text-[#1e1a17]">All Posts</h2>
+          <h2 className="font-display text-[41px] font-normal ">All Posts</h2>
           <PostsSearchForm defaultValue={searchQuery} basePath="/posts" />
         </div>
 
@@ -147,7 +140,9 @@ export default async function Page({ searchParams }: Args) {
             {searchResults.length > 0 ? (
               <PostsGrid posts={searchResults} />
             ) : (
-              <p className="text-muted-foreground">No posts found for &ldquo;{searchQuery}&rdquo;.</p>
+              <p className="text-muted-foreground">
+                No posts found for &ldquo;{searchQuery}&rdquo;.
+              </p>
             )}
           </div>
         ) : gridPosts.length > 0 ? (
