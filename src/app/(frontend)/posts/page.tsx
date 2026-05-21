@@ -95,65 +95,65 @@ export default async function Page({ searchParams }: Args) {
   return (
     <PostsPageLayout>
       <PageClient />
-        {/* Section 1: Featured Post + Related Posts sidebar (Page 1 only, when featured exists) */}
-        {featuredPost && (
-          <div className="flex flex-row gap-[100px] items-start">
-            {/* Featured Post */}
-            <div className="flex flex-col gap-[50px] flex-1">
-              <h2 className="font-display text-[41px] font-normal">Featured Post</h2>
-              <PostCardFeatured doc={featuredPost} />
-            </div>
+      {/* Section 1: Featured Post + Related Posts sidebar (Page 1 only, when featured exists) */}
+      {featuredPost && (
+        <div className="flex flex-col md:flex-row md:gap-[100px] items-start">
+          {/* Featured Post */}
+          <div className="flex flex-col gap-[35px] md:gap-[50px] flex-1">
+            <h2 className="font-display text-[41px] font-normal">Featured Post</h2>
+            <PostCardFeatured doc={featuredPost} />
+          </div>
 
-            {/* Related Posts sidebar */}
-            <div className="flex flex-col gap-[50px] w-[397px] shrink-0">
-              <h2 className="font-display text-[41px] font-normal">Related Posts</h2>
-              <div className="flex flex-col gap-[21px]">
-                {relatedPosts.map((post, i) => (
-                  <React.Fragment key={post.slug}>
-                    <PostCardMinimal doc={post} />
-                    {i < relatedPosts.length - 1 && (
-                      <div className="w-full border-t-2 border-[#efeae5]" role="separator" />
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
+          {/* Related Posts sidebar */}
+          <div className="flex flex-col gap-[35px] md:gap-[50px] w-full md:w-[397px] shrink-0">
+            <h2 className="font-display text-center md:text-left text-[36px] md:text-[41px] font-normal">
+              Related Posts
+            </h2>
+            <div className="flex flex-col gap-[21px]">
+              {relatedPosts.map((post, i) => (
+                <React.Fragment key={post.slug}>
+                  <PostCardMinimal doc={post} />
+                  {i < relatedPosts.length - 1 && (
+                    <div className="w-full border-t-2 border-border" role="separator" />
+                  )}
+                </React.Fragment>
+              ))}
             </div>
           </div>
-        )}
-
-        {/* Section 2: Heading + Search */}
-        <div className="flex flex-row items-center justify-between">
-          <h2 className="font-display text-[41px] font-normal ">All Posts</h2>
-          <PostsSearchForm defaultValue={searchQuery} basePath="/posts" />
         </div>
+      )}
 
-        {/* Section 3: Grid or Search Results */}
-        {isSearching ? (
-          <div className="flex flex-col gap-8">
-            <p className="font-mono text-sm text-muted-foreground">
-              Searching for <span className="text-foreground">&ldquo;{searchQuery}&rdquo;</span>
-              {searchResults.length > 0
-                ? ` — ${searchResults.length} result${searchResults.length === 1 ? '' : 's'}`
-                : ''}
-            </p>
-            {searchResults.length > 0 ? (
-              <PostsGrid posts={searchResults} />
-            ) : (
-              <p className="text-muted-foreground">
-                No posts found for &ldquo;{searchQuery}&rdquo;.
-              </p>
-            )}
-          </div>
-        ) : gridPosts.length > 0 ? (
-          <PostsGrid posts={gridPosts} />
-        ) : (
-          <p className="text-muted-foreground">No posts yet.</p>
-        )}
+      {/* Section 2: Heading + Search */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0">
+        <h2 className="font-display text-[41px] font-normal">All Posts</h2>
+        <PostsSearchForm defaultValue={searchQuery} basePath="/posts" />
+      </div>
 
-        {/* Section 4: Pagination (only when not searching) */}
-        {!isSearching && totalPages > 1 && currentPage && (
-          <Pagination page={currentPage} totalPages={totalPages} />
-        )}
+      {/* Section 3: Grid or Search Results */}
+      {isSearching ? (
+        <div className="flex flex-col gap-8">
+          <p className="font-mono text-sm text-muted-foreground">
+            Searching for <span className="text-foreground">&ldquo;{searchQuery}&rdquo;</span>
+            {searchResults.length > 0
+              ? ` — ${searchResults.length} result${searchResults.length === 1 ? '' : 's'}`
+              : ''}
+          </p>
+          {searchResults.length > 0 ? (
+            <PostsGrid posts={searchResults} />
+          ) : (
+            <p className="text-muted-foreground">No posts found for &ldquo;{searchQuery}&rdquo;.</p>
+          )}
+        </div>
+      ) : gridPosts.length > 0 ? (
+        <PostsGrid posts={gridPosts} />
+      ) : (
+        <p className="text-muted-foreground">No posts yet.</p>
+      )}
+
+      {/* Section 4: Pagination (only when not searching) */}
+      {!isSearching && totalPages > 1 && currentPage && (
+        <Pagination page={currentPage} totalPages={totalPages} />
+      )}
     </PostsPageLayout>
   )
 }

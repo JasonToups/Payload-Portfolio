@@ -32,17 +32,18 @@ export const FormAndButton: React.FC<FormAndButtonProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className={cn('flex items-center gap-[10px]', className)}>
-      <div className="relative flex items-center">
+      <div className="relative flex flex-1 items-center md:flex-none">
         <input
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
           className={cn(
-            'font-sans text-[16px] bg-[#f9f8f6] border border-[#dcdad6] rounded-[8px]',
-            'h-14 w-[318px] px-4',
-            'text-[#1d1b19] placeholder:text-[#6b6866]',
-            'focus:outline-none focus:border-[#42d9fa] transition-colors',
+            'font-sans text-[16px] rounded-[8px] h-14 px-4',
+            'w-full md:w-[318px]',
+            'bg-neutral-50 dark:bg-neutral-850 border border-border',
+            'text-foreground placeholder:text-muted-foreground',
+            'focus:outline-none focus:border-primary-bright transition-colors',
             value && 'pr-10',
           )}
         />
@@ -50,7 +51,7 @@ export const FormAndButton: React.FC<FormAndButtonProps> = ({
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-3 flex items-center justify-center text-[#6b6866] hover:text-[#1d1b19] transition-colors"
+            className="absolute right-3 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Clear"
           >
             <X size={16} />
@@ -61,14 +62,14 @@ export const FormAndButton: React.FC<FormAndButtonProps> = ({
       <button
         type="submit"
         className={cn(
-          'flex items-center justify-center gap-2 h-14 px-4',
-          'bg-[#42d9fa] rounded-[10px]',
-          'font-sans text-[16px] font-medium text-[#003451]',
+          'flex shrink-0 items-center justify-center gap-2 h-14 px-4',
+          'bg-primary-bright rounded-[10px]',
+          'font-sans text-[16px] font-medium text-primary-dark',
           'whitespace-nowrap hover:brightness-105 transition-[filter]',
         )}
       >
         {buttonLabel}
-        <ArrowRight size={20} className="text-[#003451]" />
+        <ArrowRight size={20} className="text-primary-dark" />
       </button>
     </form>
   )
