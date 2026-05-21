@@ -83,7 +83,7 @@
 }
 
 [data-theme='dark'] {
-  --background: var(--neutral-950);
+  --background: var(--black);
   --foreground: var(--neutral-100);
   --card: var(--black);
   --card-foreground: var(--neutral-100);

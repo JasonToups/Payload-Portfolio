@@ -95,7 +95,7 @@ export default async function Page({ searchParams }: Args) {
   const currentPage = regularPostsResult?.page ?? 1
 
   return (
-    <div className="flex flex-col gap-[62px] pt-16 pb-16">
+    <div className="flex flex-col gap-[62px] pt-16 pb-16 bg-post">
       <PageClient />
 
       <div className="container flex flex-col gap-[60px]">

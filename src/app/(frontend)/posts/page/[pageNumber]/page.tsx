@@ -63,7 +63,7 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
   const currentPage = postsResult?.page ?? sanitizedPageNumber
 
   return (
-    <div className="flex flex-col gap-[62px] pt-16 pb-16">
+    <div className="flex flex-col gap-[62px] pt-16 pb-16 bg-post">
       <PageClient />
 
       <div className="container flex flex-col gap-[60px]">

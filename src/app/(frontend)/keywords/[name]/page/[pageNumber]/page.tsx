@@ -64,7 +64,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   const basePath = `/keywords/${name}/page`
 
   return (
-    <div className="flex flex-col gap-[62px] pt-16 pb-16">
+    <div className="flex flex-col gap-[62px] pt-16 pb-16 bg-post">
       <div className="container flex flex-col gap-[60px]">
         {/* Back nav + Heading */}
         <div className="flex flex-col gap-2">
