@@ -6,7 +6,7 @@ import type { CardPostData } from '@/components/Card'
 import { Media } from '@/components/Media'
 import { KeywordPill } from '@/components/ui/keyword-pill'
 import { cn } from '@/utilities/ui'
-import { getReadMinutes, formatPostDate } from '@/utilities/postMeta'
+import { getReadMinutes } from '@/utilities/postMeta'
 
 interface PostCardFeaturedProps {
   className?: string
@@ -19,14 +19,13 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
   doc,
   relationTo = 'posts',
 }) => {
-  const { slug, keywords, meta, title, publishedAt, content } = doc || {}
+  const { slug, keywords, meta, title, content } = doc || {}
   const { description, image: metaImage } = meta || {}
 
   const hasKeywords = keywords && Array.isArray(keywords) && keywords.length > 0
   const sanitizedDescription = description?.replace(/\s/g, ' ')
   const href = `/${relationTo}/${slug}`
   const readMinutes = content ? getReadMinutes(content) : 1
-  const formattedDate = formatPostDate(publishedAt)
 
   return (
     <article
@@ -40,7 +39,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
 
       {/* Image — 627×421 aspect ratio */}
-      <div className="relative overflow-hidden rounded-[15px] aspect-[627/421]">
+      <div className="relative overflow-hidden rounded-[15px] aspect-video">
         {metaImage && typeof metaImage !== 'string' && (
           <Media
             resource={metaImage}
@@ -52,15 +51,6 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
 
       {/* Card body */}
       <div className="flex flex-col gap-[13px]">
-        {/* Meta — date right-aligned */}
-        {formattedDate && (
-          <div className="flex items-center justify-end">
-            <span className="font-mono text-[12px] text-muted-foreground tracking-[1px]">
-              {formattedDate}
-            </span>
-          </div>
-        )}
-
         {/* Title + Description */}
         <div className="flex flex-col gap-[6px]">
           {title && (

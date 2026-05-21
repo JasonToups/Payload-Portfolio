@@ -27,7 +27,7 @@ export const PostCardMinimal: React.FC<PostCardMinimalProps> = ({
   return (
     <article
       className={cn(
-        'relative overflow-hidden bg-white',
+        'relative overflow-hidden bg-white dark:bg-card',
         'flex flex-col w-full',
         className,
       )}
@@ -40,7 +40,7 @@ export const PostCardMinimal: React.FC<PostCardMinimalProps> = ({
         {/* Title + Description */}
         <div className="flex flex-col gap-[6px]">
           {title && (
-            <h3 className="font-sans text-[22px] leading-[1.2] font-normal text-[#1d1b19]">
+            <h3 className="font-sans text-[22px] leading-[1.2] font-normal text-foreground">
               <Link
                 className="not-prose no-underline relative z-20"
                 href={href}
@@ -51,7 +51,7 @@ export const PostCardMinimal: React.FC<PostCardMinimalProps> = ({
             </h3>
           )}
           {sanitizedDescription && (
-            <p className="text-[15px] leading-[1.55] text-[#7e7c79]">
+            <p className="text-[15px] leading-[1.55] text-muted-foreground dark:text-foreground">
               {sanitizedDescription}
             </p>
           )}
@@ -64,7 +64,7 @@ export const PostCardMinimal: React.FC<PostCardMinimalProps> = ({
               typeof kw === 'object' ? (
                 <span
                   key={kw.id}
-                  className="inline-flex items-center text-base font-light lowercase text-[#003451]"
+                  className="inline-flex items-center text-base font-light lowercase text-primary-dark dark:text-primary-pale"
                 >
                   {kw.name}
                 </span>

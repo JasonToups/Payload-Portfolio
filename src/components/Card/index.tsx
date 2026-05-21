@@ -61,7 +61,7 @@ export const Card: React.FC<{
       </div>
 
       {/* Desktop: 16:9 image at top of card */}
-      <div className="hidden md:block relative overflow-hidden rounded-[15px] bg-[#2e2c2a] aspect-[40/21]">
+      <div className="hidden md:block relative overflow-hidden rounded-[15px] bg-[#2e2c2a] aspect-video">
         {metaImage && typeof metaImage !== 'string' && (
           <Media
             resource={metaImage}
