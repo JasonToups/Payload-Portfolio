@@ -55,7 +55,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
         {/* Meta — date right-aligned */}
         {formattedDate && (
           <div className="flex items-center justify-end">
-            <span className="font-mono text-[12px] text-[#7e7c79] tracking-[1px]">
+            <span className="font-mono text-[12px] text-muted-foreground tracking-[1px]">
               {formattedDate}
             </span>
           </div>
@@ -64,7 +64,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
         {/* Title + Description */}
         <div className="flex flex-col gap-[6px]">
           {title && (
-            <h2 className="font-sans text-[22px] leading-[1.2] font-normal text-[#1d1b19]">
+            <h2 className="font-sans text-[22px] leading-[1.2] font-normal text-foreground">
               <Link
                 className="not-prose no-underline relative z-20"
                 href={href}
@@ -75,7 +75,9 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
             </h2>
           )}
           {sanitizedDescription && (
-            <p className="text-[15px] leading-[1.55] text-[#7e7c79]">{sanitizedDescription}</p>
+            <p className="text-[15px] leading-[1.55] text-muted-foreground dark:text-foreground">
+              {sanitizedDescription}
+            </p>
           )}
         </div>
 
@@ -89,14 +91,14 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
         )}
 
         {/* Dotted separator */}
-        <div className="w-full border-t-[3px] border-dotted border-[#ddd6cf]" role="separator" />
+        <div className="w-full border-t-[3px] border-dotted border-border" role="separator" />
 
         {/* Footer */}
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[12px] text-[#7e7c79] tracking-[1px]">
+          <span className="font-mono text-[12px] text-muted-foreground tracking-[1px]">
             {readMinutes} MIN READ
           </span>
-          <ArrowRight size={24} className="text-[#00b5d5]" aria-hidden="true" />
+          <ArrowRight size={24} className="text-primary-base" aria-hidden="true" />
         </div>
       </div>
     </article>
