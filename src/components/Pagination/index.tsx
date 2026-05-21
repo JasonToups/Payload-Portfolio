@@ -39,7 +39,7 @@ function getVisiblePages(page: number, totalPages: number): (number | '...')[] {
 }
 
 const elementBase =
-  "h-11 px-4 flex items-center justify-center overflow-hidden font-['Geist'] text-[18px] leading-none text-primary-mid bg-white dark:bg-card border border-[#f4f1ee] dark:border-border transition-opacity"
+  "h-11 px-4 flex items-center justify-center overflow-hidden font-['Geist'] text-[18px] leading-none text-primary-mid bg-white dark:bg-card border border-[#f4f1ee] dark:border-border hover:bg-primary-light hover:border-[#6b6866] transition-colors"
 
 export const Pagination: React.FC<PaginationProps> = ({
   basePath = '/posts/page',
@@ -70,10 +70,10 @@ export const Pagination: React.FC<PaginationProps> = ({
             onClick={() => hasPrevPage && router.push(`${basePath}/${page - 1}`)}
             className={cn(
               'h-11 px-4 flex items-center gap-2 overflow-hidden',
-              'bg-primary-bright border border-primary-pale',
+              'bg-primary-bright border border-primary-pale hover:bg-primary-light hover:border-[#6b6866]',
               'rounded-tl-[10px] rounded-br-[10px]',
               "font-['Geist'] text-[18px] leading-none text-primary-mid whitespace-nowrap",
-              'transition-opacity',
+              'transition-colors',
               !hasPrevPage && 'opacity-40 cursor-not-allowed pointer-events-none',
             )}
           >
@@ -93,10 +93,10 @@ export const Pagination: React.FC<PaginationProps> = ({
             onClick={() => hasNextPage && router.push(`${basePath}/${page + 1}`)}
             className={cn(
               'h-11 px-4 flex flex-row-reverse items-center gap-2 overflow-hidden',
-              'bg-primary-bright border border-primary-pale',
+              'bg-primary-bright border border-primary-pale hover:bg-primary-base hover:border-[#6b6866]',
               'rounded-tr-[10px] rounded-bl-[10px]',
               "font-['Geist'] text-[18px] leading-none text-primary-mid whitespace-nowrap",
-              'transition-opacity',
+              'transition-colors',
               !hasNextPage && 'opacity-40 cursor-not-allowed pointer-events-none',
             )}
           >
@@ -140,7 +140,12 @@ export const Pagination: React.FC<PaginationProps> = ({
                 aria-current={p === page ? 'page' : undefined}
                 aria-label={`Page ${p}`}
                 onClick={() => router.push(`${basePath}/${p}`)}
-                className={cn(elementBase, 'min-w-[44px]', p === page && 'bg-primary-bright/20')}
+                className={cn(
+                  elementBase,
+                  'min-w-[44px]',
+                  p === page &&
+                    'bg-primary-bright border-primary-mid hover:bg-primary-bright hover:border-primary-pale',
+                )}
               >
                 {p}
               </button>
