@@ -112,7 +112,7 @@ export default async function Post({ params: paramsPromise }: Args) {
           </aside>
         </div>
         {relatedPosts.length > 0 && (
-          <section className="mt-16 pt-8" style={{ borderTop: '1px solid var(--border)' }}>
+          <section className="mt-16 py-8 px-4" style={{ borderTop: '1px solid var(--border)' }}>
             <p
               className="font-mono mb-6"
               style={{
