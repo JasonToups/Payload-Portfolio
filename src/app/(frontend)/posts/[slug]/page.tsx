@@ -80,21 +80,6 @@ export default async function Post({ params: paramsPromise }: Args) {
           {/* Post Body: top on mobile, center 50% (cols 2–3) on desktop */}
           <div className="bg-post lg:col-start-2 lg:col-span-2 py-8 px-10">
             <RichText data={post.content} enableGutter={false} />
-            {relatedPosts.length > 0 && (
-              <section className="mt-16 pt-8" style={{ borderTop: '1px solid var(--border)' }}>
-                <p
-                  className="font-mono mb-6"
-                  style={{
-                    fontSize: '0.75rem',
-                    letterSpacing: '0.08em',
-                    color: 'var(--muted-foreground)',
-                  }}
-                >
-                  RELATED POSTS
-                </p>
-                <RelatedPosts docs={relatedPosts} />
-              </section>
-            )}
           </div>
 
           {/* Share: bottom on mobile, left 25% (col 1) on desktop — sticky */}
@@ -126,6 +111,21 @@ export default async function Post({ params: paramsPromise }: Args) {
             )}
           </aside>
         </div>
+        {relatedPosts.length > 0 && (
+          <section className="mt-16 pt-8" style={{ borderTop: '1px solid var(--border)' }}>
+            <p
+              className="font-mono mb-6"
+              style={{
+                fontSize: '0.75rem',
+                letterSpacing: '0.08em',
+                color: 'var(--muted-foreground)',
+              }}
+            >
+              RELATED POSTS
+            </p>
+            <RelatedPosts docs={relatedPosts} />
+          </section>
+        )}
       </div>
     </article>
   )
