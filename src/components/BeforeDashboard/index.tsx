@@ -2,6 +2,7 @@ import { Banner } from '@payloadcms/ui/elements/Banner'
 import React from 'react'
 
 import { SeedButton } from './SeedButton'
+import { SeedPostsButton } from './SeedPostsButton'
 import './index.scss'
 
 const baseClass = 'before-dashboard'
@@ -62,6 +63,20 @@ const BeforeDashboard: React.FC = () => {
         custom component
       </a>
       , you can remove it at any time by updating your <strong>payload.config</strong>.
+      <hr style={{ margin: '1.5rem 0', border: 'none', borderTop: '1px solid var(--theme-elevation-150)' }} />
+      <h4>Seed keyword test data</h4>
+      <p style={{ marginBottom: '0.75rem' }}>
+        <SeedPostsButton />
+        {' to create 50 published posts for keyword functionality testing.'}
+      </p>
+      <p style={{ marginBottom: '0.5rem' }}>
+        {'Each post is tagged with 2 of 8 keywords: '}
+        <strong>payload, ai, design system, accessibility, self hosting, ui/ux design, penpot, claude</strong>
+        {'. Covers all 28 unique keyword pairs plus 22 additional posts (50 total). Idempotent — re-running deletes and recreates without duplicates.'}
+      </p>
+      <p>
+        {'Requires the main database seed to have run first (needs the Technology category and post-launch-hero.png media).'}
+      </p>
     </div>
   )
 }
