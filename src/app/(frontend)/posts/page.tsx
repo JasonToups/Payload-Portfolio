@@ -103,21 +103,26 @@ export default async function Page({ searchParams }: Args) {
         {featuredPost && (
           <div className="flex flex-row gap-[100px] items-start">
             {/* Featured Post */}
-            <div className="flex flex-col gap-3 flex-1">
-              <span className="font-mono text-[12px] uppercase tracking-[1px] text-muted-foreground">
+            <div className="flex flex-col gap-[50px] flex-1">
+              <h2 className="font-display text-[41px] font-normal text-[#1e1a17]">
                 Featured Post
-              </span>
+              </h2>
               <PostCardFeatured doc={featuredPost} />
             </div>
 
             {/* Related Posts sidebar */}
-            <div className="flex flex-col gap-3 w-[430px] shrink-0">
-              <span className="font-mono text-[12px] uppercase tracking-[1px] text-muted-foreground">
-                All Posts
-              </span>
+            <div className="flex flex-col gap-[50px] w-[397px] shrink-0">
+              <h2 className="font-display text-[41px] font-normal text-[#1e1a17]">
+                Related Posts
+              </h2>
               <div className="flex flex-col gap-[21px]">
-                {relatedPosts.map((post) => (
-                  <PostCardMinimal key={post.slug} doc={post} />
+                {relatedPosts.map((post, i) => (
+                  <React.Fragment key={post.slug}>
+                    <PostCardMinimal doc={post} />
+                    {i < relatedPosts.length - 1 && (
+                      <div className="w-full border-t-2 border-[#efeae5]" role="separator" />
+                    )}
+                  </React.Fragment>
                 ))}
               </div>
             </div>
@@ -126,7 +131,7 @@ export default async function Page({ searchParams }: Args) {
 
         {/* Section 2: Heading + Search */}
         <div className="flex flex-row items-center justify-between">
-          <h2 className="font-display text-3xl font-semibold text-foreground">All Posts</h2>
+          <h2 className="font-display text-[41px] font-normal text-[#1e1a17]">All Posts</h2>
           <PostsSearchForm defaultValue={searchQuery} basePath="/posts" />
         </div>
 

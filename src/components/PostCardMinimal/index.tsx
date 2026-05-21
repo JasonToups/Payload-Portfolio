@@ -2,7 +2,6 @@ import Link from 'next/link'
 import React from 'react'
 
 import type { Post } from '@/payload-types'
-import { KeywordPill } from '@/components/ui/keyword-pill'
 import { cn } from '@/utilities/ui'
 
 type PostCardMinimalData = Pick<Post, 'id' | 'slug' | 'meta' | 'title' | 'keywords'>
@@ -28,49 +27,50 @@ export const PostCardMinimal: React.FC<PostCardMinimalProps> = ({
   return (
     <article
       className={cn(
-        'relative overflow-hidden rounded-[20px]',
-        'border-2 border-[#bb97d8]',
-        'bg-white dark:bg-[#060403]',
-        'flex flex-col justify-around gap-[6px] p-[30px]',
+        'relative overflow-hidden bg-white',
+        'flex flex-col w-full',
         className,
       )}
     >
       {/* Full-card overlay link */}
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
 
-      {/* Keywords (presentational, no navigation) */}
-      {hasKeywords && (
-        <div className="relative z-20 flex flex-wrap gap-x-1.5 gap-y-[11px]">
-          {keywords!.map((kw) =>
-            typeof kw === 'object' ? (
-              <KeywordPill key={kw.id} keyword={kw} presentational />
-            ) : null,
+      {/* Card Body Content — padding 8px, gap 6.2px */}
+      <div className="flex flex-col justify-around gap-[6.2px] p-[8px] w-full">
+        {/* Title + Description */}
+        <div className="flex flex-col gap-[6px]">
+          {title && (
+            <h3 className="font-sans text-[22px] leading-[1.2] font-normal text-[#1d1b19]">
+              <Link
+                className="not-prose no-underline relative z-20"
+                href={href}
+                style={{ color: 'inherit' }}
+              >
+                {title}
+              </Link>
+            </h3>
+          )}
+          {sanitizedDescription && (
+            <p className="text-[15px] leading-[1.55] text-[#7e7c79]">
+              {sanitizedDescription}
+            </p>
           )}
         </div>
-      )}
 
-      {/* Title + Description */}
-      <div className="flex flex-col gap-[6px]">
-        {title && (
-          <h3
-            className={cn(
-              'font-display text-[22px] leading-[1.2] font-normal',
-              'text-[#1d1b19] dark:text-[#f8f4f1]',
+        {/* Keywords — right-aligned, no pill background */}
+        {hasKeywords && (
+          <div className="relative z-20 flex flex-wrap justify-end gap-x-[6px] gap-y-[11px]">
+            {keywords!.map((kw) =>
+              typeof kw === 'object' ? (
+                <span
+                  key={kw.id}
+                  className="inline-flex items-center text-base font-light lowercase text-[#003451]"
+                >
+                  {kw.name}
+                </span>
+              ) : null,
             )}
-          >
-            <Link
-              className="not-prose no-underline relative z-20"
-              href={href}
-              style={{ color: 'inherit' }}
-            >
-              {title}
-            </Link>
-          </h3>
-        )}
-        {sanitizedDescription && (
-          <p className="text-[15px] leading-[1.55] text-muted-foreground dark:text-[#f4f1ee]">
-            {sanitizedDescription}
-          </p>
+          </div>
         )}
       </div>
     </article>
