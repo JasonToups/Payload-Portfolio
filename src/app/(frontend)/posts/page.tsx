@@ -2,7 +2,7 @@ import type { Metadata } from 'next/types'
 
 import { PostCardFeatured } from '@/components/PostCardFeatured'
 import { PostsPageLayout } from '@/components/PostsPageLayout'
-import { PostCardMinimal } from '@/components/PostCardMinimal'
+import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PostsGrid } from '@/components/PostsGrid'
 import { PostsSearchForm } from '@/components/PostsSearch'
 import { Pagination } from '@/components/Pagination'
@@ -10,7 +10,6 @@ import { getFeaturedPost } from '@/utilities/getFeaturedPost'
 import { searchPosts } from '@/utilities/searchPosts'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import React from 'react'
 import PageClient from './page.client'
 import type { CardPostData } from '@/components/Card'
 import type { Where } from 'payload'
@@ -106,19 +105,7 @@ export default async function Page({ searchParams }: Args) {
 
           {/* Related Posts sidebar */}
           <div className="flex flex-col gap-[35px] md:gap-[50px] w-full md:w-[397px] shrink-0">
-            <h2 className="font-display text-center md:text-left text-[36px] md:text-[41px] font-normal">
-              Related Posts
-            </h2>
-            <div className="flex flex-col gap-[21px]">
-              {relatedPosts.map((post, i) => (
-                <React.Fragment key={post.slug}>
-                  <PostCardMinimal doc={post} />
-                  {i < relatedPosts.length - 1 && (
-                    <div className="w-full border-t-2 border-border" role="separator" />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
+            <RelatedPosts docs={relatedPosts} layout="sidebar" />
           </div>
         </div>
       )}

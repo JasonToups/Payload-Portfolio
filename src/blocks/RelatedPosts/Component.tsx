@@ -1,32 +1,50 @@
 import clsx from 'clsx'
 import React from 'react'
-import RichText from '@/components/RichText'
 
 import type { Post } from '@/payload-types'
 
 import { Card } from '../../components/Card'
-import { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
+import { PostCardMinimal } from '@/components/PostCardMinimal'
+
+export type RelatedPostDoc = Pick<Post, 'id' | 'slug' | 'meta' | 'title' | 'keywords'> &
+  Partial<Pick<Post, 'categories' | 'publishedAt' | 'content'>>
 
 export type RelatedPostsProps = {
   className?: string
-  docs?: Post[]
-  introContent?: DefaultTypedEditorState
+  docs?: RelatedPostDoc[]
+  layout?: 'grid' | 'sidebar'
 }
 
-export const RelatedPosts: React.FC<RelatedPostsProps> = (props) => {
-  const { className, docs, introContent } = props
+export const RelatedPosts: React.FC<RelatedPostsProps> = ({
+  className,
+  docs,
+  layout = 'grid',
+}) => {
+  const minimalList = (
+    <div className="flex flex-col gap-[21px]">
+      {docs?.map((doc, i) => (
+        <React.Fragment key={doc.slug}>
+          <PostCardMinimal doc={doc} />
+          {i < docs.length - 1 && (
+            <div className="w-full border-t-2 border-border" role="separator" />
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  )
+
+  if (layout === 'sidebar') {
+    return <div className={clsx('w-full', className)}>{minimalList}</div>
+  }
 
   return (
     <div className={clsx('w-full', className)}>
-      {introContent && <RichText data={introContent} enableGutter={false} />}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-        {docs?.map((doc, index) => {
-          if (typeof doc === 'string') return null
-
-          return <Card key={index} doc={doc} relationTo="posts" showCategories />
-        })}
+      <div className="hidden md:grid grid-cols-3 gap-8">
+        {docs?.map((doc, i) => (
+          <Card key={i} doc={doc} relationTo="posts" showCategories />
+        ))}
       </div>
+      <div className="md:hidden">{minimalList}</div>
     </div>
   )
 }
