@@ -77,71 +77,64 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
       : Promise.resolve([]),
   ])
 
-  const gridPosts = isSearching
-    ? searchResults
-    : ((postsResult?.docs ?? []) as CardPostData[])
+  const gridPosts = isSearching ? searchResults : ((postsResult?.docs ?? []) as CardPostData[])
 
   const totalPages = postsResult?.totalPages ?? 1
   const currentPage = postsResult?.page ?? 1
 
   return (
     <PostsPageLayout>
-        {/* Back nav + Heading */}
-        <div className="flex flex-col gap-2">
-          <BackLink />
-          <h1 className="font-display text-3xl font-semibold text-foreground capitalize">
-            {keyword.name}
-          </h1>
+      {/* Back nav + Heading */}
+      <div className="flex flex-col gap-2">
+        <BackLink />
+        <h1 className="font-display text-3xl font-semibold text-foreground capitalize">
+          {keyword.name}
+        </h1>
+      </div>
+
+      {/* Featured Post (if keyword has a featured post) */}
+      {featuredPost && (
+        <div className="flex flex-col gap-3">
+          <span className="font-mono text-[12px] uppercase tracking-[1px] text-muted-foreground">
+            Featured Post
+          </span>
+          <PostCardFeatured doc={featuredPost} />
         </div>
+      )}
 
-        {/* Featured Post (if keyword has a featured post) */}
-        {featuredPost && (
-          <div className="flex flex-col gap-3">
-            <span className="font-mono text-[12px] uppercase tracking-[1px] text-muted-foreground">
-              Featured Post
-            </span>
-            <PostCardFeatured doc={featuredPost} />
-          </div>
-        )}
+      {/* Heading + Search */}
+      <div className="flex flex-col gap-4 md:flex-row items-center justify-between">
+        <h2 className="font-display text-2xl font-semibold text-foreground">
+          Posts tagged: {keyword.name}
+        </h2>
+        <PostsSearchForm defaultValue={searchQuery} basePath={`/keywords/${name}`} />
+      </div>
 
-        {/* Heading + Search */}
-        <div className="flex flex-row items-center justify-between">
-          <h2 className="font-display text-2xl font-semibold text-foreground">
-            Posts tagged: {keyword.name}
-          </h2>
-          <PostsSearchForm
-            defaultValue={searchQuery}
-            basePath={`/keywords/${name}`}
-          />
+      {/* Grid or Search Results */}
+      {isSearching ? (
+        <div className="flex flex-col gap-8">
+          <p className="font-mono text-sm text-muted-foreground">
+            Searching for <span className="text-foreground">&ldquo;{searchQuery}&rdquo;</span>
+            {searchResults.length > 0
+              ? ` — ${searchResults.length} result${searchResults.length === 1 ? '' : 's'}`
+              : ''}
+          </p>
+          {searchResults.length > 0 ? (
+            <PostsGrid posts={searchResults} />
+          ) : (
+            <p className="text-muted-foreground">No posts found for &ldquo;{searchQuery}&rdquo;.</p>
+          )}
         </div>
+      ) : gridPosts.length > 0 ? (
+        <PostsGrid posts={gridPosts} />
+      ) : (
+        <p className="text-muted-foreground">No posts tagged with &ldquo;{keyword.name}&rdquo;.</p>
+      )}
 
-        {/* Grid or Search Results */}
-        {isSearching ? (
-          <div className="flex flex-col gap-8">
-            <p className="font-mono text-sm text-muted-foreground">
-              Searching for <span className="text-foreground">&ldquo;{searchQuery}&rdquo;</span>
-              {searchResults.length > 0
-                ? ` — ${searchResults.length} result${searchResults.length === 1 ? '' : 's'}`
-                : ''}
-            </p>
-            {searchResults.length > 0 ? (
-              <PostsGrid posts={searchResults} />
-            ) : (
-              <p className="text-muted-foreground">
-                No posts found for &ldquo;{searchQuery}&rdquo;.
-              </p>
-            )}
-          </div>
-        ) : gridPosts.length > 0 ? (
-          <PostsGrid posts={gridPosts} />
-        ) : (
-          <p className="text-muted-foreground">No posts tagged with &ldquo;{keyword.name}&rdquo;.</p>
-        )}
-
-        {/* Pagination */}
-        {!isSearching && totalPages > 1 && (
-          <Pagination basePath={basePath} page={currentPage} totalPages={totalPages} />
-        )}
+      {/* Pagination */}
+      {!isSearching && totalPages > 1 && (
+        <Pagination basePath={basePath} page={currentPage} totalPages={totalPages} />
+      )}
     </PostsPageLayout>
   )
 }
