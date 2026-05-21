@@ -1,6 +1,7 @@
 import type { Metadata } from 'next/types'
 
 import { PostCardFeatured } from '@/components/PostCardFeatured'
+import { PostsPageLayout } from '@/components/PostsPageLayout'
 import { PostCardMinimal } from '@/components/PostCardMinimal'
 import { PostsGrid } from '@/components/PostsGrid'
 import { PostsSearchForm } from '@/components/PostsSearch'
@@ -92,10 +93,8 @@ export default async function Page({ searchParams }: Args) {
   const currentPage = regularPostsResult?.page ?? 1
 
   return (
-    <div className="flex flex-col gap-[62px] pt-16 pb-16 bg-post">
+    <PostsPageLayout>
       <PageClient />
-
-      <div className="container flex flex-col gap-[60px]">
         {/* Section 1: Featured Post + Related Posts sidebar (Page 1 only, when featured exists) */}
         {featuredPost && (
           <div className="flex flex-row gap-[100px] items-start">
@@ -155,8 +154,7 @@ export default async function Page({ searchParams }: Args) {
         {!isSearching && totalPages > 1 && currentPage && (
           <Pagination page={currentPage} totalPages={totalPages} />
         )}
-      </div>
-    </div>
+    </PostsPageLayout>
   )
 }
 

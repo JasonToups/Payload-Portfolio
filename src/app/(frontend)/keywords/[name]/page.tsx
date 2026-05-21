@@ -1,6 +1,7 @@
 import type { Metadata } from 'next/types'
 
 import { BackLink } from '@/components/ui/back-link'
+import { PostsPageLayout } from '@/components/PostsPageLayout'
 import { PostCardFeatured } from '@/components/PostCardFeatured'
 import { PostsGrid } from '@/components/PostsGrid'
 import { PostsSearchForm } from '@/components/PostsSearch'
@@ -84,8 +85,7 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
   const currentPage = postsResult?.page ?? 1
 
   return (
-    <div className="flex flex-col gap-[62px] pt-16 pb-16 bg-post">
-      <div className="container flex flex-col gap-[60px]">
+    <PostsPageLayout>
         {/* Back nav + Heading */}
         <div className="flex flex-col gap-2">
           <BackLink />
@@ -142,8 +142,7 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
         {!isSearching && totalPages > 1 && (
           <Pagination basePath={basePath} page={currentPage} totalPages={totalPages} />
         )}
-      </div>
-    </div>
+    </PostsPageLayout>
   )
 }
 

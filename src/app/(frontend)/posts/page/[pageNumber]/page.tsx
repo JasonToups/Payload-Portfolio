@@ -1,6 +1,7 @@
 import type { Metadata } from 'next/types'
 
 import { PostsGrid } from '@/components/PostsGrid'
+import { PostsPageLayout } from '@/components/PostsPageLayout'
 import { PostsSearchForm } from '@/components/PostsSearch'
 import { Pagination } from '@/components/Pagination'
 import { searchPosts } from '@/utilities/searchPosts'
@@ -63,10 +64,8 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
   const currentPage = postsResult?.page ?? sanitizedPageNumber
 
   return (
-    <div className="flex flex-col gap-[62px] pt-16 pb-16 bg-post">
+    <PostsPageLayout>
       <PageClient />
-
-      <div className="container flex flex-col gap-[60px]">
         {/* Heading + Search */}
         <div className="flex flex-row items-center justify-between">
           <h2 className="font-display text-3xl font-semibold text-foreground">All Posts</h2>
@@ -105,8 +104,7 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
             totalPages={totalPages}
           />
         )}
-      </div>
-    </div>
+    </PostsPageLayout>
   )
 }
 
