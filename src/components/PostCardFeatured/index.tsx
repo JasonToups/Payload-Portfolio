@@ -83,9 +83,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
         {hasKeywords && (
           <div className="relative z-20 flex flex-wrap gap-x-[6px] gap-y-[11px]">
             {keywords!.map((kw) =>
-              typeof kw === 'object' ? (
-                <KeywordPill key={kw.id} keyword={kw} presentational />
-              ) : null,
+              typeof kw === 'object' ? <KeywordPill key={kw.id} keyword={kw} /> : null,
             )}
           </div>
         )}
