@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import React from 'react'
-import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
+import { ArrowRightIcon } from '@phosphor-icons/react/dist/ssr'
 
 import type { CardPostData } from '@/components/Card'
 import { Media } from '@/components/Media'
@@ -91,7 +91,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
           <span className="font-mono text-[12px] text-muted-foreground tracking-[1px]">
             {readMinutes} MIN READ
           </span>
-          <ArrowRight size={24} className="text-primary-base" aria-hidden="true" />
+          <ArrowRightIcon size={24} className="text-primary-base" aria-hidden="true" />
         </div>
       </div>
     </article>

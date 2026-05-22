@@ -12,6 +12,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import PageClient from './page.client'
 import type { CardPostData } from '@/components/Card'
+import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
 import type { Where } from 'payload'
 
 export const dynamic = 'force-dynamic'
@@ -96,7 +97,7 @@ export default async function Page({ searchParams }: Args) {
       <PageClient />
       {/* Section 1: Featured Post + Related Posts sidebar (Page 1 only, when featured exists) */}
       {featuredPost && (
-        <div className="flex flex-col lg:flex-row gap-10 lg:gap-20 items-center">
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-15 items-center">
           {/* Featured Post */}
           <div className="flex flex-col gap-8 md:gap-9 flex-1">
             <PostCardFeatured doc={featuredPost} />
@@ -111,7 +112,10 @@ export default async function Page({ searchParams }: Args) {
 
       {/* Section 2: Heading + Search */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0">
-        <h2 className="font-display text-4xl font-normal">All Posts</h2>
+        <div className="header-icon-container flex flex-row w-full justify-between">
+          <h2 className="font-display text-4xl font-normal">All Posts</h2>
+          <MagnifyingGlassIcon size={24} className="text-primary-base" aria-hidden="true" />
+        </div>
         <PostsSearchForm defaultValue={searchQuery} basePath="/posts" />
       </div>
 
