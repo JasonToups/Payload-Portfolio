@@ -34,9 +34,10 @@ export const Keywords: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [
-      ({ data }) => {
-        if (typeof data.name === 'string') {
-          data.name = data.name.trim().toLowerCase()
+      ({ data, originalDoc }) => {
+        const name = typeof data.name === 'string' ? data.name : originalDoc?.name
+        if (typeof name === 'string') {
+          data.name = name.trim().toLowerCase()
           data.slug = toSlug(data.name)
         }
         return data

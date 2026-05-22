@@ -25,9 +25,28 @@ import { EmailLayout } from './EmailLayout'
 import { SubscribePostBlock } from './SubscribePostBlock/config'
 import { LinkedInSettings } from './globals/LinkedInSettings'
 import { subscribeForm } from './endpoints/seed/subscribe-form'
+import { toSlug } from './utilities/toSlug'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+async function backfillKeywordSlugs(payload: Payload) {
+  const keywords = await payload.find({
+    collection: 'keywords',
+    where: { slug: { exists: false } },
+    limit: 1000,
+    pagination: false,
+    overrideAccess: true,
+  })
+  for (const kw of keywords.docs) {
+    await payload.update({
+      collection: 'keywords',
+      id: kw.id,
+      data: { slug: toSlug(kw.name) },
+      overrideAccess: true,
+    })
+  }
+}
 
 async function ensureDefaultForms(payload: Payload) {
   const defaults = [subscribeForm]
@@ -120,6 +139,7 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET,
   onInit: async (payload) => {
     await ensureDefaultForms(payload)
+    await backfillKeywordSlugs(payload)
   },
   sharp,
   typescript: {
