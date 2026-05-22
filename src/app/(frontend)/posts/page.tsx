@@ -3,15 +3,13 @@ import type { Metadata } from 'next/types'
 import { PostCardFeatured } from '@/components/PostCardFeatured'
 import { PostsPageLayout } from '@/components/PostsPageLayout'
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
-import { PostsGrid } from '@/components/PostsGrid'
-import { Pagination } from '@/components/Pagination'
+import { PostsBrowseSection } from '@/components/PostsBrowseSection'
 import { getFeaturedPost } from '@/utilities/getFeaturedPost'
 import { searchPosts } from '@/utilities/searchPosts'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import PageClient from './page.client'
 import type { CardPostData } from '@/components/Card'
-import { PostsSearchToggle } from '@/components/PostsSearchToggle'
 import type { Where } from 'payload'
 
 export const dynamic = 'force-dynamic'
@@ -109,34 +107,17 @@ export default async function Page({ searchParams }: Args) {
         </div>
       )}
 
-      {/* Section 2: Heading + Search */}
-      <PostsSearchToggle defaultValue={searchQuery} basePath="/posts" searchQuery={searchQuery} />
-
-      {/* Section 3: Grid or Search Results */}
-      {isSearching ? (
-        <div className="flex flex-col gap-8">
-          <p className="font-mono text-sm text-muted-foreground">
-            Searching for <span className="text-foreground">&ldquo;{searchQuery}&rdquo;</span>
-            {searchResults.length > 0
-              ? ` — ${searchResults.length} result${searchResults.length === 1 ? '' : 's'}`
-              : ''}
-          </p>
-          {searchResults.length > 0 ? (
-            <PostsGrid posts={searchResults} />
-          ) : (
-            <p className="text-muted-foreground">No posts found for &ldquo;{searchQuery}&rdquo;.</p>
-          )}
-        </div>
-      ) : gridPosts.length > 0 ? (
-        <PostsGrid posts={gridPosts} />
-      ) : (
-        <p className="text-muted-foreground">No posts yet.</p>
-      )}
-
-      {/* Section 4: Pagination (only when not searching) */}
-      {!isSearching && totalPages > 1 && currentPage && (
-        <Pagination page={currentPage} totalPages={totalPages} />
-      )}
+      {/* Section 2: Heading + Search + Grid + Pagination */}
+      <PostsBrowseSection
+        heading="All Posts"
+        basePath="/posts"
+        searchQuery={searchQuery}
+        posts={gridPosts}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        paginationBasePath="/posts/page"
+        emptyMessage="No posts yet."
+      />
     </PostsPageLayout>
   )
 }

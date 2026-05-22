@@ -1,9 +1,7 @@
 import type { Metadata } from 'next/types'
 
-import { PostsGrid } from '@/components/PostsGrid'
+import { PostsBrowseSection } from '@/components/PostsBrowseSection'
 import { PostsPageLayout } from '@/components/PostsPageLayout'
-import { PostsSearchToggle } from '@/components/PostsSearchToggle'
-import { Pagination } from '@/components/Pagination'
 import { searchPosts } from '@/utilities/searchPosts'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -66,38 +64,16 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
   return (
     <PostsPageLayout>
       <PageClient />
-        {/* Heading + Search */}
-        <PostsSearchToggle defaultValue={searchQuery} basePath="/posts" searchQuery={searchQuery} />
-
-        {/* Grid or Search Results */}
-        {isSearching ? (
-          <div className="flex flex-col gap-8">
-            <p className="font-mono text-sm text-muted-foreground">
-              Searching for <span className="text-foreground">&ldquo;{searchQuery}&rdquo;</span>
-              {searchResults.length > 0
-                ? ` — ${searchResults.length} result${searchResults.length === 1 ? '' : 's'}`
-                : ''}
-            </p>
-            {searchResults.length > 0 ? (
-              <PostsGrid posts={searchResults} />
-            ) : (
-              <p className="text-muted-foreground">No posts found for &ldquo;{searchQuery}&rdquo;.</p>
-            )}
-          </div>
-        ) : gridPosts.length > 0 ? (
-          <PostsGrid posts={gridPosts} />
-        ) : (
-          <p className="text-muted-foreground">No posts on this page.</p>
-        )}
-
-        {/* Pagination */}
-        {!isSearching && totalPages > 1 && (
-          <Pagination
-            basePath="/posts/page"
-            page={currentPage}
-            totalPages={totalPages}
-          />
-        )}
+      <PostsBrowseSection
+        heading="All Posts"
+        basePath="/posts"
+        searchQuery={searchQuery}
+        posts={gridPosts}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        paginationBasePath="/posts/page"
+        emptyMessage="No posts on this page."
+      />
     </PostsPageLayout>
   )
 }

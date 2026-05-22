@@ -1,11 +1,7 @@
 import type { Metadata } from 'next/types'
 
-import { BackLink } from '@/components/ui/back-link'
 import { PostsPageLayout } from '@/components/PostsPageLayout'
-import { PostCardFeatured } from '@/components/PostCardFeatured'
-import { PostsGrid } from '@/components/PostsGrid'
-import { PostsSearchForm } from '@/components/PostsSearch'
-import { Pagination } from '@/components/Pagination'
+import { PostsBrowseSection } from '@/components/PostsBrowseSection'
 import { getFeaturedPost } from '@/utilities/getFeaturedPost'
 import { searchPosts } from '@/utilities/searchPosts'
 import configPromise from '@payload-config'
@@ -41,8 +37,6 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
 
   const featuredPost = await getFeaturedPost({ keywordId: keyword.id })
   const limit = featuredPost ? 6 : 12
-
-  const basePath = `/keywords/${name}/page`
 
   const [postsResult, searchResults] = await Promise.all([
     isSearching
@@ -84,54 +78,18 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
 
   return (
     <PostsPageLayout>
-      {/* Back nav + Heading */}
-      <div className="flex flex-col gap-2">
-        <BackLink />
-        <h1 className="font-display text-3xl font-semibold text-foreground capitalize">
-          {keyword.name}
-        </h1>
-      </div>
-
-      {/* Featured Post (if keyword has a featured post) */}
-      {featuredPost && (
-        <div className="flex flex-col gap-3">
-          <PostCardFeatured doc={featuredPost} />
-        </div>
-      )}
-
-      {/* Heading + Search */}
-      <div className="flex flex-col gap-4 md:flex-row w-full items-center justify-between">
-        <h2 className="font-display text-2xl font-semibold text-foreground">
-          Posts tagged: {keyword.name}
-        </h2>
-        <PostsSearchForm defaultValue={searchQuery} basePath={`/keywords/${name}`} />
-      </div>
-
-      {/* Grid or Search Results */}
-      {isSearching ? (
-        <div className="flex flex-col gap-8">
-          <p className="font-mono text-sm text-muted-foreground">
-            Searching for <span className="text-foreground">&ldquo;{searchQuery}&rdquo;</span>
-            {searchResults.length > 0
-              ? ` — ${searchResults.length} result${searchResults.length === 1 ? '' : 's'}`
-              : ''}
-          </p>
-          {searchResults.length > 0 ? (
-            <PostsGrid posts={searchResults} />
-          ) : (
-            <p className="text-muted-foreground">No posts found for &ldquo;{searchQuery}&rdquo;.</p>
-          )}
-        </div>
-      ) : gridPosts.length > 0 ? (
-        <PostsGrid posts={gridPosts} />
-      ) : (
-        <p className="text-muted-foreground">No posts tagged with &ldquo;{keyword.name}&rdquo;.</p>
-      )}
-
-      {/* Pagination */}
-      {!isSearching && totalPages > 1 && (
-        <Pagination basePath={basePath} page={currentPage} totalPages={totalPages} />
-      )}
+      <PostsBrowseSection
+        backLink
+        featuredPost={featuredPost}
+        heading={`Posts tagged: ${keyword.name}`}
+        basePath={`/keywords/${name}`}
+        searchQuery={searchQuery}
+        posts={gridPosts}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        paginationBasePath={`/keywords/${name}/page`}
+        emptyMessage={`No posts tagged with “${keyword.name}”.`}
+      />
     </PostsPageLayout>
   )
 }

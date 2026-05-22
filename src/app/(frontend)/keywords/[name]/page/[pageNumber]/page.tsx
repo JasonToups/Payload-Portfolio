@@ -1,10 +1,8 @@
 import type { Metadata } from 'next/types'
 
-import { BackLink } from '@/components/ui/back-link'
 import { PostsPageLayout } from '@/components/PostsPageLayout'
-import { PostsGrid } from '@/components/PostsGrid'
-import { PostsSearchToggle } from '@/components/PostsSearchToggle'
-import { Pagination } from '@/components/Pagination'
+import { PostsBrowseSection } from '@/components/PostsBrowseSection'
+import { searchPosts } from '@/utilities/searchPosts'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
@@ -18,10 +16,14 @@ type Args = {
     name: string
     pageNumber: string
   }>
+  searchParams: Promise<{ q?: string }>
 }
 
-export default async function Page({ params: paramsPromise }: Args) {
+export default async function Page({ params: paramsPromise, searchParams }: Args) {
   const { name, pageNumber } = await paramsPromise
+  const { q } = await searchParams
+  const searchQuery = q?.trim() ?? ''
+  const isSearching = searchQuery.length > 0
   const sanitizedPageNumber = Number(pageNumber)
   if (!Number.isInteger(sanitizedPageNumber)) notFound()
 
@@ -37,60 +39,52 @@ export default async function Page({ params: paramsPromise }: Args) {
   const keyword = keywordResult.docs?.[0]
   if (!keyword) notFound()
 
-  const posts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 12,
-    page: sanitizedPageNumber,
-    overrideAccess: false,
-    sort: '-publishedAt',
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      categories: true,
-      keywords: true,
-      meta: true,
-      publishedAt: true,
-      content: true,
-    },
-    where: {
-      and: [
-        { keywords: { in: [keyword.id] } },
-        { _status: { equals: 'published' } },
-      ],
-    },
-  })
+  const limit = 12
+  const [postsResult, searchResults] = await Promise.all([
+    isSearching
+      ? Promise.resolve(null)
+      : payload.find({
+          collection: 'posts',
+          depth: 1,
+          limit,
+          page: sanitizedPageNumber,
+          overrideAccess: false,
+          sort: '-publishedAt',
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            categories: true,
+            keywords: true,
+            meta: true,
+            publishedAt: true,
+            content: true,
+          },
+          where: {
+            and: [{ keywords: { in: [keyword.id] } }, { _status: { equals: 'published' } }],
+          },
+        }),
+    isSearching ? searchPosts({ query: searchQuery, limit }) : Promise.resolve([]),
+  ])
 
-  const basePath = `/keywords/${name}/page`
+  const gridPosts = isSearching ? searchResults : ((postsResult?.docs ?? []) as CardPostData[])
+
+  const totalPages = postsResult?.totalPages ?? 1
+  const currentPage = postsResult?.page ?? sanitizedPageNumber
 
   return (
     <PostsPageLayout>
-        {/* Back nav + Heading */}
-        <div className="flex flex-col gap-2">
-          <BackLink />
-          <h1 className="font-display text-3xl font-semibold text-foreground capitalize">
-            {keyword.name}
-          </h1>
-        </div>
-
-        {/* Heading + Search */}
-        <PostsSearchToggle
-          basePath={`/keywords/${name}`}
-          heading={`Posts tagged: ${keyword.name}`}
-        />
-
-        {/* Grid */}
-        {posts.docs.length > 0 ? (
-          <PostsGrid posts={posts.docs as CardPostData[]} />
-        ) : (
-          <p className="text-muted-foreground">No posts on this page.</p>
-        )}
-
-        {/* Pagination */}
-        {posts.totalPages > 1 && posts.page && (
-          <Pagination basePath={basePath} page={posts.page} totalPages={posts.totalPages} />
-        )}
+      <PostsBrowseSection
+        backLink
+        heading={`Posts tagged: ${keyword.name}`}
+        basePath={`/keywords/${name}`}
+        searchQuery={searchQuery}
+        posts={gridPosts}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        paginationBasePath={`/keywords/${name}/page`}
+        emptyMessage="No posts on this page."
+      />
     </PostsPageLayout>
   )
 }
