@@ -9,7 +9,7 @@ interface PostsGridProps {
 
 export const PostsGrid: React.FC<PostsGridProps> = ({ posts }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-[36px] md:gap-[42px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-9 md:gap-10.5">
       {posts.map((post, index) => (
         <Card key={post.slug} doc={post} relationTo="posts" showCategories index={index} />
       ))}

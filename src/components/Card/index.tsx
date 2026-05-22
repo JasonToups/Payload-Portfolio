@@ -71,9 +71,7 @@ export const Card: React.FC<{
       {/* Card body */}
       <div
         className={cn(
-          'relative z-20 flex flex-col',
-          'px-2.5 py-1.5 gap-1.5',
-          'md:px-5 md:pt-4 md:pb-5 md:gap-6',
+          'relative z-20 flex flex-col px-3 py-5 gap-5 md:px-5 md:pt-4 md:pb-5 md:gap-6',
         )}
       >
         {/* Meta — categories left, date right */}

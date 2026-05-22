@@ -50,7 +50,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
       </div>
 
       {/* Card body */}
-      <div className="flex flex-col gap-[13px]">
+      <div className="flex flex-col gap-7">
         {/* Title + Description */}
         <div className="flex flex-col gap-[6px]">
           {title && (
@@ -81,7 +81,10 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
         )}
 
         {/* Dotted separator */}
-        <div className="w-full border-t-[3px] border-dotted border-border" role="separator" />
+        <div
+          className="hidden md:block w-full border-t-[3px] border-dotted border-border"
+          role="separator"
+        />
 
         {/* Footer */}
         <div className="flex items-center justify-between">
