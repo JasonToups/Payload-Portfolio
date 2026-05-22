@@ -3,6 +3,7 @@ import type { Metadata } from 'next/types'
 import { PostsPageLayout } from '@/components/PostsPageLayout'
 import { PostsBrowseSection } from '@/components/PostsBrowseSection'
 import { searchPosts } from '@/utilities/searchPosts'
+import { toSlug } from '@/utilities/toSlug'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
@@ -27,13 +28,12 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
   const sanitizedPageNumber = Number(pageNumber)
   if (!Number.isInteger(sanitizedPageNumber)) notFound()
 
-  const keywordName = name.replace(/-/g, ' ')
   const payload = await getPayload({ config: configPromise })
 
   const keywordResult = await payload.find({
     collection: 'keywords',
     limit: 1,
-    where: { name: { equals: keywordName } },
+    where: { slug: { equals: name } },
   })
 
   const keyword = keywordResult.docs?.[0]
@@ -91,9 +91,15 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { name, pageNumber } = await paramsPromise
-  const keywordName = name.replace(/-/g, ' ')
+  const payload = await getPayload({ config: configPromise })
+  const keywordResult = await payload.find({
+    collection: 'keywords',
+    limit: 1,
+    where: { slug: { equals: name } },
+  })
+  const keyword = keywordResult.docs?.[0]
   return {
-    title: `Posts tagged: ${keywordName} — Page ${pageNumber}`,
+    title: `Posts tagged: ${keyword?.name ?? name} — Page ${pageNumber}`,
   }
 }
 
@@ -116,7 +122,7 @@ export async function generateStaticParams() {
     })
 
     const totalPages = Math.ceil(totalDocs / 12)
-    const urlName = kw.name.replace(/\s+/g, '-')
+    const urlName = kw.slug ?? toSlug(kw.name)
 
     for (let i = 1; i <= totalPages; i++) {
       params.push({ name: urlName, pageNumber: String(i) })

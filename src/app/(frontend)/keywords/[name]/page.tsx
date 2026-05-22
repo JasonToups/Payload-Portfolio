@@ -4,6 +4,7 @@ import { PostsPageLayout } from '@/components/PostsPageLayout'
 import { PostsBrowseSection } from '@/components/PostsBrowseSection'
 import { getFeaturedPost } from '@/utilities/getFeaturedPost'
 import { searchPosts } from '@/utilities/searchPosts'
+import { toSlug } from '@/utilities/toSlug'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
@@ -23,13 +24,12 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
   const searchQuery = q?.trim() ?? ''
   const isSearching = searchQuery.length > 0
 
-  const keywordName = name.replace(/-/g, ' ')
   const payload = await getPayload({ config: configPromise })
 
   const keywordResult = await payload.find({
     collection: 'keywords',
     limit: 1,
-    where: { name: { equals: keywordName } },
+    where: { slug: { equals: name } },
   })
 
   const keyword = keywordResult.docs?.[0]
@@ -96,9 +96,15 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { name } = await paramsPromise
-  const keywordName = name.replace(/-/g, ' ')
+  const payload = await getPayload({ config: configPromise })
+  const keywordResult = await payload.find({
+    collection: 'keywords',
+    limit: 1,
+    where: { slug: { equals: name } },
+  })
+  const keyword = keywordResult.docs?.[0]
   return {
-    title: `Posts tagged: ${keywordName}`,
+    title: `Posts tagged: ${keyword?.name ?? name}`,
   }
 }
 
@@ -112,6 +118,6 @@ export async function generateStaticParams() {
   })
 
   return keywords.docs.map((kw) => ({
-    name: kw.name.replace(/\s+/g, '-'),
+    name: kw.slug ?? toSlug(kw.name),
   }))
 }

@@ -1,5 +1,6 @@
 'use client'
 import { cn } from '@/utilities/ui'
+import { toSlug } from '@/utilities/toSlug'
 import Link from 'next/link'
 import React from 'react'
 
@@ -21,7 +22,7 @@ export const KeywordPill: React.FC<{
     )
   }
 
-  const slug = keyword.name.replace(/\s+/g, '-')
+  const slug = keyword.slug ?? toSlug(keyword.name)
 
   return (
     <Link

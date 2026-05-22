@@ -473,6 +473,10 @@ export interface FolderInterface {
 export interface Keyword {
   id: number;
   name: string;
+  /**
+   * Auto-generated URL-safe identifier from the keyword name.
+   */
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2063,6 +2067,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface KeywordsSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }
