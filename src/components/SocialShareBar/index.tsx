@@ -1,16 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import {
-  type Icon,
-  Butterfly,
-  ButterflyIcon,
-  Export,
-  ThreadsLogo,
-  ThreadsLogoIcon,
-  XLogo,
-  XLogoIcon,
-} from '@phosphor-icons/react'
+import { type Icon, ButterflyIcon, ThreadsLogoIcon, XLogoIcon } from '@phosphor-icons/react'
 import { buildShareUrl, type SocialPlatform, type SocialProfile } from '@/utilities/buildShareUrl'
 import { ExportIcon } from '@phosphor-icons/react/dist/ssr'
 
@@ -71,10 +62,10 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
 
   return (
     <div className="flex flex-col gap-4.5 py-6">
-      <span className="font-plus-Jakarta-Sans text-[24px] font-normal leading-none text-foreground">
+      <span className="font-plus-Jakarta-Sans text-2xl text-end md:text-start font-normal leading-none text-foreground">
         Share
       </span>
-      <div className="flex flex-row items-center gap-4">
+      <div className="flex flex-row-reverse md:flex-row justify-start items-center gap-6">
         <IconButton
           icon={ExportIcon}
           label={copied ? 'Copied!' : 'Copy link'}
