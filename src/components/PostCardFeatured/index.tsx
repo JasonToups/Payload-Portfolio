@@ -29,11 +29,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
 
   return (
     <article
-      className={cn(
-        'relative overflow-hidden rounded-[6px]',
-        'flex flex-col w-full p-4 gap-4',
-        className,
-      )}
+      className={cn('relative overflow-hidden rounded-[6px] flex flex-col w-full gap-4', className)}
     >
       {/* Full-card overlay link */}
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />

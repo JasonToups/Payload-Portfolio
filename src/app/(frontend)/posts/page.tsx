@@ -4,7 +4,6 @@ import { PostCardFeatured } from '@/components/PostCardFeatured'
 import { PostsPageLayout } from '@/components/PostsPageLayout'
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PostsGrid } from '@/components/PostsGrid'
-import { PostsSearchForm } from '@/components/PostsSearch'
 import { Pagination } from '@/components/Pagination'
 import { getFeaturedPost } from '@/utilities/getFeaturedPost'
 import { searchPosts } from '@/utilities/searchPosts'
@@ -12,7 +11,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import PageClient from './page.client'
 import type { CardPostData } from '@/components/Card'
-import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr'
+import { PostsSearchToggle } from '@/components/PostsSearchToggle'
 import type { Where } from 'payload'
 
 export const dynamic = 'force-dynamic'
@@ -111,13 +110,7 @@ export default async function Page({ searchParams }: Args) {
       )}
 
       {/* Section 2: Heading + Search */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0">
-        <div className="header-icon-container flex flex-row w-full justify-between">
-          <h2 className="font-display text-4xl font-normal">All Posts</h2>
-          <MagnifyingGlassIcon size={24} className="text-primary-base" aria-hidden="true" />
-        </div>
-        <PostsSearchForm defaultValue={searchQuery} basePath="/posts" />
-      </div>
+      <PostsSearchToggle defaultValue={searchQuery} basePath="/posts" searchQuery={searchQuery} />
 
       {/* Section 3: Grid or Search Results */}
       {isSearching ? (

@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowRight, ArrowUpRight, CaretRight } from '@phosphor-icons/react/dist/ssr'
+import { ArrowRight, ArrowUpRight, CaretRight, MagnifyingGlass } from '@phosphor-icons/react/dist/ssr'
 import {
   ExternalLink,
   Send,
@@ -18,6 +18,7 @@ const phosphorIconMap: Record<string, PhosphorIconComponent> = {
   'arrow-right': ArrowRight,
   'arrow-up-right': ArrowUpRight,
   'chevron-right': CaretRight,
+  'magnifying-glass': MagnifyingGlass,
 }
 
 const lucideIconMap: Record<string, LucideIconComponent> = {
