@@ -215,7 +215,8 @@
     --tw-prose-headings: var(--foreground);
   }
 
-  a {
+  a,
+  button {
     cursor: pointer;
   }
 }
