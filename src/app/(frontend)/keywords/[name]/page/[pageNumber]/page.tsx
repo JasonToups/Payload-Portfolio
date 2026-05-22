@@ -3,7 +3,7 @@ import type { Metadata } from 'next/types'
 import { BackLink } from '@/components/ui/back-link'
 import { PostsPageLayout } from '@/components/PostsPageLayout'
 import { PostsGrid } from '@/components/PostsGrid'
-import { PostsSearchForm } from '@/components/PostsSearch'
+import { PostsSearchToggle } from '@/components/PostsSearchToggle'
 import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -75,12 +75,10 @@ export default async function Page({ params: paramsPromise }: Args) {
         </div>
 
         {/* Heading + Search */}
-        <div className="flex flex-row items-center justify-between">
-          <h2 className="font-display text-2xl font-semibold text-foreground">
-            Posts tagged: {keyword.name}
-          </h2>
-          <PostsSearchForm basePath={`/keywords/${name}`} />
-        </div>
+        <PostsSearchToggle
+          basePath={`/keywords/${name}`}
+          heading={`Posts tagged: ${keyword.name}`}
+        />
 
         {/* Grid */}
         {posts.docs.length > 0 ? (

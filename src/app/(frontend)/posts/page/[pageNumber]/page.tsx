@@ -2,7 +2,7 @@ import type { Metadata } from 'next/types'
 
 import { PostsGrid } from '@/components/PostsGrid'
 import { PostsPageLayout } from '@/components/PostsPageLayout'
-import { PostsSearchForm } from '@/components/PostsSearch'
+import { PostsSearchToggle } from '@/components/PostsSearchToggle'
 import { Pagination } from '@/components/Pagination'
 import { searchPosts } from '@/utilities/searchPosts'
 import configPromise from '@payload-config'
@@ -67,13 +67,7 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
     <PostsPageLayout>
       <PageClient />
         {/* Heading + Search */}
-        <div className="flex flex-row items-center justify-between">
-          <h2 className="font-display text-3xl font-semibold text-foreground">All Posts</h2>
-          <PostsSearchForm
-            defaultValue={searchQuery}
-            basePath="/posts"
-          />
-        </div>
+        <PostsSearchToggle defaultValue={searchQuery} basePath="/posts" searchQuery={searchQuery} />
 
         {/* Grid or Search Results */}
         {isSearching ? (
