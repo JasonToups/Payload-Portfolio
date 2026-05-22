@@ -68,7 +68,10 @@ export const SubscribePostBlock: React.FC<SubscribePostBlockProps> = ({
   return (
     <section
       aria-label="Newsletter subscribe"
-      className={cn('flex flex-col sticky bottom-0 w-fit h-fit py-[31px]', className)}
+      className={cn(
+        'flex flex-col sticky bottom-0 w-full md:w-fit h-full md:h-fit py-8',
+        className,
+      )}
     >
       {status === 'success' ? (
         <div role="status">
@@ -105,13 +108,13 @@ export const SubscribePostBlock: React.FC<SubscribePostBlockProps> = ({
               autoComplete="email"
               disabled={status === 'loading'}
               aria-describedby={status === 'error' ? 'post-subscribe-error' : undefined}
-              className="flex-1 h-[40px] bg-neutral-50 border border-border rounded-[8px] px-4 text-base text-foreground placeholder:text-muted-foreground disabled:opacity-50"
+              className="flex-1 h-11 w-full bg-neutral-50 border border-border rounded-[8px] px-4 text-base text-foreground placeholder:text-muted-foreground disabled:opacity-50"
             />
             <button
               type="submit"
               disabled={status === 'loading'}
               aria-live="polite"
-              className="bg-primary-bright text-primary-dark rounded-[10px] px-4 py-[10px] min-h-[44px] min-w-[119px] font-medium text-base leading-none disabled:opacity-50 hover:opacity-90 transition-opacity"
+              className="bg-primary-bright text-primary-dark rounded-[10px] px-4 py-2.5 min-h-11 min-w-30 font-medium text-base leading-none disabled:opacity-50 hover:opacity-90 transition-opacity"
             >
               {status === 'loading' ? (
                 <span aria-label="Submitting">Subscribing&hellip;</span>

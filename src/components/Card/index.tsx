@@ -11,7 +11,7 @@ import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
 
 export type CardPostData = Pick<
   Post,
-  'slug' | 'categories' | 'meta' | 'title' | 'keywords' | 'publishedAt'
+  'id' | 'slug' | 'categories' | 'meta' | 'title' | 'keywords' | 'publishedAt'
 > &
   Partial<Pick<Post, 'content'>>
 
@@ -35,15 +35,10 @@ export const Card: React.FC<{
   const href = `/${relationTo}/${slug}`
   const readMinutes = content ? getReadMinutes(content) : 1
   const formattedDate = formatPostDate(publishedAt)
-  const cardNumber = `NO. ${String(index + 1).padStart(2, '0')}`
 
   return (
     <article
-      className={cn(
-        'post-card relative overflow-hidden rounded-[6px] bg-card',
-        'md:flex md:flex-col',
-        className,
-      )}
+      className={cn('post-card relative overflow-hidden bg-card', 'md:flex md:flex-col', className)}
     >
       {/* Full-card overlay link — keyboard users navigate via the title link below */}
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
@@ -58,38 +53,25 @@ export const Card: React.FC<{
             fill
           />
         )}
-        <div className="absolute inset-0 bg-card/75" />
+        <div className="absolute inset-0 bg-card/85 dark:bg-card/90" />
       </div>
 
-      {/* Desktop: full natural-size image at top of card */}
-      <div className="hidden md:block relative overflow-hidden rounded-t-[6px] bg-[#2e2c2a]">
+      {/* Desktop: 16:9 image at top of card */}
+      <div className="hidden md:block relative overflow-hidden rounded-[15px] bg-[#2e2c2a] aspect-video">
         {metaImage && typeof metaImage !== 'string' && (
           <Media
             resource={metaImage}
             size="33vw"
-            pictureClassName="block w-full"
-            imgClassName="w-full h-auto block"
+            imgClassName="absolute inset-0 w-full h-full object-cover object-center"
+            fill
           />
         )}
-        <div className="absolute top-4 left-4 z-1">
-          <span
-            className={cn(
-              'font-mono text-[12px] tracking-widest',
-              'px-2 py-1 rounded-lg',
-              'bg-card/85 backdrop-blur-sm text-foreground',
-            )}
-          >
-            {cardNumber}
-          </span>
-        </div>
       </div>
 
       {/* Card body */}
       <div
         className={cn(
-          'relative z-20 flex flex-col',
-          'px-2.5 py-1.5 gap-1.5',
-          'md:px-5 md:pt-4 md:pb-5 md:gap-6',
+          'relative z-20 flex flex-col px-3 py-5 gap-5 md:px-5 md:pt-4 md:pb-5 md:gap-6',
         )}
       >
         {/* Meta — categories left, date right */}
@@ -115,7 +97,7 @@ export const Card: React.FC<{
         {/* Title + Description */}
         <div className="flex flex-col gap-1.5">
           {titleToUse && (
-            <h3 className="font-display text-[1.375rem] leading-[1.2] font-semibold text-foreground">
+            <h3 className="font-sans text-[22px] leading-[1.2] font-normal text-foreground">
               <Link
                 className="not-prose no-underline relative z-20"
                 href={href}
@@ -142,14 +124,17 @@ export const Card: React.FC<{
         )}
 
         {/* Separator */}
-        <div className="border-t border-border w-full" role="separator" />
+        <div
+          className="border-t-[3px] border-dotted border-border w-full opacity-30"
+          role="separator"
+        />
 
         {/* Footer */}
         <div className="flex items-center justify-between">
           <span className="font-mono text-[12px] text-muted-foreground tracking-[1px]">
             {readMinutes} MIN READ
           </span>
-          <ArrowRight size={24} className="text-primary" aria-hidden="true" />
+          <ArrowRight size={24} className="text-primary-base" aria-hidden="true" />
         </div>
       </div>
     </article>

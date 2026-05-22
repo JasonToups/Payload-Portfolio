@@ -310,6 +310,10 @@ export interface Post {
    */
   generateSlug?: boolean | null;
   slug: string;
+  /**
+   * Show this post as the Featured Post on the Posts page. Only the most recently created featured post will be shown.
+   */
+  featured?: boolean | null;
   publishedAt?: string | null;
   meta?: {
     title?: string | null;
@@ -469,6 +473,10 @@ export interface FolderInterface {
 export interface Keyword {
   id: number;
   name: string;
+  /**
+   * Auto-generated URL-safe identifier from the keyword name.
+   */
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1914,6 +1922,7 @@ export interface PostsSelect<T extends boolean = true> {
       };
   generateSlug?: T;
   slug?: T;
+  featured?: T;
   publishedAt?: T;
   meta?:
     | T
@@ -2058,6 +2067,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface KeywordsSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -65,7 +65,7 @@ export default async function Post({ params: paramsPromise }: Args) {
         : []
 
   return (
-    <article>
+    <article className="bg-post">
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
@@ -76,33 +76,18 @@ export default async function Post({ params: paramsPromise }: Args) {
       <PostHero post={post} />
 
       <div className="pt-0 pb-0">
-        <div className="bg-post flex flex-col lg:grid lg:grid-cols-4">
+        <div className="flex flex-col lg:grid lg:grid-cols-4">
           {/* Post Body: top on mobile, center 50% (cols 2–3) on desktop */}
-          <div className="bg-post lg:col-start-2 lg:col-span-2 py-8 px-10">
+          <div className="lg:col-start-2 lg:col-span-2 py-8 px-10">
             <RichText data={post.content} enableGutter={false} />
-            {relatedPosts.length > 0 && (
-              <section className="mt-16 pt-8" style={{ borderTop: '1px solid var(--border)' }}>
-                <p
-                  className="font-mono mb-6"
-                  style={{
-                    fontSize: '0.75rem',
-                    letterSpacing: '0.08em',
-                    color: 'var(--muted-foreground)',
-                  }}
-                >
-                  RELATED POSTS
-                </p>
-                <RelatedPosts docs={relatedPosts} />
-              </section>
-            )}
           </div>
 
           {/* Share: bottom on mobile, left 25% (col 1) on desktop — sticky */}
           <aside
             aria-label="Share this post"
-            className="flex flex-col justify-between mt-16 sticky lg:mt-0 bg-post lg:col-start-1 lg:row-start-1 py-8 px-10"
+            className="md:sticky flex flex-col justify-between lg:mt-0 lg:col-start-1 lg:row-start-1 py-8 px-10"
           >
-            <div className="sticky top-0">
+            <div className="md:sticky md:top-0 py-6">
               <SocialShareBar
                 slug={decodedSlug}
                 title={post.title ?? ''}
@@ -113,7 +98,7 @@ export default async function Post({ params: paramsPromise }: Args) {
             {subscribePostBlock && (
               <div
                 aria-label="subscribe-container"
-                className="sticky bottom-0 flex flex-col justify-center items-end lg:items-start lg:align-middle"
+                className="md:sticky md:bottom-0 flex flex-col justify-center items-end lg:items-start lg:align-middle"
               >
                 <SubscribePostBlock
                   description={subscribePostBlock.description}
@@ -126,6 +111,11 @@ export default async function Post({ params: paramsPromise }: Args) {
             )}
           </aside>
         </div>
+        {relatedPosts.length > 0 && (
+          <section className="mt-16 py-8 px-4" style={{ borderTop: '1px solid var(--border)' }}>
+            <RelatedPosts docs={relatedPosts} />
+          </section>
+        )}
       </div>
     </article>
   )

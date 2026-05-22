@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { anyone } from '../../access/anyone'
 import { authenticated } from '../../access/authenticated'
+import { toSlug } from '../../utilities/toSlug'
 
 export const Keywords: CollectionConfig = {
   slug: 'keywords',
@@ -21,12 +22,22 @@ export const Keywords: CollectionConfig = {
       required: true,
       unique: true,
     },
+    {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      admin: {
+        readOnly: true,
+        description: 'Auto-generated URL-safe identifier from the keyword name.',
+      },
+    },
   ],
   hooks: {
     beforeChange: [
       ({ data }) => {
         if (typeof data.name === 'string') {
           data.name = data.name.trim().toLowerCase()
+          data.slug = toSlug(data.name)
         }
         return data
       },

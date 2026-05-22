@@ -40,7 +40,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
             fill
             imgClassName="object-cover object-center blur-[18px] scale-110"
           />
-          <div className="absolute inset-0 bg-post md:bg-post/80 dark:md:bg-post/80" />
+          <div className="absolute inset-0 bg-post md:bg-post/80 dark:md:bg-post/90" />
         </div>
       )}
 
@@ -80,23 +80,29 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
             </nav>
 
             {/* Title */}
-            <h1 className="font-['Spectral'] text-[48px] font-semibold leading-[1.1] text-foreground">
+            <h1 className="font-['Spectral'] text-4xl md:text-[48px] font-semibold leading-[1.1] text-foreground">
               {title}
             </h1>
 
             {/* Description */}
             {description && (
-              <p className="mb-12 font-sans text-xl font-normal leading-relaxed text-foreground">
+              <p className="font-sans text-l md:text-xl font-normal leading-relaxed text-foreground">
                 {description}
               </p>
+            )}
+            {/* Keywords */}
+            {hasKeywords && (
+              <div className="flex flex-wrap gap-5 justify-end md:justify-start py-3 md:py-6">
+                {keywords!.map((kw) =>
+                  typeof kw === 'object' ? <KeywordPill key={kw.id} keyword={kw} /> : null,
+                )}
+              </div>
             )}
 
             {/* Meta */}
             <div
               className={cn(
-                'flex flex-wrap items-center gap-x-[10px]',
-                'font-mono text-[18px] tracking-[1px] text-foreground/60',
-                'justify-center md:justify-start',
+                'flex flex-wrap items-center gap-x-2.5 font-mono text-md tracking-[1px] text-foreground/60 justify-end md:justify-start',
               )}
             >
               {formattedDate && <span>{formattedDate}</span>}
@@ -105,15 +111,6 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
               {hasAuthors && <span aria-hidden="true">·</span>}
               {hasAuthors && <span>{formatAuthors(populatedAuthors!)}</span>}
             </div>
-
-            {/* Keywords */}
-            {hasKeywords && (
-              <div className="flex flex-wrap gap-2">
-                {keywords!.map((kw) =>
-                  typeof kw === 'object' ? <KeywordPill key={kw.id} keyword={kw} /> : null,
-                )}
-              </div>
-            )}
           </div>
 
           {/* Hero image — stacks below content on mobile, floats right on desktop */}

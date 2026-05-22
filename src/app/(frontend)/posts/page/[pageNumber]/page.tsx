@@ -1,71 +1,87 @@
 import type { Metadata } from 'next/types'
 
-import { CollectionArchive } from '@/components/CollectionArchive'
-import { PageRange } from '@/components/PageRange'
-import { Pagination } from '@/components/Pagination'
+import { PostsBrowseSection } from '@/components/PostsBrowseSection'
+import { PostsPageLayout } from '@/components/PostsPageLayout'
+import { searchPosts } from '@/utilities/searchPosts'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import PageClient from './page.client'
 import { notFound } from 'next/navigation'
+import type { CardPostData } from '@/components/Card'
 
 export const dynamic = 'force-dynamic'
 
 type Args = {
-  params: Promise<{
-    pageNumber: string
-  }>
+  params: Promise<{ pageNumber: string }>
+  searchParams: Promise<{ q?: string }>
 }
 
-export default async function Page({ params: paramsPromise }: Args) {
+export default async function Page({ params: paramsPromise, searchParams }: Args) {
   const { pageNumber } = await paramsPromise
-  const payload = await getPayload({ config: configPromise })
+  const { q } = await searchParams
+  const searchQuery = q?.trim() ?? ''
+  const isSearching = searchQuery.length > 0
 
   const sanitizedPageNumber = Number(pageNumber)
-
   if (!Number.isInteger(sanitizedPageNumber)) notFound()
 
-  const posts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 12,
-    page: sanitizedPageNumber,
-    overrideAccess: false,
-  })
+  const payload = await getPayload({ config: configPromise })
+
+  const [postsResult, searchResults] = await Promise.all([
+    isSearching
+      ? Promise.resolve(null)
+      : payload.find({
+          collection: 'posts',
+          depth: 1,
+          limit: 12,
+          page: sanitizedPageNumber,
+          overrideAccess: false,
+          sort: '-publishedAt',
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            categories: true,
+            keywords: true,
+            meta: true,
+            publishedAt: true,
+            content: true,
+          },
+        }),
+    isSearching
+      ? searchPosts({ query: searchQuery, limit: 12 })
+      : Promise.resolve([]),
+  ])
+
+  const gridPosts = isSearching
+    ? searchResults
+    : ((postsResult?.docs ?? []) as CardPostData[])
+
+  const totalPages = postsResult?.totalPages ?? 1
+  const currentPage = postsResult?.page ?? sanitizedPageNumber
 
   return (
-    <div className="pt-24 pb-24">
+    <PostsPageLayout>
       <PageClient />
-      <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1>Posts</h1>
-        </div>
-      </div>
-
-      <div className="container mb-8">
-        <PageRange
-          collection="posts"
-          currentPage={posts.page}
-          limit={12}
-          totalDocs={posts.totalDocs}
-        />
-      </div>
-
-      <CollectionArchive posts={posts.docs} />
-
-      <div className="container">
-        {posts?.page && posts?.totalPages > 1 && (
-          <Pagination page={posts.page} totalPages={posts.totalPages} />
-        )}
-      </div>
-    </div>
+      <PostsBrowseSection
+        heading="All Posts"
+        basePath="/posts"
+        searchQuery={searchQuery}
+        posts={gridPosts}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        paginationBasePath="/posts/page"
+        emptyMessage="No posts on this page."
+      />
+    </PostsPageLayout>
   )
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { pageNumber } = await paramsPromise
   return {
-    title: `Payload Website Template Posts Page ${pageNumber || ''}`,
+    title: `Posts — Page ${pageNumber}`,
   }
 }
 
@@ -76,8 +92,7 @@ export async function generateStaticParams() {
     overrideAccess: false,
   })
 
-  const totalPages = Math.ceil(totalDocs / 10)
-
+  const totalPages = Math.ceil(totalDocs / 12)
   const pages: { pageNumber: string }[] = []
 
   for (let i = 1; i <= totalPages; i++) {
