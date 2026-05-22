@@ -272,6 +272,10 @@ export interface Post {
    * Displayed in the post hero. Auto-syncs to meta description.
    */
   postDescription?: string | null;
+  /**
+   * Show this post as the Featured Post on the Posts page. Only the most recently created featured post will be shown.
+   */
+  featured?: boolean | null;
   categories?: (number | Category)[] | null;
   heroImage?: (number | null) | Media;
   content: {
@@ -310,10 +314,6 @@ export interface Post {
    */
   generateSlug?: boolean | null;
   slug: string;
-  /**
-   * Show this post as the Featured Post on the Posts page. Only the most recently created featured post will be shown.
-   */
-  featured?: boolean | null;
   publishedAt?: string | null;
   meta?: {
     title?: string | null;
@@ -1907,6 +1907,7 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
   postDescription?: T;
+  featured?: T;
   categories?: T;
   heroImage?: T;
   content?: T;
@@ -1922,7 +1923,6 @@ export interface PostsSelect<T extends boolean = true> {
       };
   generateSlug?: T;
   slug?: T;
-  featured?: T;
   publishedAt?: T;
   meta?:
     | T
