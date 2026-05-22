@@ -71,7 +71,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             className={cn(
               'h-11 px-4 flex items-center gap-2 overflow-hidden',
               'bg-primary-bright border border-primary-pale hover:bg-primary-light hover:border-[#6b6866]',
-              'rounded-tl-[10px] rounded-br-[10px]',
+              'rounded-tl-[10px] rounded-bl-[10px]',
               "font-['Geist'] text-[18px] leading-none text-primary-mid whitespace-nowrap",
               'transition-colors',
               !hasPrevPage && 'opacity-40 cursor-not-allowed pointer-events-none',
@@ -94,7 +94,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             className={cn(
               'h-11 px-4 flex flex-row-reverse items-center gap-2 overflow-hidden',
               'bg-primary-bright border border-primary-pale hover:bg-primary-base hover:border-[#6b6866]',
-              'rounded-tr-[10px] rounded-bl-[10px]',
+              'rounded-tr-[10px] rounded-br-[10px]',
               "font-['Geist'] text-[18px] leading-none text-primary-mid whitespace-nowrap",
               'transition-colors',
               !hasNextPage && 'opacity-40 cursor-not-allowed pointer-events-none',
