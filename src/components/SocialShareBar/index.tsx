@@ -1,12 +1,18 @@
 'use client'
 
 import React, { useState } from 'react'
-import { type Icon, Butterfly, Export, ThreadsLogo, XLogo } from '@phosphor-icons/react'
 import {
-  buildShareUrl,
-  type SocialPlatform,
-  type SocialProfile,
-} from '@/utilities/buildShareUrl'
+  type Icon,
+  Butterfly,
+  ButterflyIcon,
+  Export,
+  ThreadsLogo,
+  ThreadsLogoIcon,
+  XLogo,
+  XLogoIcon,
+} from '@phosphor-icons/react'
+import { buildShareUrl, type SocialPlatform, type SocialProfile } from '@/utilities/buildShareUrl'
+import { ExportIcon } from '@phosphor-icons/react/dist/ssr'
 
 type IconButtonProps = {
   icon: Icon
@@ -70,22 +76,22 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
       </span>
       <div className="flex flex-row items-center gap-4">
         <IconButton
-          icon={Export}
+          icon={ExportIcon}
           label={copied ? 'Copied!' : 'Copy link'}
           onClick={() => void handleExport()}
         />
         <IconButton
-          icon={XLogo}
+          icon={XLogoIcon}
           label="Share on X / Twitter"
           onClick={() => handleShare('twitter')}
         />
         <IconButton
-          icon={ThreadsLogo}
+          icon={ThreadsLogoIcon}
           label="Share on Threads"
           onClick={() => handleShare('threads')}
         />
         <IconButton
-          icon={Butterfly}
+          icon={ButterflyIcon}
           label="Share on Bluesky"
           onClick={() => handleShare('bluesky')}
         />

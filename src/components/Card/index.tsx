@@ -38,11 +38,7 @@ export const Card: React.FC<{
 
   return (
     <article
-      className={cn(
-        'post-card relative overflow-hidden bg-card',
-        'md:flex md:flex-col',
-        className,
-      )}
+      className={cn('post-card relative overflow-hidden bg-card', 'md:flex md:flex-col', className)}
     >
       {/* Full-card overlay link — keyboard users navigate via the title link below */}
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
@@ -57,7 +53,7 @@ export const Card: React.FC<{
             fill
           />
         )}
-        <div className="absolute inset-0 bg-card/75" />
+        <div className="absolute inset-0 bg-card/75 dark:bg-card/90" />
       </div>
 
       {/* Desktop: 16:9 image at top of card */}
