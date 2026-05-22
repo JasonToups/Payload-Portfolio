@@ -96,14 +96,14 @@ export default async function Page({ searchParams }: Args) {
       <PageClient />
       {/* Section 1: Featured Post + Related Posts sidebar (Page 1 only, when featured exists) */}
       {featuredPost && (
-        <div className="flex flex-col md:flex-row md:gap-[100px] items-start">
+        <div className="flex flex-col md:flex-row md:gap-25 items-start">
           {/* Featured Post */}
-          <div className="flex flex-col gap-[35px] md:gap-[50px] flex-1">
+          <div className="flex flex-col gap-8 md:gap-9 flex-1">
             <PostCardFeatured doc={featuredPost} />
           </div>
 
           {/* Related Posts sidebar */}
-          <div className="flex flex-col gap-[35px] md:gap-[50px] w-full md:w-[397px] shrink-0">
+          <div className="flex flex-col gap-9 md:gap-12 w-full md:w-99.25 shrink-0">
             <RelatedPosts docs={relatedPosts} layout="sidebar" />
           </div>
         </div>
