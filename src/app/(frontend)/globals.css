@@ -214,6 +214,10 @@
     --tw-prose-body: var(--foreground);
     --tw-prose-headings: var(--foreground);
   }
+
+  a {
+    cursor: pointer;
+  }
 }
 
 @layer utilities {

@@ -6,6 +6,10 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : undefined || process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
 
+// Extract Vercel Blob store hostname for Next.js Image optimization
+const blobToken = process.env.BLOB_READ_WRITE_TOKEN
+const blobStoreId = blobToken?.match(/^vercel_blob_rw_([a-z\d]+)_[a-z\d]+$/i)?.[1]?.toLowerCase()
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -18,6 +22,12 @@ const nextConfig = {
           protocol: url.protocol.replace(':', ''),
         }
       }),
+      // www subdomain variant (production site runs at www.toupsi.com)
+      { protocol: 'https', hostname: 'www.toupsi.com' },
+      // Vercel Blob storage CDN (safety net for any direct blob URLs)
+      ...(blobStoreId
+        ? [{ protocol: 'https', hostname: `${blobStoreId}.public.blob.vercel-storage.com` }]
+        : []),
     ],
   },
   webpack: (webpackConfig) => {

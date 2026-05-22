@@ -18,12 +18,13 @@ export type CardPostData = Pick<
 export const Card: React.FC<{
   className?: string
   doc?: CardPostData
+  priority?: boolean
   relationTo?: 'posts'
   showCategories?: boolean
   title?: string
   index?: number
 }> = (props) => {
-  const { className, doc, relationTo, showCategories, title: titleFromProps, index = 0 } = props
+  const { className, doc, priority, relationTo, showCategories, title: titleFromProps, index = 0 } = props
 
   const { slug, categories, keywords, meta, title, publishedAt, content } = doc || {}
   const { description, image: metaImage } = meta || {}
@@ -51,6 +52,7 @@ export const Card: React.FC<{
             size="33vw"
             imgClassName="absolute inset-0 w-full h-full object-cover object-center blur-[10px] scale-110"
             fill
+            priority={priority}
           />
         )}
         <div className="absolute inset-0 bg-card/85 dark:bg-card/90" />
@@ -64,6 +66,7 @@ export const Card: React.FC<{
             size="33vw"
             imgClassName="absolute inset-0 w-full h-full object-cover object-center"
             fill
+            priority={priority}
           />
         )}
       </div>

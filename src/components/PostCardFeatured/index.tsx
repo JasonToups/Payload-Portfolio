@@ -40,6 +40,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
           <Media
             resource={metaImage}
             fill
+            priority
             imgClassName="absolute inset-0 w-full h-full object-cover object-center"
           />
         )}

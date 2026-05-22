@@ -2,9 +2,10 @@
 
 import type { StaticImageData } from 'next/image'
 
+import { ImageBroken } from '@phosphor-icons/react/dist/ssr'
 import { cn } from '@/utilities/ui'
 import NextImage from 'next/image'
-import React from 'react'
+import React, { useState } from 'react'
 
 import type { Props as MediaProps } from '../types'
 
@@ -20,6 +21,7 @@ const placeholderBlur =
 export const ImageMedia: React.FC<MediaProps> = (props) => {
   const {
     alt: altFromProps,
+    fallbackClassName,
     fill,
     pictureClassName,
     imgClassName,
@@ -29,6 +31,8 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     src: srcFromProps,
     loading: loadingFromProps,
   } = props
+
+  const [hasError, setHasError] = useState(false)
 
   let width: number | undefined
   let height: number | undefined
@@ -56,6 +60,24 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         .map(([, value]) => `(max-width: ${value}px) ${value}px`)
         .join(', ')
 
+  if (hasError) {
+    return (
+      <picture className={cn(pictureClassName)}>
+        <div
+          className={cn(
+            'flex items-center justify-center bg-muted/50',
+            fill ? 'absolute inset-0 w-full h-full' : 'w-full',
+            fallbackClassName,
+          )}
+          role="img"
+          aria-label={alt || 'Image unavailable'}
+        >
+          <ImageBroken className="text-muted-foreground opacity-40" size={32} />
+        </div>
+      </picture>
+    )
+  }
+
   return (
     <picture className={cn(pictureClassName)}>
       <NextImage
@@ -71,6 +93,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         sizes={sizes}
         src={src}
         width={!fill ? width : undefined}
+        onError={() => setHasError(true)}
       />
     </picture>
   )
