@@ -111,7 +111,7 @@ export default async function Page({ searchParams }: Args) {
 
       {/* Section 2: Heading + Search */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0">
-        <h2 className="font-display text-[41px] font-normal">All Posts</h2>
+        <h2 className="font-display text-4xl font-normal">All Posts</h2>
         <PostsSearchForm defaultValue={searchQuery} basePath="/posts" />
       </div>
 

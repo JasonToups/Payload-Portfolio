@@ -124,7 +124,10 @@ export const Card: React.FC<{
         )}
 
         {/* Separator */}
-        <div className="border-t-[3px] border-dotted border-border w-full" role="separator" />
+        <div
+          className="border-t-[3px] border-dotted border-border w-full opacity-30"
+          role="separator"
+        />
 
         {/* Footer */}
         <div className="flex items-center justify-between">

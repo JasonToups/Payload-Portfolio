@@ -82,7 +82,7 @@ export const PostCardFeatured: React.FC<PostCardFeaturedProps> = ({
 
         {/* Dotted separator */}
         <div
-          className="hidden md:block w-full border-t-[3px] border-dotted border-border"
+          className="hidden md:block w-full border-t-[3px] border-dotted border-border opacity-50"
           role="separator"
         />
 

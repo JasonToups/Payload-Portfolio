@@ -15,18 +15,14 @@ export type RelatedPostsProps = {
   layout?: 'grid' | 'sidebar'
 }
 
-export const RelatedPosts: React.FC<RelatedPostsProps> = ({
-  className,
-  docs,
-  layout = 'grid',
-}) => {
+export const RelatedPosts: React.FC<RelatedPostsProps> = ({ className, docs, layout = 'grid' }) => {
   const minimalList = (
     <div className="flex flex-col gap-[21px]">
       {docs?.map((doc, i) => (
         <React.Fragment key={doc.slug}>
           <PostCardMinimal doc={doc} />
           {i < docs.length - 1 && (
-            <div className="w-full border-t-2 border-border" role="separator" />
+            <div className="w-full border-t-2 border-border opacity-30" role="separator" />
           )}
         </React.Fragment>
       ))}
