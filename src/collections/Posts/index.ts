@@ -95,6 +95,16 @@ export const Posts: CollectionConfig<'posts'> = {
       },
     },
     {
+      name: 'featured',
+      type: 'checkbox',
+      label: 'Featured Post',
+      defaultValue: false,
+      admin: {
+        description:
+          'Show this post as the Featured Post on the Posts page. Only the most recently created featured post will be shown.',
+      },
+    },
+    {
       type: 'tabs',
       tabs: [
         {
@@ -237,17 +247,6 @@ export const Posts: CollectionConfig<'posts'> = {
                 return field
               },
             }),
-            {
-              name: 'featured',
-              type: 'checkbox',
-              label: 'Featured Post',
-              defaultValue: false,
-              admin: {
-                position: 'sidebar',
-                description:
-                  'Show this post as the Featured Post on the Posts page. Only the most recently created featured post will be shown.',
-              },
-            },
             {
               name: 'publishedAt',
               type: 'date',
