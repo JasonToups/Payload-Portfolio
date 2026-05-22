@@ -118,7 +118,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             onClick={() => hasPrevPage && router.push(`${basePath}/${page - 1}`)}
             className={cn(
               elementBase,
-              'rounded-tl-[10px] rounded-br-[10px] min-w-[56px]',
+              'rounded-tl-[10px] rounded-bl-[10px] min-w-[56px]',
               !hasPrevPage && 'opacity-40 cursor-not-allowed pointer-events-none',
             )}
           >
@@ -158,7 +158,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             onClick={() => hasNextPage && router.push(`${basePath}/${page + 1}`)}
             className={cn(
               elementBase,
-              'rounded-tr-[10px] rounded-bl-[10px] min-w-[56px]',
+              'rounded-tr-[10px] rounded-br-[10px] min-w-[56px]',
               !hasNextPage && 'opacity-40 cursor-not-allowed pointer-events-none',
             )}
           >
