@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { type Icon, Butterfly, Export, ThreadsLogo, XLogo } from '@phosphor-icons/react'
 import {
   buildShareUrl,
   type SocialPlatform,
@@ -8,12 +9,12 @@ import {
 } from '@/utilities/buildShareUrl'
 
 type IconButtonProps = {
-  iconSrc: string
+  icon: Icon
   label: string
   onClick: () => void
 }
 
-const IconButton: React.FC<IconButtonProps> = ({ iconSrc, label, onClick }) => (
+const IconButton: React.FC<IconButtonProps> = ({ icon: PhosphorIcon, label, onClick }) => (
   <button
     type="button"
     aria-label={label}
@@ -21,8 +22,7 @@ const IconButton: React.FC<IconButtonProps> = ({ iconSrc, label, onClick }) => (
     onClick={onClick}
     className="hover:opacity-60 transition-opacity"
   >
-    {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img src={iconSrc} width={32} height={32} alt="" aria-hidden="true" />
+    <PhosphorIcon size={32} weight="bold" aria-hidden="true" />
   </button>
 )
 
@@ -70,22 +70,22 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
       </span>
       <div className="flex flex-row items-center gap-4">
         <IconButton
-          iconSrc="/icons/export-bold.svg"
+          icon={Export}
           label={copied ? 'Copied!' : 'Copy link'}
           onClick={() => void handleExport()}
         />
         <IconButton
-          iconSrc="/icons/x-logo-bold.svg"
+          icon={XLogo}
           label="Share on X / Twitter"
           onClick={() => handleShare('twitter')}
         />
         <IconButton
-          iconSrc="/icons/threads-logo-bold.svg"
+          icon={ThreadsLogo}
           label="Share on Threads"
           onClick={() => handleShare('threads')}
         />
         <IconButton
-          iconSrc="/icons/bluesky-bold.svg"
+          icon={Butterfly}
           label="Share on Bluesky"
           onClick={() => handleShare('bluesky')}
         />
