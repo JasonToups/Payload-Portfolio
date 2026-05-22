@@ -53,7 +53,7 @@ export const Card: React.FC<{
             fill
           />
         )}
-        <div className="absolute inset-0 bg-card/75 dark:bg-card/90" />
+        <div className="absolute inset-0 bg-card/85 dark:bg-card/90" />
       </div>
 
       {/* Desktop: 16:9 image at top of card */}

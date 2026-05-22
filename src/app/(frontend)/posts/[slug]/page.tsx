@@ -65,7 +65,7 @@ export default async function Post({ params: paramsPromise }: Args) {
         : []
 
   return (
-    <article>
+    <article className="bg-post">
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
@@ -76,16 +76,16 @@ export default async function Post({ params: paramsPromise }: Args) {
       <PostHero post={post} />
 
       <div className="pt-0 pb-0">
-        <div className="bg-post flex flex-col lg:grid lg:grid-cols-4">
+        <div className="flex flex-col lg:grid lg:grid-cols-4">
           {/* Post Body: top on mobile, center 50% (cols 2–3) on desktop */}
-          <div className="bg-post lg:col-start-2 lg:col-span-2 py-8 px-10">
+          <div className="lg:col-start-2 lg:col-span-2 py-8 px-10">
             <RichText data={post.content} enableGutter={false} />
           </div>
 
           {/* Share: bottom on mobile, left 25% (col 1) on desktop — sticky */}
           <aside
             aria-label="Share this post"
-            className="md:sticky flex flex-col justify-between lg:mt-0 bg-post lg:col-start-1 lg:row-start-1 py-8 px-10"
+            className="md:sticky flex flex-col justify-between lg:mt-0 lg:col-start-1 lg:row-start-1 py-8 px-10"
           >
             <div className="md:sticky md:top-0 py-6">
               <SocialShareBar

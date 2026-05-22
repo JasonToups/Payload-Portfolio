@@ -25,13 +25,7 @@ export const PostCardMinimal: React.FC<PostCardMinimalProps> = ({
   const href = `/${relationTo}/${slug}`
 
   return (
-    <article
-      className={cn(
-        'relative overflow-hidden bg-white dark:bg-card',
-        'flex flex-col w-full',
-        className,
-      )}
-    >
+    <article className={cn('relative overflow-hidden', 'flex flex-col w-full', className)}>
       {/* Full-card overlay link */}
       <Link href={href} aria-hidden="true" tabIndex={-1} className="absolute inset-0 z-10" />
 
