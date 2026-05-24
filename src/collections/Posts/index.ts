@@ -10,6 +10,8 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
+import { MarkdownConverterFeature } from '@/features/MarkdownConverter'
+
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
 import { Banner } from '../../blocks/Banner/config'
@@ -136,6 +138,7 @@ export const Posts: CollectionConfig<'posts'> = {
                     InlineCodeFeature(),
                     InlineToolbarFeature(),
                     HorizontalRuleFeature(),
+                    MarkdownConverterFeature(),
                   ]
                 },
               }),
@@ -418,7 +421,7 @@ export const Posts: CollectionConfig<'posts'> = {
   versions: {
     drafts: {
       autosave: {
-        interval: 100, // We set this interval for optimal live preview
+        interval: 1500,
       },
       schedulePublish: true,
     },

@@ -31,6 +31,7 @@ import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { SlugField as SlugField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
 import { default as default_df7eb999ede7363ee297ab1263291c5c } from '@/collections/Posts/components/PostTitleField'
+import { MarkdownConverterClientFeature as MarkdownConverterClientFeature_78febfb156fcf5daee244058e3e6a0ee } from '@/features/MarkdownConverter/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { default as default_b49834c38af02a233bd8ffd68317c41f } from '@/collections/Posts/components/KeywordsInputField'
 import { default as default_af9113d48444c00bb4919c8ae754b46f } from '@/collections/Posts/components/KeywordFrequencyField'
@@ -88,6 +89,7 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/next/client#SlugField": SlugField_2b8867833a34864a02ddf429b0728a40,
   "@/collections/Posts/components/PostTitleField#default": default_df7eb999ede7363ee297ab1263291c5c,
+  "@/features/MarkdownConverter/client#MarkdownConverterClientFeature": MarkdownConverterClientFeature_78febfb156fcf5daee244058e3e6a0ee,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/collections/Posts/components/KeywordsInputField#default": default_b49834c38af02a233bd8ffd68317c41f,
   "@/collections/Posts/components/KeywordFrequencyField#default": default_af9113d48444c00bb4919c8ae754b46f,
