@@ -151,6 +151,12 @@ export default buildConfig({
   onInit: async (payload) => {
     await ensureDefaultForms(payload)
     await backfillKeywordSlugs(payload)
+    // Initialize the social-settings global row if it doesn't exist yet
+    await payload.updateGlobal({
+      slug: 'social-settings',
+      data: { dailyPublishHour: '9' },
+      overrideAccess: true,
+    })
   },
   sharp,
   typescript: {
