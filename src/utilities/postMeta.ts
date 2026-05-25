@@ -17,6 +17,7 @@ function countWords(node: LexicalNode): number {
 }
 
 export function getReadMinutes(content: Post['content']): number {
+  if (!content?.root) return 1
   const words = countWords(content.root as unknown as LexicalNode)
   return Math.max(1, Math.round(words / 250))
 }
