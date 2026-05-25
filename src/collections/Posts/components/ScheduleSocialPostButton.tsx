@@ -199,9 +199,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'cancelled' }),
       })
-      setScheduled((prev) =>
-        prev.map((d) => (d.id === docId ? { ...d, status: 'cancelled' } : d)),
-      )
+      setScheduled((prev) => prev.map((d) => (d.id === docId ? { ...d, status: 'cancelled' } : d)))
     } catch {
       setError('Failed to cancel scheduled post.')
     }
@@ -212,10 +210,24 @@ export const ScheduleSocialPostButton: React.FC = () => {
   const pendingCount = scheduled.filter((d) => d.status === 'pending').length
 
   return (
-    <div style={{ borderTop: '1px solid var(--theme-border)', paddingTop: '16px', marginTop: '8px' }}>
+    <div
+      style={{ borderTop: '1px solid var(--theme-border)', paddingTop: '16px', marginTop: '8px' }}
+    >
+      <p
+        style={{
+          color: 'var(--theme-text-dim)',
+          fontSize: '11px',
+          fontWeight: 600,
+          letterSpacing: '0.05em',
+          marginBottom: '12px',
+          textTransform: 'uppercase',
+        }}
+      >
+        Schedule Social Media Post
+      </p>
       {!isOpen ? (
         <button
-          className="btn btn--style-secondary btn--size-small"
+          className="btn btn--style-secondary btn--size-medium"
           onClick={handleOpen}
           type="button"
           style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -244,14 +256,27 @@ export const ScheduleSocialPostButton: React.FC = () => {
             padding: '16px',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '12px',
+            }}
+          >
             <p style={{ color: 'var(--theme-text)', fontSize: '13px', fontWeight: 600, margin: 0 }}>
               Schedule a Social Post
             </p>
             <button
               aria-label="Close"
               onClick={handleClose}
-              style={{ background: 'none', border: 'none', color: 'var(--theme-text-dim)', cursor: 'pointer', fontSize: '16px' }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--theme-text-dim)',
+                cursor: 'pointer',
+                fontSize: '16px',
+              }}
               type="button"
             >
               ×
@@ -266,7 +291,8 @@ export const ScheduleSocialPostButton: React.FC = () => {
                 onClick={() => setPlatform(p)}
                 style={{
                   alignItems: 'center',
-                  background: platform === p ? 'var(--theme-success-100)' : 'var(--theme-elevation-0)',
+                  background:
+                    platform === p ? 'var(--theme-success-100)' : 'var(--theme-elevation-0)',
                   border: `1px solid ${platform === p ? 'var(--theme-success-500)' : 'var(--theme-border)'}`,
                   borderRadius: '4px',
                   cursor: 'pointer',
@@ -285,7 +311,14 @@ export const ScheduleSocialPostButton: React.FC = () => {
 
           {/* Connection prompt for selected platform */}
           {statuses[platform] === 'disconnected' && (
-            <div style={{ background: 'var(--theme-elevation-100)', borderRadius: '4px', marginBottom: '10px', padding: '8px 12px' }}>
+            <div
+              style={{
+                background: 'var(--theme-elevation-100)',
+                borderRadius: '4px',
+                marginBottom: '10px',
+                padding: '8px 12px',
+              }}
+            >
               <span style={{ color: 'var(--theme-text-dim)', fontSize: '12px' }}>
                 {PLATFORM_LABELS[platform]} is not connected.{' '}
               </span>
@@ -331,8 +364,18 @@ export const ScheduleSocialPostButton: React.FC = () => {
           />
 
           {/* Date/time picker */}
-          <div style={{ alignItems: 'center', display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '12px' }}>
-            <span style={{ color: 'var(--theme-text-dim)', fontSize: '12px', whiteSpace: 'nowrap' }}>
+          <div
+            style={{
+              alignItems: 'center',
+              display: 'flex',
+              gap: '10px',
+              flexWrap: 'wrap',
+              marginBottom: '12px',
+            }}
+          >
+            <span
+              style={{ color: 'var(--theme-text-dim)', fontSize: '12px', whiteSpace: 'nowrap' }}
+            >
               Schedule for:
             </span>
             <DatePicker
@@ -350,7 +393,11 @@ export const ScheduleSocialPostButton: React.FC = () => {
               onClick={handleSchedule}
               type="button"
             >
-              {phase === 'saving' ? 'Scheduling...' : phase === 'saved' ? '✓ Scheduled!' : 'Schedule Post'}
+              {phase === 'saving'
+                ? 'Scheduling...'
+                : phase === 'saved'
+                  ? '✓ Scheduled!'
+                  : 'Schedule Post'}
             </button>
             <button
               className="btn btn--style-secondary btn--size-small"
@@ -369,8 +416,23 @@ export const ScheduleSocialPostButton: React.FC = () => {
 
           {/* Existing scheduled posts list */}
           {scheduled.length > 0 && (
-            <div style={{ borderTop: '1px solid var(--theme-border)', marginTop: '14px', paddingTop: '10px' }}>
-              <p style={{ color: 'var(--theme-text-dim)', fontSize: '11px', fontWeight: 600, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div
+              style={{
+                borderTop: '1px solid var(--theme-border)',
+                marginTop: '14px',
+                paddingTop: '10px',
+              }}
+            >
+              <p
+                style={{
+                  color: 'var(--theme-text-dim)',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
                 Scheduled Posts
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -388,7 +450,14 @@ export const ScheduleSocialPostButton: React.FC = () => {
                       padding: '6px 10px',
                     }}
                   >
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: '8px',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                      }}
+                    >
                       <span style={{ fontSize: '12px', fontWeight: 500 }}>
                         {PLATFORM_LABELS[doc.platform]}
                       </span>
