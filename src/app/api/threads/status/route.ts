@@ -6,12 +6,6 @@ type SocialSettingsThreads = {
   threads?: { accessToken?: string | null; userId?: string | null; expiresAt?: string | null } | null
 }
 
-type ThreadsRefreshResponse = {
-  access_token: string
-  token_type: string
-  expires_in: number
-}
-
 export async function GET(request: NextRequest) {
   const payload = await getPayload({ config: configPromise })
 
