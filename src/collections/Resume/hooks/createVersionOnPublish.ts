@@ -3,7 +3,7 @@ import type { Resume } from '../../../payload-types'
 
 export const createVersionOnPublish: CollectionAfterChangeHook<Resume> = async ({
   doc,
-  previousDoc,
+  previousDoc: _previousDoc,
   operation,
   req: { payload, context },
 }) => {

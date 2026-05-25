@@ -67,8 +67,8 @@ export async function GET(request: NextRequest) {
 
   const payload = await getPayload({ config: configPromise })
   await payload.updateGlobal({
-    slug: 'linkedin-settings',
-    data: { accessToken: tokenData.access_token, expiresAt, personUrn },
+    slug: 'social-settings',
+    data: { linkedin: { accessToken: tokenData.access_token, expiresAt, personUrn } },
   })
 
   return new NextResponse(

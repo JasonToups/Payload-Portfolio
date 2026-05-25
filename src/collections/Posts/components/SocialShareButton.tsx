@@ -86,11 +86,7 @@ const LinkedInCompose: React.FC<LinkedInComposeProps> = ({
   }, [])
 
   const handleConnect = () => {
-    const popup = window.open(
-      '/api/linkedin/auth',
-      'linkedin-oauth',
-      'width=600,height=700',
-    )
+    const popup = window.open('/api/linkedin/auth', 'linkedin-oauth', 'width=600,height=700')
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return
       if (event.data === 'linkedin-connected') {
@@ -109,7 +105,14 @@ const LinkedInCompose: React.FC<LinkedInComposeProps> = ({
       const res = await fetch('/api/linkedin/publish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId, text, url: postUrl, title, description, imageUrl: ogImageUrl }),
+        body: JSON.stringify({
+          postId,
+          text,
+          url: postUrl,
+          title,
+          description,
+          imageUrl: ogImageUrl,
+        }),
       })
       const data = (await res.json()) as LinkedInPublishResponse
       if (data.success) {
@@ -351,9 +354,7 @@ const SocialShareButton: React.FC = () => {
         .map((k) => k.name)
       const hero = postData.heroImage
       const ogImageUrl =
-        hero && typeof hero === 'object'
-          ? (hero.sizes?.og?.url ?? hero.url ?? null)
-          : null
+        hero && typeof hero === 'object' ? (hero.sizes?.og?.url ?? hero.url ?? null) : null
       setLinkedInData({
         defaultText: postData.socialPostBody ?? '',
         hashtags,
@@ -403,15 +404,10 @@ const SocialShareButton: React.FC = () => {
             >
               <button
                 type="button"
-                onClick={() =>
-                  isLinkedIn ? void handleLinkedInClick() : void handleShare(value)
-                }
+                onClick={() => (isLinkedIn ? void handleLinkedInClick() : void handleShare(value))}
                 disabled={!isPublished || loadingPlatform !== null}
                 className="btn btn--style-secondary btn--size-medium"
                 style={{
-                  fontSize: '1rem',
-                  padding: '0.625rem 1.25rem',
-                  margin: '0.5rem 1rem',
                   ...(!isPublished ? { pointerEvents: 'none' } : {}),
                 }}
               >

@@ -39,6 +39,7 @@ import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { getSiteSettings } from '@/utilities/getSiteSettings'
+import { getSocialSettings } from '@/utilities/getSocialSettings'
 import { draftMode } from 'next/headers'
 
 import './globals.css'
@@ -86,8 +87,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 }
 
 async function getTwitterCreator(): Promise<string | undefined> {
-  const settings = await getSiteSettings()
-  const profile = settings?.socials?.profiles?.find((p) => p.platform === 'twitter')
+  const settings = await getSocialSettings()
+  const profile = settings?.profiles?.find((p) => p.platform === 'twitter')
   if (!profile?.url) return undefined
   try {
     const handle = new URL(profile.url).pathname.split('/').filter(Boolean)[0]

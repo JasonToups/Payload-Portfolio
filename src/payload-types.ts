@@ -70,6 +70,7 @@ export interface Config {
     broadcasts: Broadcast;
     pages: Page;
     posts: Post;
+    'scheduled-social-posts': ScheduledSocialPost;
     media: Media;
     categories: Category;
     keywords: Keyword;
@@ -89,6 +90,7 @@ export interface Config {
   collectionsJoins: {
     posts: {
       broadcasts: 'broadcasts';
+      scheduledSocialPosts: 'scheduled-social-posts';
     };
     'payload-folders': {
       documentsAndFolders: 'payload-folders' | 'media';
@@ -98,6 +100,7 @@ export interface Config {
     broadcasts: BroadcastsSelect<false> | BroadcastsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    'scheduled-social-posts': ScheduledSocialPostsSelect<false> | ScheduledSocialPostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     keywords: KeywordsSelect<false> | KeywordsSelect<true>;
@@ -125,7 +128,7 @@ export interface Config {
     'email-settings': EmailSetting;
     'email-layout': EmailLayout;
     'subscribe-post-block': SubscribePostBlock;
-    'linkedin-settings': LinkedinSetting;
+    'social-settings': SocialSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -134,12 +137,13 @@ export interface Config {
     'email-settings': EmailSettingsSelect<false> | EmailSettingsSelect<true>;
     'email-layout': EmailLayoutSelect<false> | EmailLayoutSelect<true>;
     'subscribe-post-block': SubscribePostBlockSelect<false> | SubscribePostBlockSelect<true>;
-    'linkedin-settings': LinkedinSettingsSelect<false> | LinkedinSettingsSelect<true>;
+    'social-settings': SocialSettingsSelect<false> | SocialSettingsSelect<true>;
   };
   locale: null;
   user: User;
   jobs: {
     tasks: {
+      publishScheduledSocialPost: TaskPublishScheduledSocialPost;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -204,6 +208,7 @@ export interface Broadcast {
     };
     [k: string]: unknown;
   } | null;
+  scheduledAt?: string | null;
   /**
    * For single_post: select one post. For weekly_digest: curate multiple posts.
    */
@@ -216,7 +221,6 @@ export interface Broadcast {
    * ID returned by Resend after the broadcast is created
    */
   resendBroadcastId?: string | null;
-  scheduledAt?: string | null;
   /**
    * Populated on successful send
    */
@@ -329,6 +333,11 @@ export interface Post {
     totalDocs?: number;
   };
   socialPostBody?: string | null;
+  scheduledSocialPosts?: {
+    docs?: (number | ScheduledSocialPost)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   /**
    * Record of social media shares for this post
    */
@@ -505,6 +514,47 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scheduled-social-posts".
+ */
+export interface ScheduledSocialPost {
+  id: number;
+  /**
+   * The Payload Post to share.
+   */
+  post: number | Post;
+  /**
+   * Social media platform to publish to.
+   */
+  platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads';
+  /**
+   * Text content for the social post. Pre-filled from the Post's Social Post Body.
+   */
+  body: string;
+  /**
+   * Date and time the post should be published.
+   */
+  scheduledFor: string;
+  /**
+   * Managed by the scheduler — do not edit manually.
+   */
+  status?: ('pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
+  /**
+   * Populated on successful publish.
+   */
+  publishedAt?: string | null;
+  /**
+   * URL of the published social post.
+   */
+  publishedUrl?: string | null;
+  /**
+   * Populated on failure — check here when status is "failed".
+   */
+  errorMessage?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1435,7 +1485,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'schedulePublish';
+        taskSlug: 'inline' | 'publishScheduledSocialPost' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1468,7 +1518,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'publishScheduledSocialPost' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1493,6 +1543,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'scheduled-social-posts';
+        value: number | ScheduledSocialPost;
       } | null)
     | ({
         relationTo: 'media';
@@ -1586,10 +1640,10 @@ export interface BroadcastsSelect<T extends boolean = true> {
   subject?: T;
   previewText?: T;
   body?: T;
+  scheduledAt?: T;
   posts?: T;
   sendStatus?: T;
   resendBroadcastId?: T;
-  scheduledAt?: T;
   sentAt?: T;
   errorMessage?: T;
   updatedAt?: T;
@@ -1933,6 +1987,7 @@ export interface PostsSelect<T extends boolean = true> {
       };
   broadcasts?: T;
   socialPostBody?: T;
+  scheduledSocialPosts?: T;
   socialShares?:
     | T
     | {
@@ -1944,6 +1999,22 @@ export interface PostsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scheduled-social-posts_select".
+ */
+export interface ScheduledSocialPostsSelect<T extends boolean = true> {
+  post?: T;
+  platform?: T;
+  body?: T;
+  scheduledFor?: T;
+  status?: T;
+  publishedAt?: T;
+  publishedUrl?: T;
+  errorMessage?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2471,18 +2542,6 @@ export interface SiteSetting {
    * Used as the site favicon (appears in browser tabs and bookmarks)
    */
   favicon?: (number | null) | Media;
-  socials?: {
-    /**
-     * The site owner's profiles on each social platform
-     */
-    profiles?:
-      | {
-          platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin';
-          url: string;
-          id?: string | null;
-        }[]
-      | null;
-  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2624,14 +2683,53 @@ export interface SubscribePostBlock {
   createdAt?: string | null;
 }
 /**
+ * Social profile URLs, daily publish schedule, and platform connection tokens.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "linkedin-settings".
+ * via the `definition` "social-settings".
  */
-export interface LinkedinSetting {
+export interface SocialSetting {
   id: number;
-  accessToken?: string | null;
-  expiresAt?: string | null;
-  personUrn?: string | null;
+  /**
+   * Pre-fills the schedule time in the compose form. To change the actual cron schedule, update vercel.json and redeploy.
+   */
+  dailyPublishHour?: ('7' | '8' | '9' | '10' | '11' | '12' | '13' | '14' | '15') | null;
+  /**
+   * The site owner's profiles on each social platform
+   */
+  profiles?:
+    | {
+        platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Tokens are set automatically via the LinkedIn connect flow in Posts → Share tab.
+   */
+  linkedin?: {
+    accessToken?: string | null;
+    expiresAt?: string | null;
+    personUrn?: string | null;
+  };
+  /**
+   * Tokens are set automatically via the Threads connect flow in Posts → Share tab.
+   */
+  threads?: {
+    accessToken?: string | null;
+    userId?: string | null;
+    expiresAt?: string | null;
+  };
+  /**
+   * Tokens are set automatically via the Twitter / X connect flow in Posts → Share tab.
+   */
+  twitter?: {
+    accessToken?: string | null;
+    refreshToken?: string | null;
+    expiresAt?: string | null;
+    userId?: string | null;
+    username?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2701,17 +2799,6 @@ export interface FooterSelect<T extends boolean = true> {
 export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
   favicon?: T;
-  socials?:
-    | T
-    | {
-        profiles?:
-          | T
-          | {
-              platform?: T;
-              url?: T;
-              id?: T;
-            };
-      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2781,15 +2868,55 @@ export interface SubscribePostBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "linkedin-settings_select".
+ * via the `definition` "social-settings_select".
  */
-export interface LinkedinSettingsSelect<T extends boolean = true> {
-  accessToken?: T;
-  expiresAt?: T;
-  personUrn?: T;
+export interface SocialSettingsSelect<T extends boolean = true> {
+  dailyPublishHour?: T;
+  profiles?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  linkedin?:
+    | T
+    | {
+        accessToken?: T;
+        expiresAt?: T;
+        personUrn?: T;
+      };
+  threads?:
+    | T
+    | {
+        accessToken?: T;
+        userId?: T;
+        expiresAt?: T;
+      };
+  twitter?:
+    | T
+    | {
+        accessToken?: T;
+        refreshToken?: T;
+        expiresAt?: T;
+        userId?: T;
+        username?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskPublishScheduledSocialPost".
+ */
+export interface TaskPublishScheduledSocialPost {
+  input: {
+    scheduledPostId: number;
+  };
+  output: {
+    publishedUrl?: string | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

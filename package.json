@@ -31,6 +31,7 @@
     "penpot:mcp": "npx @penpot/mcp@stable"
   },
   "dependencies": {
+    "@atproto/api": "^0.20.5",
     "@payloadcms/admin-bar": "3.76.1",
     "@payloadcms/db-vercel-postgres": "3.76.1",
     "@payloadcms/email-resend": "^3.76.1",
@@ -72,7 +73,8 @@
     "sharp": "0.34.5",
     "svix": "^1.92.2",
     "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "twitter-api-v2": "^1.29.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

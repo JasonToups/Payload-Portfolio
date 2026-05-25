@@ -108,6 +108,17 @@ export const Broadcasts: CollectionConfig = {
         description: 'Admin-drafted copy — appears above post cards in every broadcast type',
       },
     },
+    {
+      name: 'scheduledAt',
+      type: 'date',
+      admin: {
+        condition: (data) => data?.sendStatus !== 'scheduled' && data?.sendStatus !== 'sent',
+        components: {
+          Field:
+            '@/collections/Broadcasts/components/BroadcastScheduleField#BroadcastScheduleField',
+        },
+      },
+    },
 
     // -------------------------------------------------------------------------
     // Conditional: single_post + weekly_digest
@@ -166,13 +177,6 @@ export const Broadcasts: CollectionConfig = {
           },
         },
       ],
-    },
-    {
-      name: 'scheduledAt',
-      type: 'date',
-      admin: {
-        condition: () => false,
-      },
     },
     {
       name: 'sentAt',

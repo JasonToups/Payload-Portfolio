@@ -3,6 +3,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { type SocialPlatform } from '@/utilities/buildShareUrl'
 import { getServerSideURL } from '@/utilities/getURL'
+import { publishLinkedIn } from '@/lib/social/publishLinkedIn'
 
 type PublishRequest = {
   postId: number
@@ -14,9 +15,11 @@ type PublishRequest = {
 }
 
 type LinkedInSettingsData = {
-  accessToken?: string | null
-  expiresAt?: string | null
-  personUrn?: string | null
+  linkedin?: {
+    accessToken?: string | null
+    expiresAt?: string | null
+    personUrn?: string | null
+  } | null
 }
 
 type ExistingShare = {
@@ -24,49 +27,6 @@ type ExistingShare = {
   sharedAt: string
   shareUrl?: string | null
   id?: string | null
-}
-
-type LinkedInInitUploadResponse = { value: { uploadUrl: string; image: string } }
-
-async function uploadImageToLinkedIn(
-  imageUrl: string,
-  ownerUrn: string,
-  accessToken: string,
-): Promise<string | null> {
-  const initRes = await fetch('https://api.linkedin.com/rest/images?action=initializeUpload', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-      'LinkedIn-Version': '202604',
-      'X-Restli-Protocol-Version': '2.0.0',
-    },
-    body: JSON.stringify({ initializeUploadRequest: { owner: ownerUrn } }),
-  })
-  if (!initRes.ok) return null
-
-  const { value } = (await initRes.json()) as LinkedInInitUploadResponse
-  const { uploadUrl, image: imageUrn } = value
-
-  const absoluteImageUrl = imageUrl.startsWith('http')
-    ? imageUrl
-    : `${getServerSideURL()}${imageUrl}`
-  const imgRes = await fetch(absoluteImageUrl)
-  if (!imgRes.ok) return null
-  const imgBuffer = await imgRes.arrayBuffer()
-  const contentType = imgRes.headers.get('content-type') ?? 'image/jpeg'
-
-  const uploadRes = await fetch(uploadUrl, {
-    method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': contentType,
-    },
-    body: imgBuffer,
-  })
-  if (!uploadRes.ok) return null
-
-  return imageUrn
 }
 
 export async function POST(request: NextRequest) {
@@ -85,62 +45,41 @@ export async function POST(request: NextRequest) {
   }
 
   const settings = (await payload.findGlobal({
-    slug: 'linkedin-settings',
+    slug: 'social-settings',
   })) as unknown as LinkedInSettingsData
 
-  if (!settings.accessToken || !settings.personUrn) {
+  if (!settings.linkedin?.accessToken || !settings.linkedin?.personUrn) {
     return NextResponse.json(
       { error: 'LinkedIn is not connected. Use the Connect LinkedIn button first.' },
       { status: 403 },
     )
   }
 
-  if (settings.expiresAt && new Date(settings.expiresAt) <= new Date()) {
-    return NextResponse.json(
-      { error: 'LinkedIn token has expired. Re-authorize from the admin panel.' },
-      { status: 403 },
-    )
-  }
+  let shareUrl: string
+  try {
+    const absoluteImageUrl = imageUrl
+      ? imageUrl.startsWith('http')
+        ? imageUrl
+        : `${getServerSideURL()}${imageUrl}`
+      : undefined
 
-  let thumbnailUrn: string | null = null
-  if (imageUrl) {
-    thumbnailUrn = await uploadImageToLinkedIn(imageUrl, settings.personUrn, settings.accessToken)
-  }
-
-  const linkedInBody = {
-    author: settings.personUrn,
-    commentary: text,
-    visibility: 'PUBLIC',
-    distribution: { feedDistribution: 'MAIN_FEED' },
-    content: {
-      article: {
-        source: url,
-        title,
-        ...(description ? { description } : {}),
-        ...(thumbnailUrn ? { thumbnail: thumbnailUrn } : {}),
+    const result = await publishLinkedIn({
+      body: text,
+      url,
+      title,
+      description,
+      imageUrl: absoluteImageUrl,
+      settings: {
+        accessToken: settings.linkedin.accessToken,
+        personUrn: settings.linkedin.personUrn,
+        expiresAt: settings.linkedin.expiresAt,
       },
-    },
-    lifecycleState: 'PUBLISHED',
-    isReshareDisabledByAuthor: false,
+    })
+    shareUrl = result.url
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'LinkedIn publish failed'
+    return NextResponse.json({ error: message }, { status: 502 })
   }
-
-  const linkedInRes = await fetch('https://api.linkedin.com/rest/posts', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${settings.accessToken}`,
-      'Content-Type': 'application/json',
-      'LinkedIn-Version': '202604',
-      'X-Restli-Protocol-Version': '2.0.0',
-    },
-    body: JSON.stringify(linkedInBody),
-  })
-
-  if (!linkedInRes.ok) {
-    const errorBody = await linkedInRes.text()
-    return NextResponse.json({ error: `LinkedIn API error: ${errorBody}` }, { status: 502 })
-  }
-
-  const linkedInPostId = linkedInRes.headers.get('x-restli-id') ?? undefined
 
   const post = await payload.findByID({ collection: 'posts', id: postId, depth: 0 })
   const existingShares = ((post.socialShares ?? []) as ExistingShare[])
@@ -154,13 +93,11 @@ export async function POST(request: NextRequest) {
         {
           platform: 'linkedin',
           sharedAt: new Date().toISOString(),
-          ...(linkedInPostId
-            ? { shareUrl: `https://www.linkedin.com/feed/update/${linkedInPostId}` }
-            : {}),
+          shareUrl,
         },
       ],
     },
   })
 
-  return NextResponse.json({ success: true, linkedInPostId })
+  return NextResponse.json({ success: true })
 }

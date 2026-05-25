@@ -4,7 +4,7 @@ import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { SubscribePostBlock } from '@/components/SubscribePostBlock'
 import { getCachedGlobal } from '@/utilities/getGlobals'
-import { getSiteSettings } from '@/utilities/getSiteSettings'
+import { getSocialSettings } from '@/utilities/getSocialSettings'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
@@ -40,8 +40,8 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   if (!post) return <PayloadRedirects url={url} />
 
-  const siteSettings = await getSiteSettings()
-  const socialProfiles = siteSettings?.socials?.profiles ?? []
+  const socialSettings = await getSocialSettings()
+  const socialProfiles = socialSettings?.profiles ?? []
   const keywordNames = (post.keywords ?? [])
     .filter((k): k is Keyword => typeof k === 'object')
     .map((k) => k.name)
