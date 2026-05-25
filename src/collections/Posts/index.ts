@@ -376,6 +376,7 @@ export const Posts: CollectionConfig<'posts'> = {
               collection: 'scheduled-social-posts',
               on: 'post',
               admin: {
+                allowCreate: false,
                 defaultColumns: ['platform', 'status', 'scheduledFor'],
               },
             },
