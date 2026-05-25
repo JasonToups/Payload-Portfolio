@@ -232,7 +232,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
         throw new Error(json.errors?.[0]?.message ?? 'Failed to schedule post')
       }
 
-      const created = (await res.json()) as ScheduledPostDoc
+      const { doc: created } = (await res.json()) as { doc: ScheduledPostDoc }
       setScheduled((prev) => [...prev, created])
       setPhase('saved')
       setScheduledFor(null)
