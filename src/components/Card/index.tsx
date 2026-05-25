@@ -24,7 +24,7 @@ export const Card: React.FC<{
   title?: string
   index?: number
 }> = (props) => {
-  const { className, doc, priority, relationTo, showCategories, title: titleFromProps, index = 0 } = props
+  const { className, doc, priority, relationTo, showCategories, title: titleFromProps, index: _index = 0 } = props
 
   const { slug, categories, keywords, meta, title, publishedAt, content } = doc || {}
   const { description, image: metaImage } = meta || {}

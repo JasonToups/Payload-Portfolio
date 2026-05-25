@@ -15,9 +15,11 @@ type PublishRequest = {
 }
 
 type LinkedInSettingsData = {
-  accessToken?: string | null
-  expiresAt?: string | null
-  personUrn?: string | null
+  linkedin?: {
+    accessToken?: string | null
+    expiresAt?: string | null
+    personUrn?: string | null
+  } | null
 }
 
 type ExistingShare = {
@@ -43,10 +45,10 @@ export async function POST(request: NextRequest) {
   }
 
   const settings = (await payload.findGlobal({
-    slug: 'linkedin-settings',
+    slug: 'social-settings',
   })) as unknown as LinkedInSettingsData
 
-  if (!settings.accessToken || !settings.personUrn) {
+  if (!settings.linkedin?.accessToken || !settings.linkedin?.personUrn) {
     return NextResponse.json(
       { error: 'LinkedIn is not connected. Use the Connect LinkedIn button first.' },
       { status: 403 },
@@ -68,9 +70,9 @@ export async function POST(request: NextRequest) {
       description,
       imageUrl: absoluteImageUrl,
       settings: {
-        accessToken: settings.accessToken,
-        personUrn: settings.personUrn,
-        expiresAt: settings.expiresAt,
+        accessToken: settings.linkedin.accessToken,
+        personUrn: settings.linkedin.personUrn,
+        expiresAt: settings.linkedin.expiresAt,
       },
     })
     shareUrl = result.url

@@ -341,7 +341,7 @@ const POST_SEED_DATA: PostSeedEntry[] = [
   },
 ]
 
-export const seedPosts = async ({ payload, req }: SeedPostsArgs): Promise<void> => {
+export const seedPosts = async ({ payload, req: _req }: SeedPostsArgs): Promise<void> => {
   payload.logger.info('Seeding posts for keyword testing...')
 
   // Step 1: Find Technology category
