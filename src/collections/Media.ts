@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
+import { cropToOGAspectRatio } from './Media/hooks/cropToOGAspectRatio'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -17,6 +18,9 @@ const dirname = path.dirname(filename)
 export const Media: CollectionConfig = {
   slug: 'media',
   folders: true,
+  hooks: {
+    beforeOperation: [cropToOGAspectRatio],
+  },
   access: {
     create: authenticated,
     delete: authenticated,
