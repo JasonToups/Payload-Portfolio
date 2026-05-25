@@ -1,5 +1,5 @@
 import type { TaskConfig } from 'payload'
-import type { ScheduledSocialPost, LinkedinSetting, ThreadsSetting, TwitterSetting, SiteSetting } from '@/payload-types'
+import type { ScheduledSocialPost, SocialSetting } from '@/payload-types'
 import type { SocialPlatform } from '@/utilities/buildShareUrl'
 import { publishLinkedIn } from '@/lib/social/publishLinkedIn'
 import { publishThreads } from '@/lib/social/publishThreads'
@@ -78,13 +78,15 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
     const postUrl = `${getServerSideURL()}/posts/${post.slug}`
     let publishedUrl: string
 
+    const social = (await req.payload.findGlobal({
+      slug: 'social-settings',
+      overrideAccess: true,
+    })) as SocialSetting
+
     switch (doc.platform) {
       case 'linkedin': {
-        const settings = (await req.payload.findGlobal({
-          slug: 'linkedin-settings',
-        })) as unknown as LinkedinSetting
-
-        if (!settings.accessToken || !settings.personUrn) {
+        const li = social.linkedin
+        if (!li?.accessToken || !li?.personUrn) {
           throw new Error('LinkedIn is not connected')
         }
 
@@ -97,9 +99,9 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
           title: post.title,
           imageUrl,
           settings: {
-            accessToken: settings.accessToken,
-            personUrn: settings.personUrn,
-            expiresAt: settings.expiresAt,
+            accessToken: li.accessToken,
+            personUrn: li.personUrn,
+            expiresAt: li.expiresAt,
           },
         })
         publishedUrl = result.url
@@ -107,20 +109,17 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
       }
 
       case 'threads': {
-        const settings = (await req.payload.findGlobal({
-          slug: 'threads-settings',
-        })) as unknown as ThreadsSetting
-
-        if (!settings.accessToken || !settings.userId) {
+        const th = social.threads
+        if (!th?.accessToken || !th?.userId) {
           throw new Error('Threads is not connected')
         }
 
         const result = await publishThreads({
           body: doc.body,
           settings: {
-            accessToken: settings.accessToken,
-            userId: settings.userId,
-            expiresAt: settings.expiresAt,
+            accessToken: th.accessToken,
+            userId: th.userId,
+            expiresAt: th.expiresAt,
           },
         })
         publishedUrl = result.url
@@ -133,12 +132,7 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
           throw new Error('BLUESKY_APP_PASSWORD is not set')
         }
 
-        const siteSettings = (await req.payload.findGlobal({
-          slug: 'site-settings',
-          overrideAccess: true,
-        })) as SiteSetting
-
-        const blueskyProfile = siteSettings.socials?.profiles?.find((p) => p.platform === 'bluesky')
+        const blueskyProfile = social.profiles?.find((p) => p.platform === 'bluesky')
         const blueskyUrl = blueskyProfile?.url ?? ''
         let handle: string | null = null
         try {
@@ -149,7 +143,7 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
         }
 
         if (!handle) {
-          throw new Error('BlueSky profile URL is not set in Site Settings')
+          throw new Error('BlueSky profile URL is not set in Social Settings')
         }
 
         const result = await publishBlueSky({
@@ -161,11 +155,8 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
       }
 
       case 'twitter': {
-        const settings = (await req.payload.findGlobal({
-          slug: 'twitter-settings',
-        })) as unknown as TwitterSetting
-
-        if (!settings.accessToken) {
+        const tw = social.twitter
+        if (!tw?.accessToken) {
           throw new Error('Twitter is not connected')
         }
 
@@ -173,10 +164,10 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
           body: doc.body,
           postUrl,
           settings: {
-            accessToken: settings.accessToken,
-            refreshToken: settings.refreshToken,
-            expiresAt: settings.expiresAt,
-            username: settings.username,
+            accessToken: tw.accessToken,
+            refreshToken: tw.refreshToken,
+            expiresAt: tw.expiresAt,
+            username: tw.username,
           },
         })
         publishedUrl = result.url

@@ -89,11 +89,13 @@ export async function GET(request: NextRequest) {
 
   const payload = await getPayload({ config: configPromise })
   await payload.updateGlobal({
-    slug: 'threads-settings',
+    slug: 'social-settings',
     data: {
-      accessToken: longTokenData.access_token,
-      userId: userData.id,
-      expiresAt,
+      threads: {
+        accessToken: longTokenData.access_token,
+        userId: userData.id,
+        expiresAt,
+      },
     },
   })
 

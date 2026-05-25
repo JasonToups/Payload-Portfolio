@@ -42,13 +42,15 @@ export async function GET(request: NextRequest) {
 
   const payload = await getPayload({ config: configPromise })
   await payload.updateGlobal({
-    slug: 'twitter-settings',
+    slug: 'social-settings',
     data: {
-      accessToken,
-      refreshToken: refreshToken ?? null,
-      expiresAt,
-      userId: me.data.id,
-      username: me.data.username,
+      twitter: {
+        accessToken,
+        refreshToken: refreshToken ?? null,
+        expiresAt,
+        userId: me.data.id,
+        username: me.data.username,
+      },
     },
   })
 

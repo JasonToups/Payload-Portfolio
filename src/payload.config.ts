@@ -23,10 +23,7 @@ import { SiteSettings } from './SiteSettings/SiteSettings'
 import { EmailSettings } from './EmailSettings'
 import { EmailLayout } from './EmailLayout'
 import { SubscribePostBlock } from './SubscribePostBlock/config'
-import { LinkedInSettings } from './globals/LinkedInSettings'
-import { ThreadsSettings } from './globals/ThreadsSettings'
-import { BlueSkySettings } from './globals/BlueSkySettings'
-import { TwitterSettings } from './globals/TwitterSettings'
+import { SocialSettings } from './globals/SocialSettings'
 import { ScheduledSocialPosts } from './collections/ScheduledSocialPosts'
 import { subscribeForm } from './endpoints/seed/subscribe-form'
 import { toSlug } from './utilities/toSlug'
@@ -148,7 +145,7 @@ export default buildConfig({
     defaultFromAddress: process.env.RESEND_FROM_ADDRESS!,
     defaultFromName: process.env.RESEND_FROM_NAME!,
   }),
-  globals: [Header, Footer, SiteSettings, EmailSettings, EmailLayout, SubscribePostBlock, LinkedInSettings, ThreadsSettings, BlueSkySettings, TwitterSettings],
+  globals: [Header, Footer, SiteSettings, EmailSettings, EmailLayout, SubscribePostBlock, SocialSettings],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   onInit: async (payload) => {

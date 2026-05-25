@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-type LinkedInSettingsData = {
-  accessToken?: string | null
-  expiresAt?: string | null
+type SocialSettingsLinkedIn = {
+  linkedin?: { accessToken?: string | null; expiresAt?: string | null } | null
 }
 
 export async function GET(request: NextRequest) {
@@ -17,13 +16,12 @@ export async function GET(request: NextRequest) {
 
   try {
     const settings = (await payload.findGlobal({
-      slug: 'linkedin-settings',
-    })) as unknown as LinkedInSettingsData
+      slug: 'social-settings',
+    })) as unknown as SocialSettingsLinkedIn
 
+    const li = settings.linkedin
     const connected =
-      Boolean(settings.accessToken) &&
-      Boolean(settings.expiresAt) &&
-      new Date(settings.expiresAt!) > new Date()
+      Boolean(li?.accessToken) && Boolean(li?.expiresAt) && new Date(li!.expiresAt!) > new Date()
 
     return NextResponse.json({ connected })
   } catch {

@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-type ThreadsSettingsData = {
-  accessToken?: string | null
-  userId?: string | null
-  expiresAt?: string | null
+type SocialSettingsThreads = {
+  threads?: { accessToken?: string | null; userId?: string | null; expiresAt?: string | null } | null
 }
 
 type ThreadsRefreshResponse = {
@@ -24,14 +22,15 @@ export async function GET(request: NextRequest) {
 
   try {
     const settings = (await payload.findGlobal({
-      slug: 'threads-settings',
-    })) as unknown as ThreadsSettingsData
+      slug: 'social-settings',
+    })) as unknown as SocialSettingsThreads
 
-    if (!settings.accessToken || !settings.userId) {
+    const th = settings.threads
+    if (!th?.accessToken || !th?.userId) {
       return NextResponse.json({ connected: false })
     }
 
-    const isExpired = settings.expiresAt && new Date(settings.expiresAt) <= new Date()
+    const isExpired = th.expiresAt && new Date(th.expiresAt) <= new Date()
 
     if (!isExpired) {
       return NextResponse.json({ connected: true })

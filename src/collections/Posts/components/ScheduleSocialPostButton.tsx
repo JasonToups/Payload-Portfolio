@@ -35,6 +35,21 @@ const TWITTER_MAX_CHARS = 280
 const TWITTER_URL_CHARS = 23
 const TWITTER_SEPARATOR_CHARS = 2
 
+function getNextPublishDate(hourPacific: number): Date {
+  const now = new Date()
+  // Interpret "now" in Pacific time
+  const pacificNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }))
+  const pacificTarget = new Date(pacificNow)
+  pacificTarget.setHours(hourPacific, 0, 0, 0)
+  // If that time has already passed today (Pacific), roll to tomorrow
+  if (pacificTarget <= pacificNow) {
+    pacificTarget.setDate(pacificTarget.getDate() + 1)
+  }
+  // Shift back to a real UTC Date by applying the same offset
+  const utcOffset = now.getTime() - pacificNow.getTime()
+  return new Date(pacificTarget.getTime() + utcOffset)
+}
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString('en-US', {
     month: 'short',
@@ -143,15 +158,25 @@ export const ScheduleSocialPostButton: React.FC = () => {
     setIsOpen(true)
     setPhase('idle')
     setError(null)
-    if (postId) {
-      try {
-        const res = await fetch(`/api/posts/${postId}?depth=1`)
-        const data = (await res.json()) as { socialPostBody?: string | null }
-        setBody(data.socialPostBody ?? '')
-      } catch {
-        setBody('')
-      }
+
+    const [postData, settingsData] = await Promise.allSettled([
+      postId
+        ? fetch(`/api/posts/${postId}?depth=1`).then((r) => r.json() as Promise<{ socialPostBody?: string | null }>)
+        : Promise.resolve(null),
+      fetch('/api/globals/social-settings').then(
+        (r) => r.json() as Promise<{ dailyPublishHour?: string | null }>,
+      ),
+    ])
+
+    if (postData.status === 'fulfilled' && postData.value?.socialPostBody) {
+      setBody(postData.value.socialPostBody)
     }
+
+    const publishHour =
+      settingsData.status === 'fulfilled'
+        ? parseInt(settingsData.value?.dailyPublishHour ?? '9', 10)
+        : 9
+    setScheduledFor(getNextPublishDate(publishHour))
   }
 
   const handleClose = () => {

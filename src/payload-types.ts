@@ -128,10 +128,7 @@ export interface Config {
     'email-settings': EmailSetting;
     'email-layout': EmailLayout;
     'subscribe-post-block': SubscribePostBlock;
-    'linkedin-settings': LinkedinSetting;
-    'threads-settings': ThreadsSetting;
-    'bluesky-settings': BlueskySetting;
-    'twitter-settings': TwitterSetting;
+    'social-settings': SocialSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -140,10 +137,7 @@ export interface Config {
     'email-settings': EmailSettingsSelect<false> | EmailSettingsSelect<true>;
     'email-layout': EmailLayoutSelect<false> | EmailLayoutSelect<true>;
     'subscribe-post-block': SubscribePostBlockSelect<false> | SubscribePostBlockSelect<true>;
-    'linkedin-settings': LinkedinSettingsSelect<false> | LinkedinSettingsSelect<true>;
-    'threads-settings': ThreadsSettingsSelect<false> | ThreadsSettingsSelect<true>;
-    'bluesky-settings': BlueskySettingsSelect<false> | BlueskySettingsSelect<true>;
-    'twitter-settings': TwitterSettingsSelect<false> | TwitterSettingsSelect<true>;
+    'social-settings': SocialSettingsSelect<false> | SocialSettingsSelect<true>;
   };
   locale: null;
   user: User;
@@ -2548,18 +2542,6 @@ export interface SiteSetting {
    * Used as the site favicon (appears in browser tabs and bookmarks)
    */
   favicon?: (number | null) | Media;
-  socials?: {
-    /**
-     * The site owner's profiles on each social platform
-     */
-    profiles?:
-      | {
-          platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin';
-          url: string;
-          id?: string | null;
-        }[]
-      | null;
-  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2701,61 +2683,53 @@ export interface SubscribePostBlock {
   createdAt?: string | null;
 }
 /**
+ * Social profile URLs, daily publish schedule, and platform connection tokens.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "linkedin-settings".
+ * via the `definition` "social-settings".
  */
-export interface LinkedinSetting {
-  id: number;
-  accessToken?: string | null;
-  expiresAt?: string | null;
-  personUrn?: string | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "threads-settings".
- */
-export interface ThreadsSetting {
-  id: number;
-  accessToken?: string | null;
-  userId?: string | null;
-  expiresAt?: string | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "bluesky-settings".
- */
-export interface BlueskySetting {
+export interface SocialSetting {
   id: number;
   /**
-   * Your BlueSky handle, e.g. username.bsky.social
+   * Pre-fills the schedule time in the compose form. To change the actual cron schedule, update vercel.json and redeploy.
    */
-  handle?: string | null;
+  dailyPublishHour?: ('7' | '8' | '9' | '10' | '11' | '12' | '13' | '14' | '15') | null;
   /**
-   * Generate an App Password from your BlueSky account settings — do not use your main password.
+   * The site owner's profiles on each social platform
    */
-  appPassword?: string | null;
+  profiles?:
+    | {
+        platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
   /**
-   * Decentralized identifier — populated automatically on first connect.
+   * Tokens are set automatically via the LinkedIn connect flow in Posts → Share tab.
    */
-  did?: string | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "twitter-settings".
- */
-export interface TwitterSetting {
-  id: number;
-  accessToken?: string | null;
-  refreshToken?: string | null;
-  expiresAt?: string | null;
-  userId?: string | null;
-  username?: string | null;
+  linkedin?: {
+    accessToken?: string | null;
+    expiresAt?: string | null;
+    personUrn?: string | null;
+  };
+  /**
+   * Tokens are set automatically via the Threads connect flow in Posts → Share tab.
+   */
+  threads?: {
+    accessToken?: string | null;
+    userId?: string | null;
+    expiresAt?: string | null;
+  };
+  /**
+   * Tokens are set automatically via the Twitter / X connect flow in Posts → Share tab.
+   */
+  twitter?: {
+    accessToken?: string | null;
+    refreshToken?: string | null;
+    expiresAt?: string | null;
+    userId?: string | null;
+    username?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2825,17 +2799,6 @@ export interface FooterSelect<T extends boolean = true> {
 export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
   favicon?: T;
-  socials?:
-    | T
-    | {
-        profiles?:
-          | T
-          | {
-              platform?: T;
-              url?: T;
-              id?: T;
-            };
-      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2905,50 +2868,40 @@ export interface SubscribePostBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "linkedin-settings_select".
+ * via the `definition` "social-settings_select".
  */
-export interface LinkedinSettingsSelect<T extends boolean = true> {
-  accessToken?: T;
-  expiresAt?: T;
-  personUrn?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "threads-settings_select".
- */
-export interface ThreadsSettingsSelect<T extends boolean = true> {
-  accessToken?: T;
-  userId?: T;
-  expiresAt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "bluesky-settings_select".
- */
-export interface BlueskySettingsSelect<T extends boolean = true> {
-  handle?: T;
-  appPassword?: T;
-  did?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "twitter-settings_select".
- */
-export interface TwitterSettingsSelect<T extends boolean = true> {
-  accessToken?: T;
-  refreshToken?: T;
-  expiresAt?: T;
-  userId?: T;
-  username?: T;
+export interface SocialSettingsSelect<T extends boolean = true> {
+  dailyPublishHour?: T;
+  profiles?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  linkedin?:
+    | T
+    | {
+        accessToken?: T;
+        expiresAt?: T;
+        personUrn?: T;
+      };
+  threads?:
+    | T
+    | {
+        accessToken?: T;
+        userId?: T;
+        expiresAt?: T;
+      };
+  twitter?:
+    | T
+    | {
+        accessToken?: T;
+        refreshToken?: T;
+        expiresAt?: T;
+        userId?: T;
+        username?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

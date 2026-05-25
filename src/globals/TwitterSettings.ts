@@ -7,7 +7,10 @@ export const TwitterSettings: GlobalConfig = {
     read: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
   },
-  admin: { hidden: true },
+  admin: {
+    group: 'Social',
+    description: 'OAuth tokens are set automatically via the Twitter / X connect flow in the Posts Share tab.',
+  },
   fields: [
     {
       name: 'accessToken',

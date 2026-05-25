@@ -8,7 +8,8 @@ export const ThreadsSettings: GlobalConfig = {
     update: ({ req }) => Boolean(req.user),
   },
   admin: {
-    hidden: true,
+    group: 'Social',
+    description: 'OAuth tokens are set automatically via the Threads connect flow in the Posts Share tab.',
   },
   fields: [
     {

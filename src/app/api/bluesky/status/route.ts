@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { BskyAgent } from '@atproto/api'
-import type { SiteSetting } from '@/payload-types'
+import type { SocialSetting } from '@/payload-types'
 
-function extractBlueSkyHandle(profiles: SiteSetting['socials']['profiles']): string | null {
+function extractBlueSkyHandle(profiles: SocialSetting['profiles']): string | null {
   const entry = profiles?.find((p) => p.platform === 'bluesky')
   if (!entry?.url) return null
   try {
@@ -29,8 +29,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ connected: false })
   }
 
-  const siteSettings = (await payload.findGlobal({ slug: 'site-settings' })) as SiteSetting
-  const handle = extractBlueSkyHandle(siteSettings.socials?.profiles)
+  const socialSettings = (await payload.findGlobal({ slug: 'social-settings' })) as SocialSetting
+  const handle = extractBlueSkyHandle(socialSettings.profiles)
 
   if (!handle) {
     return NextResponse.json({ connected: false })

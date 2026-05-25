@@ -3,12 +3,14 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { TwitterApi } from 'twitter-api-v2'
 
-type TwitterSettingsData = {
-  accessToken?: string | null
-  refreshToken?: string | null
-  expiresAt?: string | null
-  userId?: string | null
-  username?: string | null
+type SocialSettingsTwitter = {
+  twitter?: {
+    accessToken?: string | null
+    refreshToken?: string | null
+    expiresAt?: string | null
+    userId?: string | null
+    username?: string | null
+  } | null
 }
 
 export async function GET(request: NextRequest) {
@@ -21,22 +23,22 @@ export async function GET(request: NextRequest) {
 
   try {
     const settings = (await payload.findGlobal({
-      slug: 'twitter-settings',
-    })) as unknown as TwitterSettingsData
+      slug: 'social-settings',
+    })) as unknown as SocialSettingsTwitter
 
-    if (!settings.accessToken) {
+    const tw = settings.twitter
+    if (!tw?.accessToken) {
       return NextResponse.json({ connected: false })
     }
 
-    const isExpired = settings.expiresAt ? new Date(settings.expiresAt) <= new Date() : false
+    const isExpired = tw.expiresAt ? new Date(tw.expiresAt) <= new Date() : false
 
-    // Token is valid — connected
     if (!isExpired) {
       return NextResponse.json({ connected: true })
     }
 
     // Token expired but we have a refresh token — attempt refresh
-    if (settings.refreshToken) {
+    if (tw.refreshToken) {
       const clientId = process.env.TWITTER_CLIENT_ID
       const clientSecret = process.env.TWITTER_CLIENT_SECRET
 
@@ -46,13 +48,13 @@ export async function GET(request: NextRequest) {
 
       const refreshClient = new TwitterApi({ clientId, clientSecret })
       const { accessToken, refreshToken, expiresIn } = await refreshClient.refreshOAuth2Token(
-        settings.refreshToken,
+        tw.refreshToken,
       )
       const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString()
 
       await payload.updateGlobal({
-        slug: 'twitter-settings',
-        data: { accessToken, refreshToken: refreshToken ?? null, expiresAt },
+        slug: 'social-settings',
+        data: { twitter: { accessToken, refreshToken: refreshToken ?? null, expiresAt } },
       })
 
       return NextResponse.json({ connected: true })
