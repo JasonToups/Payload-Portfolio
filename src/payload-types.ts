@@ -131,6 +131,7 @@ export interface Config {
     'linkedin-settings': LinkedinSetting;
     'threads-settings': ThreadsSetting;
     'bluesky-settings': BlueskySetting;
+    'twitter-settings': TwitterSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -142,6 +143,7 @@ export interface Config {
     'linkedin-settings': LinkedinSettingsSelect<false> | LinkedinSettingsSelect<true>;
     'threads-settings': ThreadsSettingsSelect<false> | ThreadsSettingsSelect<true>;
     'bluesky-settings': BlueskySettingsSelect<false> | BlueskySettingsSelect<true>;
+    'twitter-settings': TwitterSettingsSelect<false> | TwitterSettingsSelect<true>;
   };
   locale: null;
   user: User;
@@ -532,7 +534,7 @@ export interface ScheduledSocialPost {
   /**
    * Social media platform to publish to.
    */
-  platform: 'linkedin' | 'bluesky' | 'threads';
+  platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads';
   /**
    * Text content for the social post. Pre-filled from the Post's Social Post Body.
    */
@@ -2745,6 +2747,20 @@ export interface BlueskySetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "twitter-settings".
+ */
+export interface TwitterSetting {
+  id: number;
+  accessToken?: string | null;
+  refreshToken?: string | null;
+  expiresAt?: string | null;
+  userId?: string | null;
+  username?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -2919,6 +2935,20 @@ export interface BlueskySettingsSelect<T extends boolean = true> {
   handle?: T;
   appPassword?: T;
   did?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "twitter-settings_select".
+ */
+export interface TwitterSettingsSelect<T extends boolean = true> {
+  accessToken?: T;
+  refreshToken?: T;
+  expiresAt?: T;
+  userId?: T;
+  username?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

@@ -3,7 +3,7 @@
 import { DatePicker, useDocumentInfo } from '@payloadcms/ui'
 import { useEffect, useState } from 'react'
 
-type Platform = 'linkedin' | 'bluesky' | 'threads'
+type Platform = 'linkedin' | 'twitter' | 'bluesky' | 'threads'
 type PlatformStatus = 'unknown' | 'connected' | 'disconnected'
 type SchedulePhase = 'idle' | 'composing' | 'saving' | 'saved' | 'error'
 
@@ -25,9 +25,15 @@ type CreateScheduledPostBody = {
 
 const PLATFORM_LABELS: Record<Platform, string> = {
   linkedin: 'LinkedIn',
+  twitter: 'Twitter / X',
   bluesky: 'BlueSky',
   threads: 'Threads',
 }
+
+// Twitter t.co shortens all URLs to 23 chars; \n\n separator = 2 chars
+const TWITTER_MAX_CHARS = 280
+const TWITTER_URL_CHARS = 23
+const TWITTER_SEPARATOR_CHARS = 2
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString('en-US', {
@@ -72,7 +78,7 @@ const StatusDot: React.FC<{ status: PlatformStatus }> = ({ status }) => {
 }
 
 export const ScheduleSocialPostButton: React.FC = () => {
-  const { id, savedDocumentData } = useDocumentInfo()
+  const { id } = useDocumentInfo()
 
   const postId = id as number | undefined
 
@@ -86,6 +92,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
 
   const [statuses, setStatuses] = useState<Record<Platform, PlatformStatus>>({
     linkedin: 'unknown',
+    twitter: 'unknown',
     bluesky: 'unknown',
     threads: 'unknown',
   })
@@ -101,12 +108,26 @@ export const ScheduleSocialPostButton: React.FC = () => {
       )
       .catch(() => setStatuses((s) => ({ ...s, linkedin: 'disconnected' })))
 
+    fetch('/api/twitter/status')
+      .then((r) => r.json() as Promise<{ connected: boolean }>)
+      .then((d) =>
+        setStatuses((s) => ({ ...s, twitter: d.connected ? 'connected' : 'disconnected' })),
+      )
+      .catch(() => setStatuses((s) => ({ ...s, twitter: 'disconnected' })))
+
     fetch('/api/bluesky/status')
       .then((r) => r.json() as Promise<{ connected: boolean }>)
       .then((d) =>
         setStatuses((s) => ({ ...s, bluesky: d.connected ? 'connected' : 'disconnected' })),
       )
       .catch(() => setStatuses((s) => ({ ...s, bluesky: 'disconnected' })))
+
+    fetch('/api/threads/status')
+      .then((r) => r.json() as Promise<{ connected: boolean }>)
+      .then((d) =>
+        setStatuses((s) => ({ ...s, threads: d.connected ? 'connected' : 'disconnected' })),
+      )
+      .catch(() => setStatuses((s) => ({ ...s, threads: 'disconnected' })))
   }, [isOpen])
 
   // Fetch existing scheduled posts for this post
@@ -140,6 +161,12 @@ export const ScheduleSocialPostButton: React.FC = () => {
     setScheduledFor(null)
   }
 
+  const handleConnectTwitter = () => {
+    openAuthPopup('/api/twitter/auth', 'twitter-connected', () => {
+      setStatuses((s) => ({ ...s, twitter: 'connected' }))
+    })
+  }
+
   const handleConnectThreads = () => {
     openAuthPopup('/api/threads/auth', 'threads-connected', () => {
       setStatuses((s) => ({ ...s, threads: 'connected' }))
@@ -160,7 +187,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
     setPhase('saving')
     setError(null)
 
-    const payload: CreateScheduledPostBody = {
+    const requestBody: CreateScheduledPostBody = {
       post: postId,
       platform,
       body,
@@ -172,7 +199,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
       const res = await fetch('/api/scheduled-social-posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(requestBody),
       })
 
       if (!res.ok) {
@@ -199,7 +226,9 @@ export const ScheduleSocialPostButton: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'cancelled' }),
       })
-      setScheduled((prev) => prev.map((d) => (d.id === docId ? { ...d, status: 'cancelled' } : d)))
+      setScheduled((prev) =>
+        prev.map((d) => (d.id === docId ? { ...d, status: 'cancelled' } : d)),
+      )
     } catch {
       setError('Failed to cancel scheduled post.')
     }
@@ -208,6 +237,10 @@ export const ScheduleSocialPostButton: React.FC = () => {
   if (!postId) return null
 
   const pendingCount = scheduled.filter((d) => d.status === 'pending').length
+
+  // Twitter character counter: body + \n\n + t.co URL (always 23 chars)
+  const twitterCharsUsed = body.length + TWITTER_SEPARATOR_CHARS + TWITTER_URL_CHARS
+  const twitterCharsRemaining = TWITTER_MAX_CHARS - twitterCharsUsed
 
   return (
     <div
@@ -285,7 +318,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
 
           {/* Platform selector */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-            {(['linkedin', 'bluesky', 'threads'] as Platform[]).map((p) => (
+            {(['linkedin', 'twitter', 'bluesky', 'threads'] as Platform[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPlatform(p)}
@@ -322,6 +355,16 @@ export const ScheduleSocialPostButton: React.FC = () => {
               <span style={{ color: 'var(--theme-text-dim)', fontSize: '12px' }}>
                 {PLATFORM_LABELS[platform]} is not connected.{' '}
               </span>
+              {platform === 'twitter' && (
+                <button
+                  className="btn btn--style-secondary btn--size-small"
+                  onClick={handleConnectTwitter}
+                  type="button"
+                  style={{ fontSize: '12px', padding: '2px 8px' }}
+                >
+                  Connect Twitter / X
+                </button>
+              )}
               {platform === 'threads' && (
                 <button
                   className="btn btn--style-secondary btn--size-small"
@@ -355,13 +398,27 @@ export const ScheduleSocialPostButton: React.FC = () => {
               borderRadius: '4px',
               color: 'var(--theme-text)',
               fontSize: '13px',
-              marginBottom: '10px',
+              marginBottom: '4px',
               padding: '8px',
               resize: 'vertical',
               width: '100%',
             }}
             value={body}
           />
+
+          {/* Twitter character counter */}
+          {platform === 'twitter' && (
+            <div
+              style={{
+                color: twitterCharsRemaining < 0 ? 'var(--theme-error-500)' : twitterCharsRemaining <= 20 ? '#f59e0b' : 'var(--theme-text-dim)',
+                fontSize: '11px',
+                marginBottom: '6px',
+                textAlign: 'right',
+              }}
+            >
+              {twitterCharsRemaining} chars remaining (post URL appended automatically)
+            </div>
+          )}
 
           {/* Date/time picker */}
           <div
@@ -371,6 +428,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
               gap: '10px',
               flexWrap: 'wrap',
               marginBottom: '12px',
+              marginTop: platform === 'twitter' ? '0' : '6px',
             }}
           >
             <span
@@ -389,7 +447,12 @@ export const ScheduleSocialPostButton: React.FC = () => {
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <button
               className="btn btn--style-primary btn--size-small"
-              disabled={!scheduledFor || phase === 'saving' || statuses[platform] !== 'connected'}
+              disabled={
+                !scheduledFor ||
+                phase === 'saving' ||
+                statuses[platform] !== 'connected' ||
+                (platform === 'twitter' && twitterCharsRemaining < 0)
+              }
               onClick={handleSchedule}
               type="button"
             >

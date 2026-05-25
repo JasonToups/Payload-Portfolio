@@ -1,9 +1,10 @@
 import type { TaskConfig } from 'payload'
-import type { ScheduledSocialPost, LinkedinSetting, ThreadsSetting, BlueskySetting } from '@/payload-types'
+import type { ScheduledSocialPost, LinkedinSetting, ThreadsSetting, TwitterSetting, SiteSetting } from '@/payload-types'
 import type { SocialPlatform } from '@/utilities/buildShareUrl'
 import { publishLinkedIn } from '@/lib/social/publishLinkedIn'
 import { publishThreads } from '@/lib/social/publishThreads'
 import { publishBlueSky } from '@/lib/social/publishBlueSky'
+import { publishTwitter } from '@/lib/social/publishTwitter'
 import { getServerSideURL } from '@/utilities/getURL'
 
 type ExistingShare = {
@@ -127,20 +128,55 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
       }
 
       case 'bluesky': {
-        const settings = (await req.payload.findGlobal({
-          slug: 'bluesky-settings',
-        })) as unknown as BlueskySetting
+        const appPassword = process.env.BLUESKY_APP_PASSWORD
+        if (!appPassword) {
+          throw new Error('BLUESKY_APP_PASSWORD is not set')
+        }
 
-        if (!settings.handle || !settings.appPassword) {
-          throw new Error('BlueSky is not connected')
+        const siteSettings = (await req.payload.findGlobal({
+          slug: 'site-settings',
+          overrideAccess: true,
+        })) as SiteSetting
+
+        const blueskyProfile = siteSettings.socials?.profiles?.find((p) => p.platform === 'bluesky')
+        const blueskyUrl = blueskyProfile?.url ?? ''
+        let handle: string | null = null
+        try {
+          const segments = new URL(blueskyUrl).pathname.split('/').filter(Boolean)
+          handle = segments[1] ?? null
+        } catch {
+          handle = null
+        }
+
+        if (!handle) {
+          throw new Error('BlueSky profile URL is not set in Site Settings')
         }
 
         const result = await publishBlueSky({
           body: doc.body,
+          settings: { handle, appPassword },
+        })
+        publishedUrl = result.url
+        break
+      }
+
+      case 'twitter': {
+        const settings = (await req.payload.findGlobal({
+          slug: 'twitter-settings',
+        })) as unknown as TwitterSetting
+
+        if (!settings.accessToken) {
+          throw new Error('Twitter is not connected')
+        }
+
+        const result = await publishTwitter({
+          body: doc.body,
+          postUrl,
           settings: {
-            handle: settings.handle,
-            appPassword: settings.appPassword,
-            did: settings.did,
+            accessToken: settings.accessToken,
+            refreshToken: settings.refreshToken,
+            expiresAt: settings.expiresAt,
+            username: settings.username,
           },
         })
         publishedUrl = result.url

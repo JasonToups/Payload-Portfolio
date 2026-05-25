@@ -2,11 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { BskyAgent } from '@atproto/api'
+import type { SiteSetting } from '@/payload-types'
 
-type BlueSkySettingsData = {
-  handle?: string | null
-  appPassword?: string | null
-  did?: string | null
+function extractBlueSkyHandle(profiles: SiteSetting['socials']['profiles']): string | null {
+  const entry = profiles?.find((p) => p.platform === 'bluesky')
+  if (!entry?.url) return null
+  try {
+    // https://bsky.app/profile/handle.bsky.social → "handle.bsky.social"
+    const segments = new URL(entry.url).pathname.split('/').filter(Boolean)
+    return segments[1] ?? null
+  } catch {
+    return null
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -17,28 +24,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const settings = (await payload.findGlobal({
-    slug: 'bluesky-settings',
-  })) as unknown as BlueSkySettingsData
+  const appPassword = process.env.BLUESKY_APP_PASSWORD
+  if (!appPassword) {
+    return NextResponse.json({ connected: false })
+  }
 
-  if (!settings.handle || !settings.appPassword) {
+  const siteSettings = (await payload.findGlobal({ slug: 'site-settings' })) as SiteSetting
+  const handle = extractBlueSkyHandle(siteSettings.socials?.profiles)
+
+  if (!handle) {
     return NextResponse.json({ connected: false })
   }
 
   try {
     const agent = new BskyAgent({ service: 'https://bsky.social' })
-    await agent.login({ identifier: settings.handle, password: settings.appPassword })
-
-    // Persist the DID if not yet stored
-    const sessionDid = agent.session?.did
-    if (sessionDid && !settings.did) {
-      await payload.updateGlobal({
-        slug: 'bluesky-settings',
-        data: { did: sessionDid },
-      })
-    }
-
-    return NextResponse.json({ connected: true, handle: settings.handle })
+    await agent.login({ identifier: handle, password: appPassword })
+    return NextResponse.json({ connected: true, handle })
   } catch {
     return NextResponse.json({ connected: false })
   }

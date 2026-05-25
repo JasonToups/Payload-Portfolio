@@ -33,6 +33,7 @@ export const ScheduledSocialPosts: CollectionConfig = {
       required: true,
       options: [
         { label: 'LinkedIn', value: 'linkedin' },
+        { label: 'Twitter / X', value: 'twitter' },
         { label: 'BlueSky', value: 'bluesky' },
         { label: 'Threads', value: 'threads' },
       ],

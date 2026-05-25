@@ -3,7 +3,6 @@ import { BskyAgent, RichText } from '@atproto/api'
 type BlueSkySettings = {
   handle: string
   appPassword: string
-  did?: string | null
 }
 
 type PublishBlueSkyOptions = {
@@ -13,7 +12,7 @@ type PublishBlueSkyOptions = {
 
 export async function publishBlueSky(options: PublishBlueSkyOptions): Promise<{ url: string }> {
   const { body, settings } = options
-  const { handle, appPassword, did } = settings
+  const { handle, appPassword } = settings
 
   const agent = new BskyAgent({ service: 'https://bsky.social' })
   await agent.login({ identifier: handle, password: appPassword })
@@ -27,12 +26,12 @@ export async function publishBlueSky(options: PublishBlueSkyOptions): Promise<{ 
     langs: ['en'],
   })
 
-  const resolvedDid = did ?? agent.session?.did
   const rkey = record.uri.split('/').pop()
+  const did = agent.session?.did
 
   return {
-    url: resolvedDid
-      ? `https://bsky.app/profile/${resolvedDid}/post/${rkey}`
-      : 'https://bsky.app',
+    url: did
+      ? `https://bsky.app/profile/${did}/post/${rkey}`
+      : `https://bsky.app/profile/${handle}/post/${rkey}`,
   }
 }
