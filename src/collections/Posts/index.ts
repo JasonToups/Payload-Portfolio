@@ -361,6 +361,25 @@ export const Posts: CollectionConfig<'posts'> = {
               },
             },
             {
+              name: 'scheduleSocialPost',
+              type: 'ui',
+              admin: {
+                condition: (data) => data?._status === 'published',
+                components: {
+                  Field: '@/collections/Posts/components/ScheduleSocialPostButton#ScheduleSocialPostButton',
+                },
+              },
+            },
+            {
+              name: 'scheduledSocialPosts',
+              type: 'join',
+              collection: 'scheduled-social-posts',
+              on: 'post',
+              admin: {
+                defaultColumns: ['platform', 'status', 'scheduledFor'],
+              },
+            },
+            {
               name: 'socialShares',
               type: 'array',
               label: 'Share History',

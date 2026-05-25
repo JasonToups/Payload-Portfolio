@@ -70,6 +70,7 @@ export interface Config {
     broadcasts: Broadcast;
     pages: Page;
     posts: Post;
+    'scheduled-social-posts': ScheduledSocialPost;
     media: Media;
     categories: Category;
     keywords: Keyword;
@@ -89,6 +90,7 @@ export interface Config {
   collectionsJoins: {
     posts: {
       broadcasts: 'broadcasts';
+      scheduledSocialPosts: 'scheduled-social-posts';
     };
     'payload-folders': {
       documentsAndFolders: 'payload-folders' | 'media';
@@ -98,6 +100,7 @@ export interface Config {
     broadcasts: BroadcastsSelect<false> | BroadcastsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    'scheduled-social-posts': ScheduledSocialPostsSelect<false> | ScheduledSocialPostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     keywords: KeywordsSelect<false> | KeywordsSelect<true>;
@@ -126,6 +129,8 @@ export interface Config {
     'email-layout': EmailLayout;
     'subscribe-post-block': SubscribePostBlock;
     'linkedin-settings': LinkedinSetting;
+    'threads-settings': ThreadsSetting;
+    'bluesky-settings': BlueskySetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -135,11 +140,14 @@ export interface Config {
     'email-layout': EmailLayoutSelect<false> | EmailLayoutSelect<true>;
     'subscribe-post-block': SubscribePostBlockSelect<false> | SubscribePostBlockSelect<true>;
     'linkedin-settings': LinkedinSettingsSelect<false> | LinkedinSettingsSelect<true>;
+    'threads-settings': ThreadsSettingsSelect<false> | ThreadsSettingsSelect<true>;
+    'bluesky-settings': BlueskySettingsSelect<false> | BlueskySettingsSelect<true>;
   };
   locale: null;
   user: User;
   jobs: {
     tasks: {
+      publishScheduledSocialPost: TaskPublishScheduledSocialPost;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -204,6 +212,7 @@ export interface Broadcast {
     };
     [k: string]: unknown;
   } | null;
+  scheduledAt?: string | null;
   /**
    * For single_post: select one post. For weekly_digest: curate multiple posts.
    */
@@ -216,7 +225,6 @@ export interface Broadcast {
    * ID returned by Resend after the broadcast is created
    */
   resendBroadcastId?: string | null;
-  scheduledAt?: string | null;
   /**
    * Populated on successful send
    */
@@ -329,6 +337,11 @@ export interface Post {
     totalDocs?: number;
   };
   socialPostBody?: string | null;
+  scheduledSocialPosts?: {
+    docs?: (number | ScheduledSocialPost)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   /**
    * Record of social media shares for this post
    */
@@ -505,6 +518,47 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scheduled-social-posts".
+ */
+export interface ScheduledSocialPost {
+  id: number;
+  /**
+   * The Payload Post to share.
+   */
+  post: number | Post;
+  /**
+   * Social media platform to publish to.
+   */
+  platform: 'linkedin' | 'bluesky' | 'threads';
+  /**
+   * Text content for the social post. Pre-filled from the Post's Social Post Body.
+   */
+  body: string;
+  /**
+   * Date and time the post should be published.
+   */
+  scheduledFor: string;
+  /**
+   * Managed by the scheduler — do not edit manually.
+   */
+  status?: ('pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
+  /**
+   * Populated on successful publish.
+   */
+  publishedAt?: string | null;
+  /**
+   * URL of the published social post.
+   */
+  publishedUrl?: string | null;
+  /**
+   * Populated on failure — check here when status is "failed".
+   */
+  errorMessage?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1435,7 +1489,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'schedulePublish';
+        taskSlug: 'inline' | 'publishScheduledSocialPost' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1468,7 +1522,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'publishScheduledSocialPost' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1493,6 +1547,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'scheduled-social-posts';
+        value: number | ScheduledSocialPost;
       } | null)
     | ({
         relationTo: 'media';
@@ -1586,10 +1644,10 @@ export interface BroadcastsSelect<T extends boolean = true> {
   subject?: T;
   previewText?: T;
   body?: T;
+  scheduledAt?: T;
   posts?: T;
   sendStatus?: T;
   resendBroadcastId?: T;
-  scheduledAt?: T;
   sentAt?: T;
   errorMessage?: T;
   updatedAt?: T;
@@ -1933,6 +1991,7 @@ export interface PostsSelect<T extends boolean = true> {
       };
   broadcasts?: T;
   socialPostBody?: T;
+  scheduledSocialPosts?: T;
   socialShares?:
     | T
     | {
@@ -1944,6 +2003,22 @@ export interface PostsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scheduled-social-posts_select".
+ */
+export interface ScheduledSocialPostsSelect<T extends boolean = true> {
+  post?: T;
+  platform?: T;
+  body?: T;
+  scheduledFor?: T;
+  status?: T;
+  publishedAt?: T;
+  publishedUrl?: T;
+  errorMessage?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2637,6 +2712,39 @@ export interface LinkedinSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "threads-settings".
+ */
+export interface ThreadsSetting {
+  id: number;
+  accessToken?: string | null;
+  userId?: string | null;
+  expiresAt?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bluesky-settings".
+ */
+export interface BlueskySetting {
+  id: number;
+  /**
+   * Your BlueSky handle, e.g. username.bsky.social
+   */
+  handle?: string | null;
+  /**
+   * Generate an App Password from your BlueSky account settings — do not use your main password.
+   */
+  appPassword?: string | null;
+  /**
+   * Decentralized identifier — populated automatically on first connect.
+   */
+  did?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -2790,6 +2898,42 @@ export interface LinkedinSettingsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "threads-settings_select".
+ */
+export interface ThreadsSettingsSelect<T extends boolean = true> {
+  accessToken?: T;
+  userId?: T;
+  expiresAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bluesky-settings_select".
+ */
+export interface BlueskySettingsSelect<T extends boolean = true> {
+  handle?: T;
+  appPassword?: T;
+  did?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskPublishScheduledSocialPost".
+ */
+export interface TaskPublishScheduledSocialPost {
+  input: {
+    scheduledPostId: number;
+  };
+  output: {
+    publishedUrl?: string | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

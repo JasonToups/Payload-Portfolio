@@ -1,0 +1,191 @@
+import type { TaskConfig } from 'payload'
+import type { ScheduledSocialPost, LinkedinSetting, ThreadsSetting, BlueskySetting } from '@/payload-types'
+import type { SocialPlatform } from '@/utilities/buildShareUrl'
+import { publishLinkedIn } from '@/lib/social/publishLinkedIn'
+import { publishThreads } from '@/lib/social/publishThreads'
+import { publishBlueSky } from '@/lib/social/publishBlueSky'
+import { getServerSideURL } from '@/utilities/getURL'
+
+type ExistingShare = {
+  platform: SocialPlatform
+  sharedAt: string
+  shareUrl?: string | null
+  id?: string | null
+}
+
+type TaskIO = { input: { scheduledPostId: number }; output: { publishedUrl: string } }
+
+export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
+  slug: 'publishScheduledSocialPost',
+  label: 'Publish Scheduled Social Post',
+  inputSchema: [
+    {
+      name: 'scheduledPostId',
+      type: 'number',
+      required: true,
+    },
+  ],
+  outputSchema: [
+    {
+      name: 'publishedUrl',
+      type: 'text',
+    },
+  ],
+  retries: {
+    attempts: 2,
+    backoff: { type: 'fixed', delay: 60_000 },
+  },
+  onFail: async ({ input, req }) => {
+    const id = (input as { scheduledPostId?: number }).scheduledPostId
+    if (!id) return
+    await req.payload.update({
+      collection: 'scheduled-social-posts',
+      id,
+      data: { status: 'failed', errorMessage: 'Failed after 2 attempts — check platform credentials.' },
+      overrideAccess: true,
+    })
+  },
+  handler: async ({ input, req }) => {
+    const { scheduledPostId } = input
+
+    const doc = (await req.payload.findByID({
+      collection: 'scheduled-social-posts',
+      id: scheduledPostId,
+      depth: 2,
+      overrideAccess: true,
+    })) as ScheduledSocialPost
+
+    if (!doc) {
+      throw new Error(`Scheduled social post ${scheduledPostId} not found`)
+    }
+
+    // Idempotency guard — skip if already processed
+    if (doc.status !== 'pending') {
+      return { output: { publishedUrl: doc.publishedUrl ?? '' } }
+    }
+
+    await req.payload.update({
+      collection: 'scheduled-social-posts',
+      id: scheduledPostId,
+      data: { status: 'processing' },
+      overrideAccess: true,
+    })
+
+    const post = typeof doc.post === 'object' ? doc.post : null
+    if (!post) throw new Error('Post relationship not populated')
+
+    const postUrl = `${getServerSideURL()}/posts/${post.slug}`
+    let publishedUrl: string
+
+    switch (doc.platform) {
+      case 'linkedin': {
+        const settings = (await req.payload.findGlobal({
+          slug: 'linkedin-settings',
+        })) as unknown as LinkedinSetting
+
+        if (!settings.accessToken || !settings.personUrn) {
+          throw new Error('LinkedIn is not connected')
+        }
+
+        const heroImage = typeof post.heroImage === 'object' ? post.heroImage : null
+        const imageUrl = heroImage?.url ?? undefined
+
+        const result = await publishLinkedIn({
+          body: doc.body,
+          url: postUrl,
+          title: post.title,
+          imageUrl,
+          settings: {
+            accessToken: settings.accessToken,
+            personUrn: settings.personUrn,
+            expiresAt: settings.expiresAt,
+          },
+        })
+        publishedUrl = result.url
+        break
+      }
+
+      case 'threads': {
+        const settings = (await req.payload.findGlobal({
+          slug: 'threads-settings',
+        })) as unknown as ThreadsSetting
+
+        if (!settings.accessToken || !settings.userId) {
+          throw new Error('Threads is not connected')
+        }
+
+        const result = await publishThreads({
+          body: doc.body,
+          settings: {
+            accessToken: settings.accessToken,
+            userId: settings.userId,
+            expiresAt: settings.expiresAt,
+          },
+        })
+        publishedUrl = result.url
+        break
+      }
+
+      case 'bluesky': {
+        const settings = (await req.payload.findGlobal({
+          slug: 'bluesky-settings',
+        })) as unknown as BlueskySetting
+
+        if (!settings.handle || !settings.appPassword) {
+          throw new Error('BlueSky is not connected')
+        }
+
+        const result = await publishBlueSky({
+          body: doc.body,
+          settings: {
+            handle: settings.handle,
+            appPassword: settings.appPassword,
+            did: settings.did,
+          },
+        })
+        publishedUrl = result.url
+        break
+      }
+
+      default:
+        throw new Error(`Unsupported platform: ${doc.platform}`)
+    }
+
+    const now = new Date().toISOString()
+
+    // Update the scheduled post to published
+    await req.payload.update({
+      collection: 'scheduled-social-posts',
+      id: scheduledPostId,
+      data: { status: 'published', publishedAt: now, publishedUrl },
+      overrideAccess: true,
+    })
+
+    // Append to the post's socialShares log
+    const freshPost = await req.payload.findByID({
+      collection: 'posts',
+      id: post.id,
+      depth: 0,
+      overrideAccess: true,
+    })
+
+    const existingShares = ((freshPost.socialShares ?? []) as ExistingShare[])
+    await req.payload.update({
+      collection: 'posts',
+      id: post.id,
+      data: {
+        socialShares: [
+          ...existingShares,
+          {
+            platform: doc.platform as SocialPlatform,
+            sharedAt: now,
+            shareUrl: publishedUrl,
+          },
+        ],
+      },
+      overrideAccess: true,
+    })
+
+    return { output: { publishedUrl } }
+  },
+}

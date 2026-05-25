@@ -24,8 +24,12 @@ import { EmailSettings } from './EmailSettings'
 import { EmailLayout } from './EmailLayout'
 import { SubscribePostBlock } from './SubscribePostBlock/config'
 import { LinkedInSettings } from './globals/LinkedInSettings'
+import { ThreadsSettings } from './globals/ThreadsSettings'
+import { BlueSkySettings } from './globals/BlueSkySettings'
+import { ScheduledSocialPosts } from './collections/ScheduledSocialPosts'
 import { subscribeForm } from './endpoints/seed/subscribe-form'
 import { toSlug } from './utilities/toSlug'
+import { publishScheduledSocialPostTask } from './jobs/tasks/publishScheduledSocialPost'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -86,6 +90,15 @@ export default buildConfig({
       // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
       beforeDashboard: ['@/components/BeforeDashboard'],
+      views: {
+        SocialCalendar: {
+          Component: '@/components/SocialCalendar',
+          path: '/social-calendar',
+          meta: {
+            title: 'Social Calendar',
+          },
+        },
+      },
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -127,14 +140,14 @@ export default buildConfig({
       connectionString: process.env.POSTGRES_URL || '',
     },
   }),
-  collections: [Broadcasts, Pages, Posts, Media, Categories, Keywords, Resume, Users],
+  collections: [Broadcasts, Pages, Posts, ScheduledSocialPosts, Media, Categories, Keywords, Resume, Users],
   cors: [getServerSideURL()].filter(Boolean),
   email: resendAdapter({
     apiKey: process.env.RESEND_API_KEY!,
     defaultFromAddress: process.env.RESEND_FROM_ADDRESS!,
     defaultFromName: process.env.RESEND_FROM_NAME!,
   }),
-  globals: [Header, Footer, SiteSettings, EmailSettings, EmailLayout, SubscribePostBlock, LinkedInSettings],
+  globals: [Header, Footer, SiteSettings, EmailSettings, EmailLayout, SubscribePostBlock, LinkedInSettings, ThreadsSettings, BlueSkySettings],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   onInit: async (payload) => {
@@ -158,6 +171,6 @@ export default buildConfig({
         return authHeader === `Bearer ${process.env.CRON_SECRET}`
       },
     },
-    tasks: [],
+    tasks: [publishScheduledSocialPostTask],
   },
 })

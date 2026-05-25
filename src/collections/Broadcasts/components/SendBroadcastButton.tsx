@@ -1,6 +1,6 @@
 'use client'
 
-import { DatePicker, FormSubmit, PopupList, useDocumentInfo } from '@payloadcms/ui'
+import { FormSubmit, useDocumentInfo } from '@payloadcms/ui'
 import { useState } from 'react'
 
 type BroadcastStatus = 'draft' | 'failed' | 'scheduled' | 'sent'
@@ -24,15 +24,14 @@ export const SendBroadcastButton: React.FC = () => {
   const scheduledAt = savedDocumentData?.scheduledAt as string | null | undefined
 
   const [sendPhase, setSendPhase] = useState<SendPhase>('idle')
-  const [scheduleLoading, setScheduleLoading] = useState(false)
+  const [cancelLoading, setCancelLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [pickedDate, setPickedDate] = useState<Date | null>(null)
 
   const isSent = status === 'sent' || sendPhase === 'sent'
   const isScheduled = status === 'scheduled'
   const isConfirming = sendPhase === 'confirming'
   const isSending = sendPhase === 'sending'
-  const canSend = !isSent && !isScheduled && !scheduleLoading && sendPhase === 'idle'
+  const canSend = !isSent && !isScheduled && !cancelLoading && sendPhase === 'idle'
 
   if (!id) return null
 
@@ -62,43 +61,14 @@ export const SendBroadcastButton: React.FC = () => {
 
   const handleCancelConfirm = () => setSendPhase('idle')
 
-  const handleSchedule = async (close: () => void) => {
-    if (!pickedDate) return
-    if (pickedDate <= new Date()) {
-      setError('Scheduled time must be in the future.')
-      return
-    }
-    close()
-    setScheduleLoading(true)
-    setError(null)
-    try {
-      const res = await fetch(`/api/broadcasts/${id}/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scheduledAt: pickedDate.toISOString() }),
-      })
-      const json = (await res.json()) as { success?: boolean; error?: string }
-      if (json.success) {
-        window.location.reload()
-      } else {
-        setError(json.error ?? 'Schedule failed — try again.')
-      }
-    } catch {
-      setError('Request failed — check your network and try again.')
-    } finally {
-      setScheduleLoading(false)
-    }
-  }
-
-  const handleCancelSchedule = async (close: () => void) => {
+  const handleCancelSchedule = async () => {
     if (
       !window.confirm(
         'Cancel this scheduled broadcast? It will be removed from Resend and reset to draft.',
       )
     )
       return
-    close()
-    setScheduleLoading(true)
+    setCancelLoading(true)
     setError(null)
     try {
       const res = await fetch(`/api/broadcasts/${id}/cancel`, { method: 'POST' })
@@ -111,7 +81,7 @@ export const SendBroadcastButton: React.FC = () => {
     } catch {
       setError('Request failed — check your network and try again.')
     } finally {
-      setScheduleLoading(false)
+      setCancelLoading(false)
     }
   }
 
@@ -120,83 +90,21 @@ export const SendBroadcastButton: React.FC = () => {
       case isSent:
         return '✓ Broadcast Sent'
       case isConfirming:
-        return 'Confirming Send'
+        return 'Confirming...'
       case isSending:
-        return 'Sending Broadcast'
+        return 'Sending...'
       case isScheduled:
         return '⏱ Scheduled'
-      case scheduleLoading:
-        return 'Loading'
+      case Boolean(scheduledAt):
+        return 'Schedule Broadcast'
       default:
         return 'Send Broadcast'
     }
   })()
 
-  const subMenuContent = ({ close }: { close: () => void }): React.ReactNode => {
-    if (isSent) return null
-
-    if (isScheduled) {
-      return (
-        <PopupList.ButtonGroup>
-          {scheduledAt && (
-            <PopupList.Button disabled>
-              <span style={{ fontSize: '12px', color: 'var(--theme-text-dim)' }}>
-                {formatDate(scheduledAt)}
-              </span>
-            </PopupList.Button>
-          )}
-          <PopupList.Button onClick={() => handleCancelSchedule(close)}>
-            Cancel Schedule
-          </PopupList.Button>
-        </PopupList.ButtonGroup>
-      )
-    }
-
-    return (
-      <div style={{ padding: '12px 16px 16px', minWidth: '270px' }}>
-        <p
-          style={{
-            fontSize: '13px',
-            fontWeight: 600,
-            marginBottom: '10px',
-            color: 'var(--theme-text)',
-          }}
-        >
-          Schedule Broadcast
-        </p>
-        <DatePicker
-          onChange={(val) => setPickedDate(val as Date)}
-          pickerAppearance="dayAndTime"
-          value={pickedDate ?? undefined}
-        />
-        <button
-          className="btn btn--style-primary btn--size-small"
-          disabled={!pickedDate || scheduleLoading}
-          onClick={() => handleSchedule(close)}
-          style={{ marginTop: '10px', width: '100%' }}
-          type="button"
-        >
-          Confirm Schedule
-        </button>
-        <button
-          onClick={() => setPickedDate(null)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--theme-text-dim)',
-            cursor: 'pointer',
-            fontSize: '12px',
-            marginTop: '6px',
-            textAlign: 'center',
-            width: '100%',
-          }}
-          type="button"
-        >
-          Clear
-        </button>
-      </div>
-    )
-  }
+  const confirmModalBody = scheduledAt
+    ? `Schedule this broadcast to send on ${formatDate(scheduledAt)}? You can cancel the schedule before it sends.`
+    : 'Send this broadcast to all subscribers now? This cannot be undone.'
 
   return (
     <div style={{ position: 'relative' }}>
@@ -233,7 +141,7 @@ export const SendBroadcastButton: React.FC = () => {
                 marginBottom: '8px',
               }}
             >
-              Send Broadcast
+              {scheduledAt ? 'Schedule Broadcast' : 'Send Broadcast'}
             </p>
             <p
               style={{
@@ -243,7 +151,7 @@ export const SendBroadcastButton: React.FC = () => {
                 marginBottom: '24px',
               }}
             >
-              Send this broadcast to all subscribers now? This cannot be undone.
+              {confirmModalBody}
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button
@@ -258,24 +166,40 @@ export const SendBroadcastButton: React.FC = () => {
                 onClick={handleConfirmSend}
                 type="button"
               >
-                Confirm Send
+                {scheduledAt ? 'Confirm Schedule' : 'Confirm Send'}
               </button>
             </div>
           </div>
         </div>
       )}
-      <FormSubmit
-        buttonId="action-send-broadcast"
-        buttonStyle="primary"
-        disabled={!canSend}
-        enableSubMenu={!isSent && sendPhase === 'idle'}
-        onClick={canSend ? handleSendClick : undefined}
-        size="medium"
-        SubMenuPopupContent={subMenuContent}
-        type="button"
-      >
-        {buttonLabel}
-      </FormSubmit>
+      <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <FormSubmit
+          buttonId="action-send-broadcast"
+          buttonStyle="primary"
+          disabled={!canSend && !isSent}
+          onClick={canSend ? handleSendClick : undefined}
+          size="medium"
+          type="button"
+        >
+          {buttonLabel}
+        </FormSubmit>
+        {isScheduled && scheduledAt && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <span style={{ color: 'var(--theme-text-dim)', fontSize: '11px' }}>
+              {formatDate(scheduledAt)}
+            </span>
+            <button
+              className="btn btn--style-error btn--size-small"
+              disabled={cancelLoading}
+              onClick={handleCancelSchedule}
+              style={{ fontSize: '11px' }}
+              type="button"
+            >
+              {cancelLoading ? 'Cancelling...' : 'Cancel Schedule'}
+            </button>
+          </div>
+        )}
+      </div>
       {error && (
         <div
           style={{
@@ -285,10 +209,10 @@ export const SendBroadcastButton: React.FC = () => {
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             color: 'var(--theme-error-500)',
             fontSize: '12px',
-            right: 0,
             marginTop: '6px',
             padding: '8px 32px 8px 10px',
             position: 'absolute',
+            right: 0,
             top: '100%',
             width: '260px',
             zIndex: 10,

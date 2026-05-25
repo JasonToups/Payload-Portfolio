@@ -44,19 +44,9 @@ export const sendBroadcastHandler: PayloadHandler = async (req) => {
     }
   }
 
-  // scheduledAt from the POST body takes precedence (set by the UI component);
-  // fall back to whatever is already saved on the document.
-  let bodyScheduledAt: string | null = null
-  try {
-    if (typeof req.json === 'function') {
-      const body = (await req.json()) as { scheduledAt?: string } | null
-      if (typeof body?.scheduledAt === 'string') bodyScheduledAt = body.scheduledAt
-    }
-  } catch {
-    // No body or non-JSON — fine, proceed without it
-  }
-  const scheduledAt =
-    bodyScheduledAt ?? (broadcast.scheduledAt as string | null | undefined) ?? null
+  // scheduledAt is persisted to the document via the BroadcastScheduleField
+  // component (autosaved before the user clicks Send). Read it from the saved doc.
+  const scheduledAt = (broadcast.scheduledAt as string | null | undefined) ?? null
 
   if (scheduledAt && new Date(scheduledAt) <= new Date()) {
     return Response.json({ error: 'Scheduled time must be in the future.' }, { status: 400 })
