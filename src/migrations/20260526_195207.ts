@@ -136,21 +136,30 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   const wdId = weeklyDigestTemplate.id
   const cuId = customTemplate.id
 
-  // Map old type values to the seeded template IDs
+  // Map old type values to the seeded template IDs (one statement per execute — Neon rejects multiple parameterized statements)
   await db.execute(sql`
     UPDATE "broadcasts" SET "template_id" = ${spId}, "template_type" = 'single_post'
-      WHERE "type" = 'single_post';
+      WHERE "type" = 'single_post'
+  `)
+  await db.execute(sql`
     UPDATE "broadcasts" SET "template_id" = ${wdId}, "template_type" = 'weekly_digest'
-      WHERE "type" = 'weekly_digest';
+      WHERE "type" = 'weekly_digest'
+  `)
+  await db.execute(sql`
     UPDATE "broadcasts" SET "template_id" = ${cuId}, "template_type" = 'custom'
-      WHERE "type" = 'custom' OR "type" IS NULL OR "template_id" IS NULL;
-
+      WHERE "type" = 'custom' OR "type" IS NULL OR "template_id" IS NULL
+  `)
+  await db.execute(sql`
     UPDATE "_broadcasts_v" SET "version_template_id" = ${spId}, "version_template_type" = 'single_post'
-      WHERE "version_type" = 'single_post';
+      WHERE "version_type" = 'single_post'
+  `)
+  await db.execute(sql`
     UPDATE "_broadcasts_v" SET "version_template_id" = ${wdId}, "version_template_type" = 'weekly_digest'
-      WHERE "version_type" = 'weekly_digest';
+      WHERE "version_type" = 'weekly_digest'
+  `)
+  await db.execute(sql`
     UPDATE "_broadcasts_v" SET "version_template_id" = ${cuId}, "version_template_type" = 'custom'
-      WHERE "version_type" = 'custom' OR "version_type" IS NULL OR "version_template_id" IS NULL;
+      WHERE "version_type" = 'custom' OR "version_type" IS NULL OR "version_template_id" IS NULL
   `)
 
   // Step 5 — Add FK indexes and constraints for template_id
