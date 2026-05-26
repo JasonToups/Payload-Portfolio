@@ -423,6 +423,7 @@
     transform 250ms;
   position: relative;
   overflow: hidden;
+  justify-content: flex-start;
 }
 .bento-tile:hover {
   border-color: color-mix(in oklch, var(--primary) 60%, var(--border));
