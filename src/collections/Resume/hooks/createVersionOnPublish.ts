@@ -3,16 +3,17 @@ import type { Resume } from '../../../payload-types'
 
 export const createVersionOnPublish: CollectionAfterChangeHook<Resume> = async ({
   doc,
-  previousDoc: _previousDoc,
+  previousDoc,
   operation,
   req: { payload, context },
 }) => {
   if (operation !== 'update') return doc
   if (context.skipVersionSnapshot) return doc
   if (doc._status !== 'published') return doc
+  if (previousDoc._status !== 'published') return doc
 
-  const dateSuffix = doc.updatedAt.slice(0, 10)
-  const snapshotTitle = `${doc.title} — ${dateSuffix}`
+  const dateSuffix = previousDoc.updatedAt.slice(0, 10)
+  const snapshotTitle = `${previousDoc.title} — ${dateSuffix}`
 
   try {
     await payload.create({
@@ -21,13 +22,13 @@ export const createVersionOnPublish: CollectionAfterChangeHook<Resume> = async (
       context: { skipVersionSnapshot: true },
       data: {
         title: snapshotTitle,
-        author: doc.author,
-        content: doc.content,
+        author: previousDoc.author,
+        content: previousDoc.content,
       },
     })
-    payload.logger.info(`[Resume] Created snapshot: "${snapshotTitle}"`)
+    payload.logger.info(`[Resume] Archived previous version: "${snapshotTitle}"`)
   } catch (err) {
-    payload.logger.error(`[Resume] Failed to create snapshot for "${doc.title}": ${String(err)}`)
+    payload.logger.error(`[Resume] Failed to archive "${previousDoc.title}": ${String(err)}`)
   }
 
   return doc
