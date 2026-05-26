@@ -4,6 +4,8 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { sendBroadcastHandler } from './handlers/send'
 import { cancelBroadcastHandler } from './handlers/cancel'
 import { weeklyPostsHandler } from './handlers/weeklyPosts'
+import { categoryPostsHandler } from './handlers/categoryPosts'
+import { keywordPostsHandler } from './handlers/keywordPosts'
 import { getServerSideURL } from '../../utilities/getURL'
 
 export const Broadcasts: CollectionConfig = {
@@ -15,7 +17,7 @@ export const Broadcasts: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'subject',
-    defaultColumns: ['subject', 'type', 'sendStatus', 'sentAt', 'updatedAt'],
+    defaultColumns: ['subject', 'template', 'sendStatus', 'sentAt', 'updatedAt'],
     group: 'Email',
     livePreview: {
       url: ({ data }) => {
@@ -57,33 +59,56 @@ export const Broadcasts: CollectionConfig = {
       method: 'post',
       handler: cancelBroadcastHandler,
     },
+    {
+      // GET /api/broadcasts/category-posts?categoryId=X&limit=N
+      // Returns post IDs from a specific category for pre-populating category digest broadcasts
+      path: '/category-posts',
+      method: 'get',
+      handler: categoryPostsHandler,
+    },
+    {
+      // GET /api/broadcasts/keyword-posts?keywordId=X&limit=N
+      // Returns post IDs tagged with a specific keyword for pre-populating keyword digest broadcasts
+      path: '/keyword-posts',
+      method: 'get',
+      handler: keywordPostsHandler,
+    },
   ],
   fields: [
     // -------------------------------------------------------------------------
-    // Shared fields — present on every broadcast type
+    // Template relationship — drives all conditional logic via templateType
     // -------------------------------------------------------------------------
     {
-      name: 'audienceTopic',
-      label: 'Audience Topic',
+      name: 'template',
+      label: 'Template',
       type: 'relationship',
-      relationTo: 'categories',
+      relationTo: 'email-templates',
       hasMany: false,
-      required: false,
+      required: true,
       admin: {
-        description:
-          'Target a specific topic (Post Category). Leave empty to send to the full audience.',
+        description: 'Select an Email Template. The template determines the broadcast type and audience.',
       },
     },
     {
-      name: 'type',
-      type: 'select',
-      required: true,
-      defaultValue: 'custom',
-      options: [
-        { label: 'Single Post', value: 'single_post' },
-        { label: 'Weekly Digest', value: 'weekly_digest' },
-        { label: 'Custom', value: 'custom' },
-      ],
+      // Invisible side-effect field: watches `template`, fetches its templateType,
+      // and writes the value into the hidden `templateType` field below so that
+      // all other field conditions can read a stable string.
+      name: 'templateTypeSync',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/collections/Broadcasts/components/TemplateSelectorField',
+        },
+      },
+    },
+    {
+      // Derived from the selected template. Persisted so the send handler and
+      // email assembly can branch without an extra DB fetch.
+      name: 'templateType',
+      type: 'text',
+      admin: {
+        hidden: true,
+      },
     },
     {
       name: 'subject',
@@ -121,7 +146,7 @@ export const Broadcasts: CollectionConfig = {
     },
 
     // -------------------------------------------------------------------------
-    // Conditional: single_post + weekly_digest
+    // Conditional: single_post + digest types (not custom or welcome_email)
     // -------------------------------------------------------------------------
     {
       name: 'posts',
@@ -129,18 +154,23 @@ export const Broadcasts: CollectionConfig = {
       relationTo: 'posts',
       hasMany: true,
       admin: {
-        condition: (data) => data?.type === 'single_post' || data?.type === 'weekly_digest',
-        description: 'For single_post: select one post. For weekly_digest: curate multiple posts.',
+        condition: (data) =>
+          data?.templateType != null && data?.templateType !== 'custom' && data?.templateType !== 'welcome_email',
+        description:
+          'For single_post: select one post. For digest types: curate multiple posts (or use the pull button).',
         sortOptions: '-publishedAt',
       },
     },
     {
-      // Custom React button that calls /api/broadcasts/weekly-posts and
-      // pre-populates the `posts` relationship field above
+      // Custom React button — auto-pulls posts based on the selected template type.
+      // Visible for weekly_digest, category_digest, and keyword_digest templates.
       name: 'pullPostsButton',
       type: 'ui',
       admin: {
-        condition: (data) => data?.type === 'weekly_digest',
+        condition: (data) =>
+          data?.templateType === 'weekly_digest' ||
+          data?.templateType === 'category_digest' ||
+          data?.templateType === 'keyword_digest',
         components: {
           Field: '@/collections/Broadcasts/components/PullPostsButton',
         },

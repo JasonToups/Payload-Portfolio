@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     broadcasts: Broadcast;
+    'email-templates': EmailTemplate;
     pages: Page;
     posts: Post;
     'scheduled-social-posts': ScheduledSocialPost;
@@ -98,6 +99,7 @@ export interface Config {
   };
   collectionsSelect: {
     broadcasts: BroadcastsSelect<false> | BroadcastsSelect<true>;
+    'email-templates': EmailTemplatesSelect<false> | EmailTemplatesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     'scheduled-social-posts': ScheduledSocialPostsSelect<false> | ScheduledSocialPostsSelect<true>;
@@ -178,10 +180,10 @@ export interface UserAuthOperations {
 export interface Broadcast {
   id: number;
   /**
-   * Target a specific topic (Post Category). Leave empty to send to the full audience.
+   * Select an Email Template. The template determines the broadcast type and audience.
    */
-  audienceTopic?: (number | null) | Category;
-  type: 'single_post' | 'weekly_digest' | 'custom';
+  template: number | EmailTemplate;
+  templateType?: string | null;
   /**
    * Email subject line shown to recipients
    */
@@ -210,7 +212,7 @@ export interface Broadcast {
   } | null;
   scheduledAt?: string | null;
   /**
-   * For single_post: select one post. For weekly_digest: curate multiple posts.
+   * For single_post: select one post. For digest types: curate multiple posts (or use the pull button).
    */
   posts?: (number | Post)[] | null;
   /**
@@ -234,127 +236,75 @@ export interface Broadcast {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Configure reusable email templates for broadcasts and welcome emails.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
+ * via the `definition` "email-templates".
  */
-export interface Category {
+export interface EmailTemplate {
   id: number;
-  title: string;
   /**
-   * Shown on the Resend unsubscribe page to help subscribers understand this topic.
+   * Display name for this template (e.g. "Weekly Digest – Tech").
    */
-  description?: string | null;
+  name: string;
   /**
-   * Synced automatically from Resend Topics API — do not edit manually.
+   * Determines the broadcast type and which auto-pull options are available.
    */
-  resendTopicId?: string | null;
+  templateType: 'single_post' | 'weekly_digest' | 'category_digest' | 'keyword_digest' | 'welcome_email' | 'custom';
   /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   * Mark as the default for its type. Used by "Draft Broadcast" (single_post) and the welcome email flow.
    */
-  generateSlug?: boolean | null;
-  slug: string;
-  parent?: (number | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (number | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
- */
-export interface Post {
-  id: number;
-  title: string;
+  isDefault?: boolean | null;
   /**
-   * Displayed in the post hero. Auto-syncs to meta description.
+   * Override the global email header for this template. Leave a field blank to inherit the global default.
    */
-  postDescription?: string | null;
-  /**
-   * Show this post as the Featured Post on the Posts page. Only the most recently created featured post will be shown.
-   */
-  featured?: boolean | null;
-  categories?: (number | Category)[] | null;
-  heroImage?: (number | null) | Media;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  keywords?: (number | Keyword)[] | null;
-  /**
-   * Manually select related posts. If left empty, related posts are chosen automatically by keyword and category.
-   */
-  relatedPosts?: (number | Post)[] | null;
-  /**
-   * When enabled, 3 related posts are automatically selected by keyword and category. Uncheck to hide the related posts section entirely.
-   */
-  includeRelatedPosts?: boolean | null;
-  authors?: (number | User)[] | null;
-  populatedAuthors?:
-    | {
-        id?: string | null;
-        name?: string | null;
-      }[]
-    | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  publishedAt?: string | null;
-  meta?: {
-    title?: string | null;
+  headerLayout?: {
     /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     * Overrides the global header logo. Recommended size: 200×60px.
      */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  broadcasts?: {
-    docs?: (number | Broadcast)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  socialPostBody?: string | null;
-  scheduledSocialPosts?: {
-    docs?: (number | ScheduledSocialPost)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
+    logo?: (number | null) | Media;
+    /**
+     * Overrides the global header tagline.
+     */
+    tagline?: string | null;
+    /**
+     * Hex color for the header background (e.g. #ffffff). Leave blank to use global.
+     */
+    bgColor?: string | null;
+    /**
+     * Hex color for header text (e.g. #000000). Leave blank to use global.
+     */
+    textColor?: string | null;
   };
   /**
-   * Record of social media shares for this post
+   * Configure automatic post fetching when a broadcast using this template is created.
    */
-  socialShares?:
-    | {
-        platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin';
-        sharedAt: string;
-        /**
-         * Optional: URL of the published social post
-         */
-        shareUrl?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  autoPull?: {
+    /**
+     * When on, new Weekly Digest broadcasts will automatically pull posts from the last 7 days.
+     */
+    autoPullEnabled?: boolean | null;
+    /**
+     * Pull the most recent published posts from this category.
+     */
+    categorySource?: (number | null) | Category;
+    /**
+     * Pull the most recent published posts tagged with this keyword.
+     */
+    keywordSource?: (number | null) | Keyword;
+    /**
+     * How many posts to auto-pull (max 50).
+     */
+    autoPullCount?: number | null;
+  };
+  audienceTargeting?: {
+    /**
+     * Target a specific Resend topic (Post Category). Leave empty to send to the full audience.
+     */
+    audienceTopic?: (number | null) | Category;
+  };
   updatedAt: string;
   createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -477,6 +427,38 @@ export interface FolderInterface {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  /**
+   * Shown on the Resend unsubscribe page to help subscribers understand this topic.
+   */
+  description?: string | null;
+  /**
+   * Synced automatically from Resend Topics API — do not edit manually.
+   */
+  resendTopicId?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  parent?: (number | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (number | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "keywords".
  */
 export interface Keyword {
@@ -488,6 +470,97 @@ export interface Keyword {
   slug?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  /**
+   * Displayed in the post hero. Auto-syncs to meta description.
+   */
+  postDescription?: string | null;
+  /**
+   * Show this post as the Featured Post on the Posts page. Only the most recently created featured post will be shown.
+   */
+  featured?: boolean | null;
+  categories?: (number | Category)[] | null;
+  heroImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  keywords?: (number | Keyword)[] | null;
+  /**
+   * Manually select related posts. If left empty, related posts are chosen automatically by keyword and category.
+   */
+  relatedPosts?: (number | Post)[] | null;
+  /**
+   * When enabled, 3 related posts are automatically selected by keyword and category. Uncheck to hide the related posts section entirely.
+   */
+  includeRelatedPosts?: boolean | null;
+  authors?: (number | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  publishedAt?: string | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  broadcasts?: {
+    docs?: (number | Broadcast)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  socialPostBody?: string | null;
+  scheduledSocialPosts?: {
+    docs?: (number | ScheduledSocialPost)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Record of social media shares for this post
+   */
+  socialShares?:
+    | {
+        platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin';
+        sharedAt: string;
+        /**
+         * Optional: URL of the published social post
+         */
+        shareUrl?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1541,6 +1614,10 @@ export interface PayloadLockedDocument {
         value: number | Broadcast;
       } | null)
     | ({
+        relationTo: 'email-templates';
+        value: number | EmailTemplate;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: number | Page;
       } | null)
@@ -1639,8 +1716,8 @@ export interface PayloadMigration {
  * via the `definition` "broadcasts_select".
  */
 export interface BroadcastsSelect<T extends boolean = true> {
-  audienceTopic?: T;
-  type?: T;
+  template?: T;
+  templateType?: T;
   subject?: T;
   previewText?: T;
   body?: T;
@@ -1653,6 +1730,38 @@ export interface BroadcastsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-templates_select".
+ */
+export interface EmailTemplatesSelect<T extends boolean = true> {
+  name?: T;
+  templateType?: T;
+  isDefault?: T;
+  headerLayout?:
+    | T
+    | {
+        logo?: T;
+        tagline?: T;
+        bgColor?: T;
+        textColor?: T;
+      };
+  autoPull?:
+    | T
+    | {
+        autoPullEnabled?: T;
+        categorySource?: T;
+        keywordSource?: T;
+        autoPullCount?: T;
+      };
+  audienceTargeting?:
+    | T
+    | {
+        audienceTopic?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

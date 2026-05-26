@@ -1,11 +1,25 @@
 // src/resend/newsletter.ts
 import type { Payload } from 'payload'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
-import type { EmailLayout, EmailSetting } from '../payload-types'
+import type { EmailLayout, EmailSetting, EmailTemplate } from '../payload-types'
 import { getResendClient, retryResendCall } from './client'
 import { renderEmailTemplate } from './template'
 import { createResendContact, addContactToResendSegment, buildUnsubscribeUrl } from './contacts'
 import type { CreateResendContactResult, AddToResendSegmentResult } from './contacts'
+
+function mergeWelcomeHeader(
+  globalHeader: EmailLayout['header'],
+  template: EmailTemplate | null,
+): EmailLayout['header'] {
+  const tHeader = template?.headerLayout
+  if (!tHeader) return globalHeader
+  return {
+    logo: tHeader.logo ?? globalHeader?.logo,
+    tagline: tHeader.tagline ?? globalHeader?.tagline,
+    bgColor: tHeader.bgColor || globalHeader?.bgColor,
+    textColor: tHeader.textColor || globalHeader?.textColor,
+  }
+}
 
 interface ResendEmailData {
   id: string
@@ -39,10 +53,24 @@ export async function sendWelcomeEmail(
   }
 
   try {
-    const [emailSettings, emailLayout] = await Promise.all([
+    const [emailSettings, emailLayout, welcomeTemplateResult] = await Promise.all([
       payload.findGlobal({ slug: 'email-settings', depth: 0 }) as Promise<EmailSetting>,
       payload.findGlobal({ slug: 'email-layout', depth: 1 }) as Promise<EmailLayout>,
+      payload.find({
+        collection: 'email-templates',
+        where: {
+          and: [
+            { templateType: { equals: 'welcome_email' } },
+            { isDefault: { equals: true } },
+          ],
+        },
+        limit: 1,
+        depth: 1,
+        overrideAccess: true,
+      }),
     ])
+
+    const welcomeTemplate = (welcomeTemplateResult.docs[0] as EmailTemplate | undefined) ?? null
 
     if (emailSettings.welcomeEmailEnabled === false) {
       return { status: 'skipped', reason: 'disabled_in_settings' }
@@ -59,7 +87,13 @@ export async function sendWelcomeEmail(
 
     const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL ?? ''
     const unsubscribeUrl = buildUnsubscribeUrl(normalizedTo, baseUrl)
-    const htmlBody = renderEmailTemplate(bodyHtml, emailLayout, unsubscribeUrl)
+
+    const mergedLayout: EmailLayout = {
+      ...emailLayout,
+      header: mergeWelcomeHeader(emailLayout.header, welcomeTemplate),
+    }
+
+    const htmlBody = renderEmailTemplate(bodyHtml, mergedLayout, unsubscribeUrl)
 
     const { data, error } = await retryResendCall(() =>
       resend.emails.send({

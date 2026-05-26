@@ -12,6 +12,10 @@ type CreateBroadcastResponse = {
   message?: string
 }
 
+type EmailTemplateListResponse = {
+  docs?: Array<{ id: string }>
+}
+
 /**
  * Sidebar UI field rendered on the Post edit screen.
  * Inactive (with hover tooltip) until the post is published.
@@ -47,10 +51,24 @@ const DraftBroadcastButton: React.FC = () => {
     setError(null)
 
     try {
+      // Look up the default single_post template before creating the broadcast
+      const tmplRes = await fetch(
+        '/api/email-templates?where[templateType][equals]=single_post&where[isDefault][equals]=true&limit=1&depth=0',
+      )
+      const tmplJson = (await tmplRes.json()) as EmailTemplateListResponse
+      const templateId = tmplJson.docs?.[0]?.id
+
+      if (!templateId) {
+        setError(
+          'No default Single Post template found. Create one in Email Templates first.',
+        )
+        return
+      }
+
       const res = await fetch('/api/broadcasts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'single_post', subject: postTitle, posts: [id] }),
+        body: JSON.stringify({ template: templateId, subject: postTitle, posts: [id] }),
       })
 
       const json = (await res.json()) as CreateBroadcastResponse
