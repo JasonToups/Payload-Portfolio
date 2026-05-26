@@ -83,5 +83,40 @@ export const EmailSettings: GlobalConfig = {
           'WYSIWYG editor. Content is stored as Lexical JSON and converted to HTML when sending.',
       },
     },
+    {
+      name: 'broadcastAutomations',
+      label: 'Broadcast Automations',
+      type: 'group',
+      admin: {
+        description:
+          'Choose which Email Template powers each automated broadcast flow.',
+      },
+      fields: [
+        {
+          name: 'singlePostTemplate',
+          label: 'Single Post Template',
+          type: 'relationship',
+          relationTo: 'email-templates',
+          hasMany: false,
+          required: false,
+          admin: {
+            description:
+              '"Draft Broadcast" on a Post uses this template. Should be a Single Post type template.',
+          },
+        },
+        {
+          name: 'welcomeEmailTemplate',
+          label: 'Welcome Email Template',
+          type: 'relationship',
+          relationTo: 'email-templates',
+          hasMany: false,
+          required: false,
+          admin: {
+            description:
+              'New subscriber welcome emails use this template. Should be a Welcome Email type template.',
+          },
+        },
+      ],
+    },
   ],
 }

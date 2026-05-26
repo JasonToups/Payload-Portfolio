@@ -12,6 +12,12 @@ type CreateBroadcastResponse = {
   message?: string
 }
 
+type EmailSettingsResponse = {
+  broadcastAutomations?: {
+    singlePostTemplate?: { id: string } | string | null
+  } | null
+}
+
 /**
  * Sidebar UI field rendered on the Post edit screen.
  * Inactive (with hover tooltip) until the post is published.
@@ -47,10 +53,28 @@ const DraftBroadcastButton: React.FC = () => {
     setError(null)
 
     try {
+      // Read the configured Single Post template from Email Settings → Broadcast Automations
+      const settingsRes = await fetch('/api/globals/email-settings?depth=1')
+      const settingsJson = (await settingsRes.json()) as EmailSettingsResponse
+      const singlePostTemplate = settingsJson.broadcastAutomations?.singlePostTemplate
+      const templateId =
+        typeof singlePostTemplate === 'object' && singlePostTemplate !== null
+          ? singlePostTemplate.id
+          : typeof singlePostTemplate === 'string'
+            ? singlePostTemplate
+            : null
+
+      if (!templateId) {
+        setError(
+          'No Single Post template configured. Set one in Email Settings → Broadcast Automations.',
+        )
+        return
+      }
+
       const res = await fetch('/api/broadcasts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'single_post', subject: postTitle, posts: [id] }),
+        body: JSON.stringify({ template: templateId, subject: postTitle, posts: [id] }),
       })
 
       const json = (await res.json()) as CreateBroadcastResponse

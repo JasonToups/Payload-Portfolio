@@ -1,5 +1,5 @@
 import type { PayloadHandler } from 'payload'
-import type { Broadcast } from '../../../payload-types'
+import type { Broadcast, Category, EmailTemplate } from '../../../payload-types'
 import { createAndSendResendBroadcast, buildFromAddress } from '../../../resend/broadcasts'
 import { assembleBroadcastEmail } from '../../../resend/assembleBroadcastEmail'
 
@@ -33,12 +33,18 @@ export const sendBroadcastHandler: PayloadHandler = async (req) => {
     return Response.json({ error: 'Broadcast is already scheduled in Resend' }, { status: 400 })
   }
 
-  if (broadcast.type === 'single_post' || broadcast.type === 'weekly_digest') {
+  const tType = broadcast.templateType
+  const requiresPosts =
+    tType === 'single_post' ||
+    tType === 'weekly_digest' ||
+    tType === 'category_digest' ||
+    tType === 'keyword_digest'
+
+  if (requiresPosts) {
     const posts = broadcast.posts ?? []
     if (posts.length === 0) {
-      const label = broadcast.type === 'single_post' ? 'Single Post' : 'Weekly Digest'
       return Response.json(
-        { error: `A ${label} broadcast requires at least one post before sending.` },
+        { error: `This broadcast type requires at least one post before sending.` },
         { status: 400 },
       )
     }
@@ -72,10 +78,21 @@ export const sendBroadcastHandler: PayloadHandler = async (req) => {
     return Response.json({ error: 'RESEND_FROM_ADDRESS is not configured.' }, { status: 500 })
   }
 
-  // Resolve the audienceTopic relationship to a Resend topicId (depth: 2 already populated it)
+  // Resolve audienceTopic from the template (depth: 2 populates broadcast → template → category)
+  const templateDoc =
+    typeof broadcast.template === 'object' && broadcast.template !== null
+      ? (broadcast.template as EmailTemplate)
+      : null
+
+  const audienceTargeting = templateDoc?.audienceTargeting as
+    | { audienceTopic?: number | Category | null }
+    | null
+    | undefined
+
+  const audienceTopic = audienceTargeting?.audienceTopic
   const topicId =
-    broadcast.audienceTopic && typeof broadcast.audienceTopic === 'object'
-      ? (broadcast.audienceTopic.resendTopicId ?? undefined)
+    typeof audienceTopic === 'object' && audienceTopic !== null
+      ? ((audienceTopic as Category).resendTopicId ?? undefined)
       : undefined
 
   try {
