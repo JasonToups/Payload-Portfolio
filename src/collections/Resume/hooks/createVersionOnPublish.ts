@@ -12,8 +12,7 @@ export const createVersionOnPublish: CollectionAfterChangeHook<Resume> = async (
   if (doc._status !== 'published') return doc
   if (previousDoc._status !== 'published') return doc
 
-  const dateSuffix = previousDoc.updatedAt.slice(0, 10)
-  const snapshotTitle = `${previousDoc.title} — ${dateSuffix}`
+  const snapshotTitle = previousDoc.title
 
   try {
     await payload.create({

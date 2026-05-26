@@ -1333,6 +1333,10 @@ export interface TestimonialsBlock {
 export interface Resume {
   id: number;
   title: string;
+  /**
+   * Internal note about what changed in this version. Shown in the admin list view.
+   */
+  description?: string | null;
   author: string;
   /**
    * Raw Markdown — not a rich text editor.
@@ -2148,6 +2152,7 @@ export interface KeywordsSelect<T extends boolean = true> {
  */
 export interface ResumesSelect<T extends boolean = true> {
   title?: T;
+  description?: T;
   author?: T;
   content?: T;
   updatedAt?: T;

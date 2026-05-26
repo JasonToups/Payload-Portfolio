@@ -9,6 +9,7 @@ import type { Metadata } from 'next'
 import type { Resume } from '@/payload-types'
 import ResumePageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
 export async function generateMetadata(): Promise<Metadata> {
   const payload = await getPayload({ config: configPromise })
@@ -20,7 +21,12 @@ export async function generateMetadata(): Promise<Metadata> {
     depth: 0,
   })
   const resume = docs[0] as Resume | undefined
-  return { title: resume?.title ?? 'Resume' }
+  const title = resume?.title ?? 'Resume'
+  return {
+    title,
+    openGraph: await mergeOpenGraph({ title, url: '/resume' }),
+    twitter: { card: 'summary_large_image', title },
+  }
 }
 
 export default async function ResumePage() {

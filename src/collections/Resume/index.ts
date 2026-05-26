@@ -7,8 +7,8 @@ export const Resume: CollectionConfig = {
   versions: { drafts: true },
   access: { read: () => true },
   admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'author', 'updatedAt', '_status'],
+    useAsTitle: 'description',
+    defaultColumns: ['description', 'author', 'updatedAt', '_status'],
     livePreview: {
       url: () => {
         const params = new URLSearchParams({
@@ -36,6 +36,13 @@ export const Resume: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'description',
+      type: 'text',
+      admin: {
+        description: 'Internal note about what changed in this version. Shown in the admin list view.',
+      },
     },
     {
       name: 'author',
