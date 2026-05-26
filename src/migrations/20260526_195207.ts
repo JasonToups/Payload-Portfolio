@@ -3,7 +3,7 @@ import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-vercel-postg
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   // Step 1 — Create the email_templates table
   await db.execute(sql`
-    CREATE TYPE "public"."enum_email_templates_template_type" AS ENUM(
+    CREATE TYPE IF NOT EXISTS "public"."enum_email_templates_template_type" AS ENUM(
       'single_post', 'weekly_digest', 'category_digest', 'keyword_digest', 'welcome_email', 'custom'
     );
 
