@@ -1,12 +1,17 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-vercel-postgres'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  // Step 1 — Create the email_templates table
+  // Step 1 — Create the enum (idempotent via DO block) then the table
   await db.execute(sql`
-    CREATE TYPE IF NOT EXISTS "public"."enum_email_templates_template_type" AS ENUM(
-      'single_post', 'weekly_digest', 'category_digest', 'keyword_digest', 'welcome_email', 'custom'
-    );
+    DO $$ BEGIN
+      CREATE TYPE "public"."enum_email_templates_template_type" AS ENUM(
+        'single_post', 'weekly_digest', 'category_digest', 'keyword_digest', 'welcome_email', 'custom'
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END $$;
+  `)
 
+  await db.execute(sql`
     CREATE TABLE IF NOT EXISTS "email_templates" (
       "id" serial PRIMARY KEY NOT NULL,
       "name" varchar NOT NULL,
