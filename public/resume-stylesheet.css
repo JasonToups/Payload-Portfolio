@@ -161,6 +161,7 @@ h5 {
   line-height: 1.75;
   color: #1c1a18;
   text-align: center;
+  font-weight: normal;
 }
 
 /* ==========================================================================
@@ -263,44 +264,6 @@ table tr {
 }
 
 /* ==========================================================================
-   Print / Download
-   ========================================================================== */
-
-@media print {
-  body {
-    background: #fff;
-    border: 0;
-  }
-
-  table,
-  figure {
-    page-break-inside: avoid;
-  }
-
-  h1 {
-    font-size: 24px;
-    line-height: 24px;
-  }
-  h2 {
-    font-size: 20px;
-    line-height: 20px;
-  }
-  h3 {
-    font-size: 16px;
-    line-height: 16px;
-  }
-  h5 {
-    font-size: 14px;
-  }
-  p {
-    font-size: 12px;
-  }
-  table td {
-    font-size: 14px;
-  }
-}
-
-/* ==========================================================================
    Dark mode — mirrors [data-theme='dark'] tokens from globals.css
    (browser only; wkhtmltopdf does not support prefers-color-scheme)
    ========================================================================== */
@@ -340,24 +303,59 @@ table tr {
 }
 
 /* ==========================================================================
+   Print / Download
+   ========================================================================== */
+
+@media print {
+  body {
+    background: #fff;
+    border: 0;
+  }
+  h1 {
+    font-size: 24px;
+    line-height: 1;
+  }
+  h2 {
+    font-size: 20px;
+    line-height: 1.5;
+  }
+  h3 {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  h5 {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  p,
+  table td,
+  ul,
+  li {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+}
+
+/* ==========================================================================
    Mobile
    ========================================================================== */
 
 @media (max-width: 768px) {
   h1 {
     font-size: 24px;
-    line-height: 24px;
+    line-height: 1;
   }
   h2 {
     font-size: 20px;
-    line-height: 20px;
+    line-height: 1.5;
   }
   h3 {
     font-size: 16px;
-    line-height: 16px;
+    line-height: 1.5;
   }
   h5 {
     font-size: 14px;
+    line-height: 1.5;
   }
   p,
   table td,
