@@ -12,8 +12,10 @@ type CreateBroadcastResponse = {
   message?: string
 }
 
-type EmailTemplateListResponse = {
-  docs?: Array<{ id: string }>
+type EmailSettingsResponse = {
+  broadcastAutomations?: {
+    singlePostTemplate?: { id: string } | string | null
+  } | null
 }
 
 /**
@@ -51,16 +53,20 @@ const DraftBroadcastButton: React.FC = () => {
     setError(null)
 
     try {
-      // Look up the default single_post template before creating the broadcast
-      const tmplRes = await fetch(
-        '/api/email-templates?where[templateType][equals]=single_post&where[isDefault][equals]=true&limit=1&depth=0',
-      )
-      const tmplJson = (await tmplRes.json()) as EmailTemplateListResponse
-      const templateId = tmplJson.docs?.[0]?.id
+      // Read the configured Single Post template from Email Settings → Broadcast Automations
+      const settingsRes = await fetch('/api/globals/email-settings?depth=1')
+      const settingsJson = (await settingsRes.json()) as EmailSettingsResponse
+      const singlePostTemplate = settingsJson.broadcastAutomations?.singlePostTemplate
+      const templateId =
+        typeof singlePostTemplate === 'object' && singlePostTemplate !== null
+          ? singlePostTemplate.id
+          : typeof singlePostTemplate === 'string'
+            ? singlePostTemplate
+            : null
 
       if (!templateId) {
         setError(
-          'No default Single Post template found. Create one in Email Templates first.',
+          'No Single Post template configured. Set one in Email Settings → Broadcast Automations.',
         )
         return
       }

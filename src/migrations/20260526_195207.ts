@@ -101,7 +101,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   // Step 4 — Seed default Email Templates via Payload API and migrate existing broadcasts
   const singlePostTemplate = await payload.create({
     collection: 'email-templates',
-    data: { name: 'Single Post', templateType: 'single_post', isDefault: true },
+    data: { name: 'Single Post', templateType: 'single_post' },
     overrideAccess: true,
   })
 
@@ -110,7 +110,6 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
     data: {
       name: 'Weekly Digest',
       templateType: 'weekly_digest',
-      isDefault: true,
       autoPull: { autoPullEnabled: true },
     },
     overrideAccess: true,
@@ -118,13 +117,13 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
 
   const customTemplate = await payload.create({
     collection: 'email-templates',
-    data: { name: 'Custom', templateType: 'custom', isDefault: true },
+    data: { name: 'Custom', templateType: 'custom' },
     overrideAccess: true,
   })
 
   await payload.create({
     collection: 'email-templates',
-    data: { name: 'Welcome Email', templateType: 'welcome_email', isDefault: true },
+    data: { name: 'Welcome Email', templateType: 'welcome_email' },
     overrideAccess: true,
   })
 

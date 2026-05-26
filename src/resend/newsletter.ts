@@ -53,24 +53,16 @@ export async function sendWelcomeEmail(
   }
 
   try {
-    const [emailSettings, emailLayout, welcomeTemplateResult] = await Promise.all([
-      payload.findGlobal({ slug: 'email-settings', depth: 0 }) as Promise<EmailSetting>,
+    const [emailSettings, emailLayout] = await Promise.all([
+      payload.findGlobal({ slug: 'email-settings', depth: 1 }) as Promise<EmailSetting>,
       payload.findGlobal({ slug: 'email-layout', depth: 1 }) as Promise<EmailLayout>,
-      payload.find({
-        collection: 'email-templates',
-        where: {
-          and: [
-            { templateType: { equals: 'welcome_email' } },
-            { isDefault: { equals: true } },
-          ],
-        },
-        limit: 1,
-        depth: 1,
-        overrideAccess: true,
-      }),
     ])
 
-    const welcomeTemplate = (welcomeTemplateResult.docs[0] as EmailTemplate | undefined) ?? null
+    const welcomeTemplateRaw = emailSettings.broadcastAutomations?.welcomeEmailTemplate
+    const welcomeTemplate =
+      typeof welcomeTemplateRaw === 'object' && welcomeTemplateRaw !== null
+        ? (welcomeTemplateRaw as EmailTemplate)
+        : null
 
     if (emailSettings.welcomeEmailEnabled === false) {
       return { status: 'skipped', reason: 'disabled_in_settings' }

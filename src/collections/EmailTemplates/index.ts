@@ -39,16 +39,6 @@ export const EmailTemplates: CollectionConfig = {
         description: 'Determines the broadcast type and which auto-pull options are available.',
       },
     },
-    {
-      name: 'isDefault',
-      type: 'checkbox',
-      defaultValue: false,
-      admin: {
-        description:
-          'Mark as the default for its type. Used by "Draft Broadcast" (single_post) and the welcome email flow.',
-      },
-    },
-
     // -------------------------------------------------------------------------
     // Header Layout — overrides the EmailLayout global header per-field.
     // Empty string means "use global fallback."

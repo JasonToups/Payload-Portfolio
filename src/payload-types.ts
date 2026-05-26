@@ -252,10 +252,6 @@ export interface EmailTemplate {
    */
   templateType: 'single_post' | 'weekly_digest' | 'category_digest' | 'keyword_digest' | 'welcome_email' | 'custom';
   /**
-   * Mark as the default for its type. Used by "Draft Broadcast" (single_post) and the welcome email flow.
-   */
-  isDefault?: boolean | null;
-  /**
    * Override the global email header for this template. Leave a field blank to inherit the global default.
    */
   headerLayout?: {
@@ -1738,7 +1734,6 @@ export interface BroadcastsSelect<T extends boolean = true> {
 export interface EmailTemplatesSelect<T extends boolean = true> {
   name?: T;
   templateType?: T;
-  isDefault?: T;
   headerLayout?:
     | T
     | {
@@ -2703,6 +2698,19 @@ export interface EmailSetting {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Choose which Email Template powers each automated broadcast flow.
+   */
+  broadcastAutomations?: {
+    /**
+     * "Draft Broadcast" on a Post uses this template. Should be a Single Post type template.
+     */
+    singlePostTemplate?: (number | null) | EmailTemplate;
+    /**
+     * New subscriber welcome emails use this template. Should be a Welcome Email type template.
+     */
+    welcomeEmailTemplate?: (number | null) | EmailTemplate;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2929,6 +2937,12 @@ export interface EmailSettingsSelect<T extends boolean = true> {
   welcomeEmailEnabled?: T;
   welcomeSubject?: T;
   welcomeBody?: T;
+  broadcastAutomations?:
+    | T
+    | {
+        singlePostTemplate?: T;
+        welcomeEmailTemplate?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
