@@ -48,7 +48,7 @@ export function renderEmailTemplate(
     : ''
 
   const taglineHtml = header.tagline
-    ? `<p style="margin:14px 0 0;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${headerText};opacity:0.65;font-family:'Courier New',Courier,monospace;">${header.tagline}</p>`
+    ? `<p style="margin:14px 0 0;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${headerText};opacity:0.85;font-family:'Courier New',Courier,monospace;">${header.tagline}</p>`
     : ''
 
   const socialLinksHtml = (footer.socialLinks ?? [])
