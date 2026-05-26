@@ -73,6 +73,7 @@ export async function GET(
 
   try {
     const page = await browser.newPage()
+    await page.emulateMediaType('print')
     await page.setContent(html, { waitUntil: 'load' })
     const pdfBuffer = await page.pdf({
       format: 'A4',
