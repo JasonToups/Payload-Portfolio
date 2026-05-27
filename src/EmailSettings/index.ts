@@ -57,12 +57,6 @@ export const EmailSettings: GlobalConfig = {
       },
     },
     {
-      name: 'welcomeEmailEnabled',
-      label: 'Send Welcome Email on Subscribe',
-      type: 'checkbox',
-      defaultValue: true,
-    },
-    {
       name: 'welcomeSubject',
       label: 'Welcome Email Subject',
       type: 'text',
@@ -88,8 +82,7 @@ export const EmailSettings: GlobalConfig = {
       label: 'Broadcast Automations',
       type: 'group',
       admin: {
-        description:
-          'Choose which Email Template powers each automated broadcast flow.',
+        description: 'Choose which Email Template powers each automated broadcast flow.',
       },
       fields: [
         {
@@ -115,6 +108,12 @@ export const EmailSettings: GlobalConfig = {
             description:
               'New subscriber welcome emails use this template. Should be a Welcome Email type template.',
           },
+        },
+        {
+          name: 'welcomeEmailEnabled',
+          label: 'Send Welcome Email on Subscribe',
+          type: 'checkbox',
+          defaultValue: true,
         },
       ],
     },

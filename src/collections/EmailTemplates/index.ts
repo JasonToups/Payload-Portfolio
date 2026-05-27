@@ -1,11 +1,12 @@
 import type { CollectionConfig } from 'payload'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 
 export const EmailTemplates: CollectionConfig = {
   slug: 'email-templates',
   admin: {
     group: 'Email',
     useAsTitle: 'name',
-    defaultColumns: ['name', 'templateType', 'isDefault', 'updatedAt'],
+    defaultColumns: ['name', 'templateType', 'updatedAt'],
     description: 'Configure reusable email templates for broadcasts and welcome emails.',
   },
   access: {
@@ -93,6 +94,21 @@ export const EmailTemplates: CollectionConfig = {
     },
 
     // -------------------------------------------------------------------------
+    // Default Broadcast Body — pre-populates Broadcast body on template selection
+    // -------------------------------------------------------------------------
+    {
+      name: 'body',
+      label: 'Default Broadcast Body',
+      type: 'richText',
+      editor: lexicalEditor({}),
+      required: false,
+      admin: {
+        description:
+          'Pre-fills the Broadcast body when this template is selected on a new broadcast. The admin can edit it freely after.',
+      },
+    },
+
+    // -------------------------------------------------------------------------
     // Auto-Pull Settings — type-conditional content sourcing
     // -------------------------------------------------------------------------
     {
@@ -101,6 +117,10 @@ export const EmailTemplates: CollectionConfig = {
       type: 'group',
       admin: {
         description: 'Configure automatic post fetching when a broadcast using this template is created.',
+        condition: (data) =>
+          data?.templateType === 'weekly_digest' ||
+          data?.templateType === 'category_digest' ||
+          data?.templateType === 'keyword_digest',
       },
       fields: [
         {
