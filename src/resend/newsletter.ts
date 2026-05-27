@@ -64,7 +64,7 @@ export async function sendWelcomeEmail(
         ? (welcomeTemplateRaw as EmailTemplate)
         : null
 
-    if (emailSettings.welcomeEmailEnabled === false) {
+    if (emailSettings.broadcastAutomations?.welcomeEmailEnabled === false) {
       return { status: 'skipped', reason: 'disabled_in_settings' }
     }
 
