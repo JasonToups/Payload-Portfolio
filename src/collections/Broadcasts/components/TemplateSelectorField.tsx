@@ -2,14 +2,15 @@
 
 import { useField, useForm, useDocumentInfo } from '@payloadcms/ui'
 import { useEffect, useRef } from 'react'
-import type { SerializedEditorState } from 'lexical'
 
 type TemplateFieldValue = number | { id: number } | null
+
+type LexicalEditorState = Record<string, unknown>
 
 type EmailTemplateResponse = {
   id: number
   templateType?: string | null
-  body?: SerializedEditorState | null
+  body?: LexicalEditorState | null
 }
 
 const TemplateSelectorField: React.FC = () => {
