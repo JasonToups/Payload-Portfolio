@@ -9,6 +9,7 @@ type ThreadsSettings = {
 
 type PublishThreadsOptions = {
   body: string
+  topicTag?: string
   settings: ThreadsSettings
 }
 
@@ -20,7 +21,7 @@ function sleep(ms: number): Promise<void> {
 }
 
 export async function publishThreads(options: PublishThreadsOptions): Promise<{ url: string }> {
-  const { body, settings } = options
+  const { body, topicTag, settings } = options
   const { accessToken, userId, expiresAt } = settings
 
   if (expiresAt && new Date(expiresAt) <= new Date()) {
@@ -37,6 +38,7 @@ export async function publishThreads(options: PublishThreadsOptions): Promise<{ 
         media_type: 'TEXT',
         text: body,
         access_token: accessToken,
+        ...(topicTag ? { topic_tag: topicTag } : {}),
       }),
     },
   )

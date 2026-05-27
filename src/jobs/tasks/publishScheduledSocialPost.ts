@@ -1,11 +1,15 @@
 import type { TaskConfig } from 'payload'
-import type { ScheduledSocialPost, SocialSetting } from '@/payload-types'
+import type { Keyword, ScheduledSocialPost, SocialSetting } from '@/payload-types'
 import type { SocialPlatform } from '@/utilities/buildShareUrl'
 import { publishLinkedIn } from '@/lib/social/publishLinkedIn'
 import { publishThreads } from '@/lib/social/publishThreads'
 import { publishBlueSky } from '@/lib/social/publishBlueSky'
 import { publishTwitter } from '@/lib/social/publishTwitter'
 import { getServerSideURL } from '@/utilities/getURL'
+
+function sanitizeTopicTag(raw: string): string {
+  return raw.replace(/[^a-zA-Z0-9]/g, '')
+}
 
 type ExistingShare = {
   platform: SocialPlatform
@@ -114,8 +118,13 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
           throw new Error('Threads is not connected')
         }
 
+        const keywords = (post.keywords ?? []) as (number | Keyword)[]
+        const firstKeyword = typeof keywords[0] === 'object' ? keywords[0] : null
+        const topicTag = firstKeyword ? sanitizeTopicTag(firstKeyword.name) || undefined : undefined
+
         const result = await publishThreads({
-          body: doc.body,
+          body: `${doc.body}\n\n${postUrl}`,
+          topicTag,
           settings: {
             accessToken: th.accessToken,
             userId: th.userId,
