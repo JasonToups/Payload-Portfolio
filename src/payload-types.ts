@@ -273,6 +273,24 @@ export interface EmailTemplate {
     textColor?: string | null;
   };
   /**
+   * Pre-fills the Broadcast body when this template is selected on a new broadcast. The admin can edit it freely after.
+   */
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
    * Configure automatic post fetching when a broadcast using this template is created.
    */
   autoPull?: {
@@ -1742,6 +1760,7 @@ export interface EmailTemplatesSelect<T extends boolean = true> {
         bgColor?: T;
         textColor?: T;
       };
+  body?: T;
   autoPull?:
     | T
     | {
@@ -2678,7 +2697,6 @@ export interface EmailSetting {
    * Used for Broadcasts. Find this in Resend Dashboard → Audiences → (select your audience) → Audience ID.
    */
   resendAudienceId?: string | null;
-  welcomeEmailEnabled?: boolean | null;
   welcomeSubject?: string | null;
   /**
    * WYSIWYG editor. Content is stored as Lexical JSON and converted to HTML when sending.
@@ -2710,6 +2728,7 @@ export interface EmailSetting {
      * New subscriber welcome emails use this template. Should be a Welcome Email type template.
      */
     welcomeEmailTemplate?: (number | null) | EmailTemplate;
+    welcomeEmailEnabled?: boolean | null;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -2934,7 +2953,6 @@ export interface EmailSettingsSelect<T extends boolean = true> {
   replyTo?: T;
   senderLabel?: T;
   resendAudienceId?: T;
-  welcomeEmailEnabled?: T;
   welcomeSubject?: T;
   welcomeBody?: T;
   broadcastAutomations?:
@@ -2942,6 +2960,7 @@ export interface EmailSettingsSelect<T extends boolean = true> {
     | {
         singlePostTemplate?: T;
         welcomeEmailTemplate?: T;
+        welcomeEmailEnabled?: T;
       };
   updatedAt?: T;
   createdAt?: T;

@@ -1,11 +1,12 @@
 import type { CollectionConfig } from 'payload'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 
 export const EmailTemplates: CollectionConfig = {
   slug: 'email-templates',
   admin: {
     group: 'Email',
     useAsTitle: 'name',
-    defaultColumns: ['name', 'templateType', 'isDefault', 'updatedAt'],
+    defaultColumns: ['name', 'templateType', 'updatedAt'],
     description: 'Configure reusable email templates for broadcasts and welcome emails.',
   },
   access: {
@@ -77,7 +78,8 @@ export const EmailTemplates: CollectionConfig = {
           type: 'text',
           required: false,
           admin: {
-            description: 'Hex color for the header background (e.g. #ffffff). Leave blank to use global.',
+            description:
+              'Hex color for the header background (e.g. #ffffff). Leave blank to use global.',
           },
         },
         {
@@ -93,6 +95,21 @@ export const EmailTemplates: CollectionConfig = {
     },
 
     // -------------------------------------------------------------------------
+    // Default Broadcast Body — pre-populates Broadcast body on template selection
+    // -------------------------------------------------------------------------
+    {
+      name: 'body',
+      label: 'Broadcast Body',
+      type: 'richText',
+      editor: lexicalEditor({}),
+      required: false,
+      admin: {
+        description:
+          'Pre-fills the Broadcast body when this template is selected on a new broadcast. The admin can edit it freely after.',
+      },
+    },
+
+    // -------------------------------------------------------------------------
     // Auto-Pull Settings — type-conditional content sourcing
     // -------------------------------------------------------------------------
     {
@@ -100,16 +117,22 @@ export const EmailTemplates: CollectionConfig = {
       label: 'Auto-Pull Settings',
       type: 'group',
       admin: {
-        description: 'Configure automatic post fetching when a broadcast using this template is created.',
+        description:
+          'Configure automatic post fetching when a broadcast using this template is created.',
+        condition: (data) =>
+          data?.templateType === 'weekly_digest' ||
+          data?.templateType === 'category_digest' ||
+          data?.templateType === 'keyword_digest',
       },
       fields: [
         {
           name: 'autoPullEnabled',
-          label: 'Auto-Pull This Week\'s Posts',
+          label: "Auto-Pull This Week's Posts",
           type: 'checkbox',
           defaultValue: false,
           admin: {
-            description: 'When on, new Weekly Digest broadcasts will automatically pull posts from the last 7 days.',
+            description:
+              'When on, new Weekly Digest broadcasts will automatically pull posts from the last 7 days.',
             condition: (data) => data?.templateType === 'weekly_digest',
           },
         },

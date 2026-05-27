@@ -1,27 +1,25 @@
 'use client'
 
-import { useField, useForm } from '@payloadcms/ui'
+import { useField, useForm, useDocumentInfo } from '@payloadcms/ui'
 import { useEffect, useRef } from 'react'
 
 type TemplateFieldValue = number | { id: number } | null
 
+type LexicalEditorState = Record<string, unknown>
+
 type EmailTemplateResponse = {
   id: number
   templateType?: string | null
+  body?: LexicalEditorState | null
 }
 
-/**
- * Invisible UI field component placed after the `template` relationship field.
- * When the template selection changes, fetches the template and syncs its
- * `templateType` value into the hidden `templateType` form field. This lets
- * all other field conditions (posts, pullPostsButton) read a stable string
- * value rather than resolving the relationship themselves.
- */
 const TemplateSelectorField: React.FC = () => {
+  const { id: docId } = useDocumentInfo()
   const { value: templateValue } = useField<TemplateFieldValue>({ path: 'template' })
   const { dispatchFields } = useForm()
   const lastFetchedId = useRef<number | null>(null)
 
+  const isNewDoc = !docId
   const templateId =
     typeof templateValue === 'object' && templateValue !== null
       ? templateValue.id
@@ -37,9 +35,13 @@ const TemplateSelectorField: React.FC = () => {
       .then((r) => r.json() as Promise<EmailTemplateResponse>)
       .then((data) => {
         dispatchFields({ type: 'UPDATE', path: 'templateType', value: data.templateType ?? null })
+        // Only pre-populate body on new broadcasts to avoid overwriting saved content
+        if (isNewDoc && data.body != null) {
+          dispatchFields({ type: 'UPDATE', path: 'body', value: data.body })
+        }
       })
       .catch(() => {})
-  }, [templateId, dispatchFields])
+  }, [templateId, dispatchFields, isNewDoc])
 
   return null
 }
