@@ -159,24 +159,15 @@ export const ScheduleSocialPostButton: React.FC = () => {
     setPhase('idle')
     setError(null)
 
-    const [postData, settingsData] = await Promise.allSettled([
-      postId
-        ? fetch(`/api/posts/${postId}?depth=1`).then((r) => r.json() as Promise<{ socialPostBody?: string | null }>)
-        : Promise.resolve(null),
-      fetch('/api/globals/social-settings').then(
-        (r) => r.json() as Promise<{ dailyPublishHour?: string | null }>,
-      ),
-    ])
+    const postData = await (postId
+      ? fetch(`/api/posts/${postId}?depth=1`).then((r) => r.json() as Promise<{ socialPostBody?: string | null }>)
+      : Promise.resolve(null))
 
-    if (postData.status === 'fulfilled' && postData.value?.socialPostBody) {
-      setBody(postData.value.socialPostBody)
+    if (postData?.socialPostBody) {
+      setBody(postData.socialPostBody)
     }
 
-    const publishHour =
-      settingsData.status === 'fulfilled'
-        ? parseInt(settingsData.value?.dailyPublishHour ?? '9', 10)
-        : 9
-    setScheduledFor(getNextPublishDate(publishHour))
+    setScheduledFor(getNextPublishDate(6))
   }
 
   const handleClose = () => {
