@@ -95,12 +95,16 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
         }
 
         const heroImage = typeof post.heroImage === 'object' ? post.heroImage : null
-        const imageUrl = heroImage?.url ?? undefined
+        const imageUrl = heroImage
+          ? (heroImage.sizes?.og?.url ?? heroImage.url ?? undefined)
+          : undefined
+        const description = post.meta?.description ?? undefined
 
         const result = await publishLinkedIn({
           body: doc.body,
           url: postUrl,
           title: post.title,
+          description,
           imageUrl,
           settings: {
             accessToken: li.accessToken,
