@@ -1,5 +1,4 @@
 import type { CollectionConfig } from 'payload'
-import { createVersionOnPublish } from './hooks/createVersionOnPublish'
 
 export const Resume: CollectionConfig = {
   slug: 'resumes',
@@ -27,9 +26,6 @@ export const Resume: CollectionConfig = {
       })
       return `/next/preview?${params.toString()}`
     },
-  },
-  hooks: {
-    afterChange: [createVersionOnPublish],
   },
   fields: [
     {
