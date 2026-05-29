@@ -213,9 +213,18 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
           throw new Error('Twitter is not connected')
         }
 
+        const twDeepPost = (await req.payload.findByID({
+          collection: 'posts',
+          id: post.id,
+          depth: 2,
+          overrideAccess: true,
+        })) as Post
+        const twImageUrls = collectPostImageUrls(twDeepPost)
+
         const result = await publishTwitter({
           body: doc.body,
           postUrl,
+          imageUrls: twImageUrls,
           settings: {
             accessToken: tw.accessToken,
             refreshToken: tw.refreshToken,
