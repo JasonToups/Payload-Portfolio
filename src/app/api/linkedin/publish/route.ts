@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { type SocialPlatform } from '@/utilities/buildShareUrl'
-import { getServerSideURL } from '@/utilities/getURL'
 import { publishLinkedIn } from '@/lib/social/publishLinkedIn'
+import { collectPostImageUrls } from '@/utilities/collectPostImageUrls'
+import type { Post } from '@/payload-types'
 
 type PublishRequest = {
   postId: number
@@ -11,7 +12,6 @@ type PublishRequest = {
   url: string
   title: string
   description?: string
-  imageUrl?: string
 }
 
 type LinkedInSettingsData = {
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = (await request.json()) as PublishRequest
-  const { postId, text, url, title, description, imageUrl } = body
+  const { postId, text, url, title, description } = body
 
   if (!postId || !text || !url || !title) {
     return NextResponse.json({ error: 'postId, text, url, and title are required.' }, { status: 400 })
@@ -55,20 +55,23 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  // Collect all post images server-side so MediaBlock images at depth 2 are included
+  const postDoc = (await payload.findByID({
+    collection: 'posts',
+    id: postId,
+    depth: 2,
+    overrideAccess: true,
+  })) as Post
+  const imageUrls = collectPostImageUrls(postDoc)
+
   let shareUrl: string
   try {
-    const absoluteImageUrl = imageUrl
-      ? imageUrl.startsWith('http')
-        ? imageUrl
-        : `${getServerSideURL()}${imageUrl}`
-      : undefined
-
     const result = await publishLinkedIn({
       body: text,
       url,
       title,
       description,
-      imageUrl: absoluteImageUrl,
+      imageUrls,
       settings: {
         accessToken: settings.linkedin.accessToken,
         personUrn: settings.linkedin.personUrn,
@@ -82,7 +85,7 @@ export async function POST(request: NextRequest) {
   }
 
   const post = await payload.findByID({ collection: 'posts', id: postId, depth: 0 })
-  const existingShares = ((post.socialShares ?? []) as ExistingShare[])
+  const existingShares = (post.socialShares ?? []) as ExistingShare[]
 
   await payload.update({
     collection: 'posts',

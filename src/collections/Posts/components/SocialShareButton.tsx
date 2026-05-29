@@ -14,16 +14,10 @@ type SocialShare = {
 
 type KeywordRef = { id: number; name: string }
 
-type MediaObject = {
-  url?: string | null
-  sizes?: { og?: { url?: string | null } | null } | null
-}
-
 type PostData = {
   socialShares?: SocialShare[] | null
   keywords?: (number | KeywordRef)[] | null
   socialPostBody?: string | null
-  heroImage?: MediaObject | number | null
   meta?: { description?: string | null } | null
 }
 
@@ -37,7 +31,6 @@ type LinkedInData = {
   defaultText: string
   hashtags: string[]
   description: string
-  ogImageUrl: string | null
 }
 
 const CHAR_LIMIT = 3000
@@ -56,7 +49,6 @@ type LinkedInComposeProps = {
   hashtags: string[]
   title: string
   description: string
-  ogImageUrl: string | null
   onClose: () => void
   onPublished: () => void
 }
@@ -68,7 +60,6 @@ const LinkedInCompose: React.FC<LinkedInComposeProps> = ({
   hashtags,
   title,
   description,
-  ogImageUrl,
   onClose,
   onPublished,
 }) => {
@@ -112,7 +103,6 @@ const LinkedInCompose: React.FC<LinkedInComposeProps> = ({
           url: postUrl,
           title,
           description,
-          imageUrl: ogImageUrl,
         }),
       })
       const data = (await res.json()) as LinkedInPublishResponse
@@ -366,14 +356,10 @@ const SocialShareButton: React.FC = () => {
       const hashtags = (postData.keywords ?? [])
         .filter((k): k is KeywordRef => typeof k === 'object')
         .map((k) => k.name)
-      const hero = postData.heroImage
-      const ogImageUrl =
-        hero && typeof hero === 'object' ? (hero.sizes?.og?.url ?? hero.url ?? null) : null
       setLinkedInData({
         defaultText: postData.socialPostBody ?? '',
         hashtags,
         description: postData.meta?.description ?? '',
-        ogImageUrl,
       })
       setLinkedInModalOpen(true)
     } catch {
@@ -460,7 +446,6 @@ const SocialShareButton: React.FC = () => {
           hashtags={linkedInData.hashtags}
           title={title}
           description={linkedInData.description}
-          ogImageUrl={linkedInData.ogImageUrl}
           onClose={() => setLinkedInModalOpen(false)}
           onPublished={() => {
             setConfirmedShares((prev) => [...prev, 'linkedin'])

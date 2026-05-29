@@ -102,18 +102,23 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
           .join(' ')
         const liCommentary = liHashtagString ? `${doc.body}\n\n${liHashtagString}` : doc.body
 
-        const heroImage = typeof post.heroImage === 'object' ? post.heroImage : null
-        const imageUrl = heroImage
-          ? (heroImage.sizes?.og?.url ?? heroImage.url ?? undefined)
-          : undefined
         const description = post.meta?.description ?? undefined
+
+        // Fetch post at depth 2 from Post perspective so MediaBlock media is populated
+        const liDeepPost = (await req.payload.findByID({
+          collection: 'posts',
+          id: post.id,
+          depth: 2,
+          overrideAccess: true,
+        })) as Post
+        const liImageUrls = collectPostImageUrls(liDeepPost)
 
         const result = await publishLinkedIn({
           body: liCommentary,
           url: postUrl,
           title: post.title,
           description,
-          imageUrl,
+          imageUrls: liImageUrls,
           settings: {
             accessToken: li.accessToken,
             personUrn: li.personUrn,
