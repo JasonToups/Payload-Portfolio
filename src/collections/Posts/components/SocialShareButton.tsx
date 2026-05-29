@@ -14,21 +14,16 @@ type SocialShare = {
 
 type KeywordRef = { id: number; name: string }
 
-type MediaObject = {
-  url?: string | null
-  sizes?: { og?: { url?: string | null } | null } | null
-}
-
 type PostData = {
   socialShares?: SocialShare[] | null
   keywords?: (number | KeywordRef)[] | null
   socialPostBody?: string | null
-  heroImage?: MediaObject | number | null
   meta?: { description?: string | null } | null
 }
 
 type LinkedInStatusResponse = { connected: boolean }
 type LinkedInPublishResponse = { success?: boolean; error?: string; linkedInPostId?: string }
+type ShortUrlResponse = { shortUrl?: string; error?: string }
 
 type ModalResult = { success: boolean; message: string }
 
@@ -36,7 +31,6 @@ type LinkedInData = {
   defaultText: string
   hashtags: string[]
   description: string
-  ogImageUrl: string | null
 }
 
 const CHAR_LIMIT = 3000
@@ -55,7 +49,6 @@ type LinkedInComposeProps = {
   hashtags: string[]
   title: string
   description: string
-  ogImageUrl: string | null
   onClose: () => void
   onPublished: () => void
 }
@@ -67,7 +60,6 @@ const LinkedInCompose: React.FC<LinkedInComposeProps> = ({
   hashtags,
   title,
   description,
-  ogImageUrl,
   onClose,
   onPublished,
 }) => {
@@ -111,7 +103,6 @@ const LinkedInCompose: React.FC<LinkedInComposeProps> = ({
           url: postUrl,
           title,
           description,
-          imageUrl: ogImageUrl,
         }),
       })
       const data = (await res.json()) as LinkedInPublishResponse
@@ -324,6 +315,19 @@ const SocialShareButton: React.FC = () => {
         .filter((k): k is KeywordRef => typeof k === 'object')
         .map((k) => k.name)
       const tag = hashtags[0]
+
+      // Use a short URL for platforms where the URL is part of the post body
+      let shareUrl = postUrl
+      if (platform === 'threads' || platform === 'bluesky') {
+        try {
+          const shortRes = await fetch(`/api/posts/short-url?postId=${id}`)
+          const shortData = (await shortRes.json()) as ShortUrlResponse
+          if (shortData.shortUrl) shareUrl = shortData.shortUrl
+        } catch {
+          // fall through — use full postUrl on failure
+        }
+      }
+
       const options: ShareOptions =
         platform === 'twitter'
           ? { text: postData.socialPostBody ?? title, hashtags }
@@ -332,7 +336,7 @@ const SocialShareButton: React.FC = () => {
             : platform === 'bluesky'
               ? { text: postData.socialPostBody ?? title, hashtags }
               : {}
-      window.open(buildShareUrl(platform, postUrl, options), '_blank', 'noopener,noreferrer')
+      window.open(buildShareUrl(platform, shareUrl, options), '_blank', 'noopener,noreferrer')
     } catch {
       setError('Request failed — check your network and try again.')
     } finally {
@@ -352,14 +356,10 @@ const SocialShareButton: React.FC = () => {
       const hashtags = (postData.keywords ?? [])
         .filter((k): k is KeywordRef => typeof k === 'object')
         .map((k) => k.name)
-      const hero = postData.heroImage
-      const ogImageUrl =
-        hero && typeof hero === 'object' ? (hero.sizes?.og?.url ?? hero.url ?? null) : null
       setLinkedInData({
         defaultText: postData.socialPostBody ?? '',
         hashtags,
         description: postData.meta?.description ?? '',
-        ogImageUrl,
       })
       setLinkedInModalOpen(true)
     } catch {
@@ -446,7 +446,6 @@ const SocialShareButton: React.FC = () => {
           hashtags={linkedInData.hashtags}
           title={title}
           description={linkedInData.description}
-          ogImageUrl={linkedInData.ogImageUrl}
           onClose={() => setLinkedInModalOpen(false)}
           onPublished={() => {
             setConfirmedShares((prev) => [...prev, 'linkedin'])

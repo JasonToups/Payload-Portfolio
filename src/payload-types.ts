@@ -72,6 +72,7 @@ export interface Config {
     pages: Page;
     posts: Post;
     'scheduled-social-posts': ScheduledSocialPost;
+    'short-urls': ShortUrl;
     media: Media;
     categories: Category;
     keywords: Keyword;
@@ -103,6 +104,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     'scheduled-social-posts': ScheduledSocialPostsSelect<false> | ScheduledSocialPostsSelect<true>;
+    'short-urls': ShortUrlsSelect<false> | ShortUrlsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     keywords: KeywordsSelect<false> | KeywordsSelect<true>;
@@ -640,6 +642,10 @@ export interface ScheduledSocialPost {
    * Populated on failure — check here when status is "failed".
    */
   errorMessage?: string | null;
+  /**
+   * Auto-generated short URL used in Threads and Bluesky posts.
+   */
+  shortUrl?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1415,6 +1421,27 @@ export interface TestimonialsBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "short-urls".
+ */
+export interface ShortUrl {
+  id: number;
+  /**
+   * Auto-generated 6-char hex code used in the short URL path.
+   */
+  code: string;
+  /**
+   * The full URL this short code redirects to.
+   */
+  targetUrl: string;
+  /**
+   * The post this short URL was generated for (optional reference).
+   */
+  post?: (number | null) | Post;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "resumes".
  */
 export interface Resume {
@@ -1642,6 +1669,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'scheduled-social-posts';
         value: number | ScheduledSocialPost;
+      } | null)
+    | ({
+        relationTo: 'short-urls';
+        value: number | ShortUrl;
       } | null)
     | ({
         relationTo: 'media';
@@ -2140,6 +2171,18 @@ export interface ScheduledSocialPostsSelect<T extends boolean = true> {
   publishedAt?: T;
   publishedUrl?: T;
   errorMessage?: T;
+  shortUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "short-urls_select".
+ */
+export interface ShortUrlsSelect<T extends boolean = true> {
+  code?: T;
+  targetUrl?: T;
+  post?: T;
   updatedAt?: T;
   createdAt?: T;
 }

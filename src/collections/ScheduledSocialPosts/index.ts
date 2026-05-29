@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { generateShortUrl } from './hooks/generateShortUrl'
 
 export const ScheduledSocialPosts: CollectionConfig = {
   slug: 'scheduled-social-posts',
@@ -16,6 +17,9 @@ export const ScheduledSocialPosts: CollectionConfig = {
     create: ({ req: { user } }) => Boolean(user),
     update: ({ req: { user } }) => Boolean(user),
     delete: ({ req: { user } }) => Boolean(user),
+  },
+  hooks: {
+    beforeChange: [generateShortUrl],
   },
   fields: [
     {
@@ -106,6 +110,14 @@ export const ScheduledSocialPosts: CollectionConfig = {
       admin: {
         readOnly: true,
         description: 'Populated on failure — check here when status is "failed".',
+      },
+    },
+    {
+      name: 'shortUrl',
+      type: 'text',
+      admin: {
+        readOnly: true,
+        description: 'Auto-generated short URL used in Threads and Bluesky posts.',
       },
     },
   ],

@@ -1,10 +1,11 @@
 import type { TaskConfig } from 'payload'
-import type { Keyword, ScheduledSocialPost, SocialSetting } from '@/payload-types'
+import type { Keyword, Post, ScheduledSocialPost, SocialSetting } from '@/payload-types'
 import type { SocialPlatform } from '@/utilities/buildShareUrl'
 import { publishLinkedIn } from '@/lib/social/publishLinkedIn'
 import { publishThreads } from '@/lib/social/publishThreads'
 import { publishBlueSky } from '@/lib/social/publishBlueSky'
 import { publishTwitter } from '@/lib/social/publishTwitter'
+import { collectPostImageUrls } from '@/utilities/collectPostImageUrls'
 import { getServerSideURL } from '@/utilities/getURL'
 
 function sanitizeTopicTag(raw: string): string {
@@ -94,18 +95,30 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
           throw new Error('LinkedIn is not connected')
         }
 
-        const heroImage = typeof post.heroImage === 'object' ? post.heroImage : null
-        const imageUrl = heroImage
-          ? (heroImage.sizes?.og?.url ?? heroImage.url ?? undefined)
-          : undefined
+        const liKeywords = (post.keywords ?? []) as (number | Keyword)[]
+        const liHashtagString = liKeywords
+          .filter((k): k is Keyword => typeof k === 'object')
+          .map((k) => `#${k.name.replace(/ /g, '_')}`)
+          .join(' ')
+        const liCommentary = liHashtagString ? `${doc.body}\n\n${liHashtagString}` : doc.body
+
         const description = post.meta?.description ?? undefined
 
+        // Fetch post at depth 2 from Post perspective so MediaBlock media is populated
+        const liDeepPost = (await req.payload.findByID({
+          collection: 'posts',
+          id: post.id,
+          depth: 2,
+          overrideAccess: true,
+        })) as Post
+        const liImageUrls = collectPostImageUrls(liDeepPost)
+
         const result = await publishLinkedIn({
-          body: doc.body,
+          body: liCommentary,
           url: postUrl,
           title: post.title,
           description,
-          imageUrl,
+          imageUrls: liImageUrls,
           settings: {
             accessToken: li.accessToken,
             personUrn: li.personUrn,
@@ -126,9 +139,28 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
         const firstKeyword = typeof keywords[0] === 'object' ? keywords[0] : null
         const topicTag = firstKeyword ? sanitizeTopicTag(firstKeyword.name) || undefined : undefined
 
+        const thUrl = doc.shortUrl ?? postUrl
+        const thHashtagString = keywords
+          .filter((k): k is Keyword => typeof k === 'object')
+          .map((k) => `#${k.name.replace(/\s+/g, '')}`)
+          .join(' ')
+        const thBody = thHashtagString
+          ? `${doc.body}\n\n${thUrl}\n\n${thHashtagString}`
+          : `${doc.body}\n\n${thUrl}`
+
+        // Fetch post at depth 2 from Post perspective so MediaBlock media is populated
+        const deepPost = (await req.payload.findByID({
+          collection: 'posts',
+          id: post.id,
+          depth: 2,
+          overrideAccess: true,
+        })) as Post
+        const imageUrls = collectPostImageUrls(deepPost)
+
         const result = await publishThreads({
-          body: `${doc.body}\n\n${postUrl}`,
+          body: thBody,
           topicTag,
+          imageUrls,
           settings: {
             accessToken: th.accessToken,
             userId: th.userId,
@@ -165,7 +197,7 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
 
         const result = await publishBlueSky({
           body: doc.body,
-          postUrl,
+          postUrl: doc.shortUrl ?? postUrl,
           title: post.title,
           description: metaDescription,
           imageUrl,
@@ -181,9 +213,18 @@ export const publishScheduledSocialPostTask: TaskConfig<TaskIO> = {
           throw new Error('Twitter is not connected')
         }
 
+        const twDeepPost = (await req.payload.findByID({
+          collection: 'posts',
+          id: post.id,
+          depth: 2,
+          overrideAccess: true,
+        })) as Post
+        const twImageUrls = collectPostImageUrls(twDeepPost)
+
         const result = await publishTwitter({
           body: doc.body,
           postUrl,
+          imageUrls: twImageUrls,
           settings: {
             accessToken: tw.accessToken,
             refreshToken: tw.refreshToken,

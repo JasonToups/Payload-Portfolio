@@ -25,6 +25,7 @@ import { EmailLayout } from './EmailLayout'
 import { SubscribePostBlock } from './SubscribePostBlock/config'
 import { SocialSettings } from './globals/SocialSettings'
 import { ScheduledSocialPosts } from './collections/ScheduledSocialPosts'
+import { ShortUrls } from './collections/ShortUrls'
 import { EmailTemplates } from './collections/EmailTemplates'
 import { subscribeForm } from './endpoints/seed/subscribe-form'
 import { toSlug } from './utilities/toSlug'
@@ -139,7 +140,7 @@ export default buildConfig({
       connectionString: process.env.POSTGRES_URL || '',
     },
   }),
-  collections: [Broadcasts, EmailTemplates, Pages, Posts, ScheduledSocialPosts, Media, Categories, Keywords, Resume, Users],
+  collections: [Broadcasts, EmailTemplates, Pages, Posts, ScheduledSocialPosts, ShortUrls, Media, Categories, Keywords, Resume, Users],
   cors: [getServerSideURL()].filter(Boolean),
   email: resendAdapter({
     apiKey: process.env.RESEND_API_KEY!,
