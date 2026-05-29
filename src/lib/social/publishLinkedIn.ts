@@ -1,5 +1,9 @@
 import { getServerSideURL } from '@/utilities/getURL'
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 type LinkedInSettings = {
   accessToken: string
   personUrn: string
@@ -32,7 +36,10 @@ async function uploadImageToLinkedIn(
     },
     body: JSON.stringify({ initializeUploadRequest: { owner: ownerUrn } }),
   })
-  if (!initRes.ok) return null
+  if (!initRes.ok) {
+    console.error('LinkedIn initializeUpload failed:', initRes.status, await initRes.text())
+    return null
+  }
 
   const { value } = (await initRes.json()) as LinkedInInitUploadResponse
   const { uploadUrl, image: imageUrn } = value
@@ -41,7 +48,10 @@ async function uploadImageToLinkedIn(
     ? imageUrl
     : `${getServerSideURL()}${imageUrl}`
   const imgRes = await fetch(absoluteImageUrl)
-  if (!imgRes.ok) return null
+  if (!imgRes.ok) {
+    console.error('LinkedIn image fetch failed:', imgRes.status, absoluteImageUrl)
+    return null
+  }
   const imgBuffer = await imgRes.arrayBuffer()
   const contentType = imgRes.headers.get('content-type') ?? 'image/jpeg'
 
@@ -53,7 +63,30 @@ async function uploadImageToLinkedIn(
     },
     body: imgBuffer,
   })
-  if (!uploadRes.ok) return null
+  if (!uploadRes.ok) {
+    console.error('LinkedIn image PUT upload failed:', uploadRes.status, await uploadRes.text())
+    return null
+  }
+
+  // LinkedIn processes images asynchronously — poll until AVAILABLE before using the URN in a post
+  type LinkedInImageStatus = { status?: string }
+  for (let i = 0; i < 10; i++) {
+    await sleep(1000)
+    const statusRes = await fetch(
+      `https://api.linkedin.com/rest/images/${encodeURIComponent(imageUrn)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'LinkedIn-Version': '202604',
+          'X-Restli-Protocol-Version': '2.0.0',
+        },
+      },
+    )
+    if (statusRes.ok) {
+      const data = (await statusRes.json()) as LinkedInImageStatus
+      if (data.status === 'AVAILABLE') break
+    }
+  }
 
   return imageUrn
 }
