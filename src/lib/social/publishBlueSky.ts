@@ -12,6 +12,11 @@ type ExternalEmbed = {
   thumb?: BlobRef
 }
 
+type BlueSkyImagesEmbed = {
+  $type: 'app.bsky.embed.images'
+  images: Array<{ image: BlobRef; alt: string }>
+}
+
 type PublishBlueSkyOptions = {
   body: string
   settings: BlueSkySettings
@@ -19,10 +24,19 @@ type PublishBlueSkyOptions = {
   title?: string
   description?: string
   imageUrl?: string
+  imageUrls?: string[]
+}
+
+async function uploadBlob(agent: BskyAgent, url: string): Promise<BlobRef> {
+  const res = await fetch(url)
+  const buf = Buffer.from(await res.arrayBuffer())
+  const contentType = res.headers.get('content-type') ?? 'image/jpeg'
+  const { data } = await agent.uploadBlob(buf, { encoding: contentType })
+  return data.blob
 }
 
 export async function publishBlueSky(options: PublishBlueSkyOptions): Promise<{ url: string }> {
-  const { body, settings, postUrl, title, description, imageUrl } = options
+  const { body, settings, postUrl, title, description, imageUrl, imageUrls } = options
   const { handle, appPassword } = settings
 
   const agent = new BskyAgent({ service: 'https://bsky.social' })
@@ -31,16 +45,22 @@ export async function publishBlueSky(options: PublishBlueSkyOptions): Promise<{ 
   const rt = new RichText({ text: body })
   await rt.detectFacets(agent)
 
-  let embed: { $type: string; external: ExternalEmbed } | undefined
+  let embed: { $type: string; external: ExternalEmbed } | BlueSkyImagesEmbed | undefined
 
-  if (postUrl) {
+  if (imageUrls && imageUrls.length > 0) {
+    // Native image embed — up to 4 images; takes priority over link card
+    const blobs = await Promise.all(
+      imageUrls.slice(0, 4).map(async (url) => ({
+        image: await uploadBlob(agent, url),
+        alt: '',
+      })),
+    )
+    embed = { $type: 'app.bsky.embed.images', images: blobs }
+  } else if (postUrl) {
+    // External link embed with optional single-image thumbnail
     let thumb: BlobRef | undefined
     if (imageUrl) {
-      const res = await fetch(imageUrl)
-      const buf = Buffer.from(await res.arrayBuffer())
-      const contentType = res.headers.get('content-type') ?? 'image/jpeg'
-      const { data } = await agent.uploadBlob(buf, { encoding: contentType })
-      thumb = data.blob
+      thumb = await uploadBlob(agent, imageUrl)
     }
     embed = {
       $type: 'app.bsky.embed.external',

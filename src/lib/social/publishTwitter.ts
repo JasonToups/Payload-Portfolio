@@ -9,7 +9,7 @@ type TwitterPublishSettings = {
 
 type PublishTwitterOptions = {
   body: string
-  postUrl: string
+  postUrl?: string
   imageUrls?: string[]
   settings: TwitterPublishSettings
 }
@@ -62,8 +62,7 @@ export async function publishTwitter(options: PublishTwitterOptions): Promise<{ 
 
   const client = new TwitterApi(token)
 
-  // Append post URL — Twitter t.co shortens all URLs to 23 chars
-  const tweetText = `${body}\n\n${postUrl}`
+  const tweetText = postUrl ? `${body}\n\n${postUrl}` : body
 
   // Upload up to 4 images in parallel
   const imagesToUpload = imageUrls.slice(0, TWITTER_MAX_IMAGES)

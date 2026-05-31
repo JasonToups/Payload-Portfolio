@@ -1,0 +1,223 @@
+import type { TaskConfig } from 'payload'
+import type { Keyword, Post, SocialPost, SocialSetting } from '@/payload-types'
+import { publishLinkedIn } from '@/lib/social/publishLinkedIn'
+import { publishThreads } from '@/lib/social/publishThreads'
+import { publishBlueSky } from '@/lib/social/publishBlueSky'
+import { publishTwitter } from '@/lib/social/publishTwitter'
+import { collectSocialPostImageUrls } from '@/utilities/collectSocialPostImageUrls'
+import { getServerSideURL } from '@/utilities/getURL'
+
+function sanitizeTopicTag(raw: string): string {
+  return raw.replace(/[^a-zA-Z0-9]/g, '')
+}
+
+type TaskIO = { input: { socialPostId: number }; output: { publishedUrl: string } }
+
+export const publishSocialPostTask: TaskConfig<TaskIO> = {
+  slug: 'publishSocialPost',
+  label: 'Publish Social Post',
+  inputSchema: [
+    {
+      name: 'socialPostId',
+      type: 'number',
+      required: true,
+    },
+  ],
+  outputSchema: [
+    {
+      name: 'publishedUrl',
+      type: 'text',
+    },
+  ],
+  retries: {
+    attempts: 2,
+    backoff: { type: 'fixed', delay: 60_000 },
+  },
+  onFail: async ({ input, req }) => {
+    const id = (input as { socialPostId?: number }).socialPostId
+    if (!id) return
+    await req.payload.update({
+      collection: 'social-posts',
+      id,
+      data: { status: 'failed', errorMessage: 'Failed after 2 attempts — check platform credentials.' },
+      overrideAccess: true,
+    })
+  },
+  handler: async ({ input, req }) => {
+    const { socialPostId } = input
+
+    const doc = (await req.payload.findByID({
+      collection: 'social-posts',
+      id: socialPostId,
+      depth: 2,
+      overrideAccess: true,
+    })) as SocialPost
+
+    if (!doc) {
+      throw new Error(`Social post ${socialPostId} not found`)
+    }
+
+    if (doc.status !== 'pending') {
+      return { output: { publishedUrl: doc.publishedUrl ?? '' } }
+    }
+
+    await req.payload.update({
+      collection: 'social-posts',
+      id: socialPostId,
+      data: { status: 'processing' },
+      overrideAccess: true,
+    })
+
+    const social = (await req.payload.findGlobal({
+      slug: 'social-settings',
+      overrideAccess: true,
+    })) as SocialSetting
+
+    const linkedPost =
+      typeof doc.linkedPost === 'object' && doc.linkedPost !== null
+        ? (doc.linkedPost as Post)
+        : null
+
+    const linkedPostUrl = linkedPost
+      ? `${getServerSideURL()}/posts/${linkedPost.slug}`
+      : undefined
+
+    const postUrl = doc.shortUrl ?? linkedPostUrl
+
+    const imageUrls = collectSocialPostImageUrls(doc)
+
+    const keywords = (doc.keywords ?? []) as (number | Keyword)[]
+    const resolvedKeywords = keywords.filter((k): k is Keyword => typeof k === 'object')
+
+    const hashtagString = resolvedKeywords
+      .map((k) => `#${k.name.replace(/\s+/g, '')}`)
+      .join(' ')
+
+    let publishedUrl: string
+
+    switch (doc.platform) {
+      case 'linkedin': {
+        const li = social.linkedin
+        if (!li?.accessToken || !li?.personUrn) {
+          throw new Error('LinkedIn is not connected')
+        }
+
+        const liHashtags = resolvedKeywords
+          .map((k) => `#${k.name.replace(/ /g, '_')}`)
+          .join(' ')
+        const liCommentary = liHashtags ? `${doc.body}\n\n${liHashtags}` : doc.body
+
+        const result = await publishLinkedIn({
+          body: liCommentary,
+          url: postUrl,
+          title: linkedPost?.title,
+          description: linkedPost?.meta?.description ?? undefined,
+          imageUrls,
+          settings: {
+            accessToken: li.accessToken,
+            personUrn: li.personUrn,
+            expiresAt: li.expiresAt,
+          },
+        })
+        publishedUrl = result.url
+        break
+      }
+
+      case 'threads': {
+        const th = social.threads
+        if (!th?.accessToken || !th?.userId) {
+          throw new Error('Threads is not connected')
+        }
+
+        const firstKeyword = resolvedKeywords[0] ?? null
+        const topicTag = firstKeyword ? sanitizeTopicTag(firstKeyword.name) || undefined : undefined
+
+        const thBody = [
+          doc.body,
+          ...(postUrl ? [postUrl] : []),
+          ...(hashtagString ? [hashtagString] : []),
+        ].join('\n\n')
+
+        const result = await publishThreads({
+          body: thBody,
+          topicTag,
+          imageUrls,
+          settings: {
+            accessToken: th.accessToken,
+            userId: th.userId,
+            expiresAt: th.expiresAt,
+          },
+        })
+        publishedUrl = result.url
+        break
+      }
+
+      case 'bluesky': {
+        const appPassword = process.env.BLUESKY_APP_PASSWORD
+        if (!appPassword) {
+          throw new Error('BLUESKY_APP_PASSWORD is not set')
+        }
+
+        const blueskyProfile = social.profiles?.find((p) => p.platform === 'bluesky')
+        const blueskyUrl = blueskyProfile?.url ?? ''
+        let handle: string | null = null
+        try {
+          const segments = new URL(blueskyUrl).pathname.split('/').filter(Boolean)
+          handle = segments[1] ?? null
+        } catch {
+          handle = null
+        }
+
+        if (!handle) {
+          throw new Error('BlueSky profile URL is not set in Social Settings')
+        }
+
+        const result = await publishBlueSky({
+          body: doc.body,
+          postUrl,
+          title: linkedPost?.title,
+          description: linkedPost?.meta?.description ?? undefined,
+          imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+          settings: { handle, appPassword },
+        })
+        publishedUrl = result.url
+        break
+      }
+
+      case 'twitter': {
+        const tw = social.twitter
+        if (!tw?.accessToken) {
+          throw new Error('Twitter is not connected')
+        }
+
+        const result = await publishTwitter({
+          body: doc.body,
+          postUrl,
+          imageUrls,
+          settings: {
+            accessToken: tw.accessToken,
+            refreshToken: tw.refreshToken,
+            expiresAt: tw.expiresAt,
+            username: tw.username,
+          },
+        })
+        publishedUrl = result.url
+        break
+      }
+
+      default:
+        throw new Error(`Unsupported platform: ${doc.platform}`)
+    }
+
+    const now = new Date().toISOString()
+
+    await req.payload.update({
+      collection: 'social-posts',
+      id: socialPostId,
+      data: { status: 'published', publishedAt: now, publishedUrl },
+      overrideAccess: true,
+    })
+
+    return { output: { publishedUrl } }
+  },
+}
