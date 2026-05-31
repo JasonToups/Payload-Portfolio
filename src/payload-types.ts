@@ -72,6 +72,7 @@ export interface Config {
     pages: Page;
     posts: Post;
     'scheduled-social-posts': ScheduledSocialPost;
+    'social-posts': SocialPost;
     'short-urls': ShortUrl;
     media: Media;
     categories: Category;
@@ -104,6 +105,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     'scheduled-social-posts': ScheduledSocialPostsSelect<false> | ScheduledSocialPostsSelect<true>;
+    'social-posts': SocialPostsSelect<false> | SocialPostsSelect<true>;
     'short-urls': ShortUrlsSelect<false> | ShortUrlsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
@@ -148,6 +150,7 @@ export interface Config {
   jobs: {
     tasks: {
       publishScheduledSocialPost: TaskPublishScheduledSocialPost;
+      publishSocialPost: TaskPublishSocialPost;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -1421,6 +1424,67 @@ export interface TestimonialsBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-posts".
+ */
+export interface SocialPost {
+  id: number;
+  /**
+   * Internal label for this post — not published.
+   */
+  title: string;
+  /**
+   * Text content for the social post.
+   */
+  body: string;
+  /**
+   * Optional: link to a Post to include its URL (auto-generates a short URL). Leave blank for a standalone post.
+   */
+  linkedPost?: (number | null) | Post;
+  /**
+   * Used as hashtags when publishing.
+   */
+  keywords?: (number | Keyword)[] | null;
+  /**
+   * Primary image. Used as the featured/thumbnail image.
+   */
+  heroImage?: (number | null) | Media;
+  /**
+   * Additional images. LinkedIn, Threads (2–20), and BlueSky (up to 4) support multiple images.
+   */
+  images?: (number | Media)[] | null;
+  /**
+   * Social media platform to publish to.
+   */
+  platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads';
+  /**
+   * Managed by the scheduler — use "Publish Now" or set a schedule date.
+   */
+  status?: ('draft' | 'pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
+  /**
+   * When to publish. Setting a date auto-schedules the post. Leave blank and use "Publish Now" to publish immediately.
+   */
+  scheduledFor?: string | null;
+  /**
+   * Populated on successful publish.
+   */
+  publishedAt?: string | null;
+  /**
+   * URL of the published social post.
+   */
+  publishedUrl?: string | null;
+  /**
+   * Auto-generated short URL — created when a linked Post is selected.
+   */
+  shortUrl?: string | null;
+  /**
+   * Populated on failure — check here when status is "failed".
+   */
+  errorMessage?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "short-urls".
  */
 export interface ShortUrl {
@@ -1603,7 +1667,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'publishScheduledSocialPost' | 'schedulePublish';
+        taskSlug: 'inline' | 'publishScheduledSocialPost' | 'publishSocialPost' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1636,7 +1700,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'publishScheduledSocialPost' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'publishScheduledSocialPost' | 'publishSocialPost' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1669,6 +1733,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'scheduled-social-posts';
         value: number | ScheduledSocialPost;
+      } | null)
+    | ({
+        relationTo: 'social-posts';
+        value: number | SocialPost;
       } | null)
     | ({
         relationTo: 'short-urls';
@@ -2172,6 +2240,27 @@ export interface ScheduledSocialPostsSelect<T extends boolean = true> {
   publishedUrl?: T;
   errorMessage?: T;
   shortUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-posts_select".
+ */
+export interface SocialPostsSelect<T extends boolean = true> {
+  title?: T;
+  body?: T;
+  linkedPost?: T;
+  keywords?: T;
+  heroImage?: T;
+  images?: T;
+  platform?: T;
+  status?: T;
+  scheduledFor?: T;
+  publishedAt?: T;
+  publishedUrl?: T;
+  shortUrl?: T;
+  errorMessage?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3103,6 +3192,18 @@ export interface SocialSettingsSelect<T extends boolean = true> {
 export interface TaskPublishScheduledSocialPost {
   input: {
     scheduledPostId: number;
+  };
+  output: {
+    publishedUrl?: string | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskPublishSocialPost".
+ */
+export interface TaskPublishSocialPost {
+  input: {
+    socialPostId: number;
   };
   output: {
     publishedUrl?: string | null;

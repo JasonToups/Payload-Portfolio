@@ -30,7 +30,30 @@ export async function GET(request: Request) {
     })
   }
 
+  const dueSocialPosts = await payload.find({
+    collection: 'social-posts',
+    where: {
+      and: [
+        { status: { equals: 'pending' } },
+        { scheduledFor: { less_than_equal: now } },
+      ],
+    },
+    limit: 20,
+    overrideAccess: true,
+  })
+
+  for (const doc of dueSocialPosts.docs) {
+    await payload.jobs.queue({
+      task: 'publishSocialPost',
+      input: { socialPostId: doc.id },
+    })
+  }
+
   const result = await payload.jobs.run({ overrideAccess: true })
 
-  return Response.json({ queued: due.totalDocs, result })
+  return Response.json({
+    scheduledQueued: due.totalDocs,
+    socialQueued: dueSocialPosts.totalDocs,
+    result,
+  })
 }

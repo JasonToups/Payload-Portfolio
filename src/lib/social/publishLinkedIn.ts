@@ -12,8 +12,8 @@ type LinkedInSettings = {
 
 type PublishLinkedInOptions = {
   body: string
-  url: string
-  title: string
+  url?: string
+  title?: string
   description?: string
   imageUrls?: string[]
   settings: LinkedInSettings
@@ -105,7 +105,7 @@ export async function publishLinkedIn(options: PublishLinkedInOptions): Promise<
   if (uploadedUrns.length >= 2) {
     // Multi-image post — LinkedIn uses content.multiImage; no article link card
     // Append URL to commentary so readers can navigate to the post
-    const commentary = body.includes(url) ? body : `${body}\n\n${url}`
+    const commentary = url ? (body.includes(url) ? body : `${body}\n\n${url}`) : body
 
     linkedInBody = {
       author: personUrn,
@@ -120,7 +120,7 @@ export async function publishLinkedIn(options: PublishLinkedInOptions): Promise<
       lifecycleState: 'PUBLISHED',
       isReshareDisabledByAuthor: false,
     }
-  } else {
+  } else if (url) {
     // Article post (0 or 1 image) — preserves the link preview card
     const thumbnailUrn = uploadedUrns[0] ?? null
 
@@ -132,11 +132,29 @@ export async function publishLinkedIn(options: PublishLinkedInOptions): Promise<
       content: {
         article: {
           source: url,
-          title,
+          title: title ?? '',
           ...(description ? { description } : {}),
           ...(thumbnailUrn ? { thumbnail: thumbnailUrn } : {}),
         },
       },
+      lifecycleState: 'PUBLISHED',
+      isReshareDisabledByAuthor: false,
+    }
+  } else {
+    // Commentary-only post — no linked URL, no article card
+    const thumbnailUrn = uploadedUrns[0] ?? null
+    linkedInBody = {
+      author: personUrn,
+      commentary: body,
+      visibility: 'PUBLIC',
+      distribution: { feedDistribution: 'MAIN_FEED' },
+      ...(thumbnailUrn
+        ? {
+            content: {
+              media: { id: thumbnailUrn },
+            },
+          }
+        : {}),
       lifecycleState: 'PUBLISHED',
       isReshareDisabledByAuthor: false,
     }
