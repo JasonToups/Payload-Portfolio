@@ -20,3 +20,14 @@
   max-width: 30rem;
   height: 100%;
 }
+
+.thumbnail--size-medium {
+  height: fit-content;
+  width: fit-content;
+  max-height: fit-content;
+  max-width: fit-content;
+}
+
+.thumbnail--size-small {
+  max-height: fit-content;
+}
