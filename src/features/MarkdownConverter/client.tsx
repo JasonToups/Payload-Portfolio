@@ -12,7 +12,9 @@ import {
   INLINE_CODE,
   ITALIC_STAR,
   ITALIC_UNDERSCORE,
+  ORDERED_LIST,
   STRIKETHROUGH,
+  UNORDERED_LIST,
 } from '@payloadcms/richtext-lexical/lexical/markdown'
 import type {
   ElementTransformer,
@@ -91,6 +93,8 @@ const CODE_BLOCK_TRANSFORMER: MultilineElementTransformer = {
 
 const MARKDOWN_TRANSFORMERS = [
   HEADING,
+  UNORDERED_LIST,
+  ORDERED_LIST,
   BOLD_ITALIC_STAR,
   BOLD_ITALIC_UNDERSCORE,
   BOLD_STAR,

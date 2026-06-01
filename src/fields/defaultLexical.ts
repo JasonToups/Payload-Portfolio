@@ -3,7 +3,9 @@ import {
   BoldFeature,
   ItalicFeature,
   LinkFeature,
+  OrderedListFeature,
   ParagraphFeature,
+  UnorderedListFeature,
   lexicalEditor,
   UnderlineFeature,
   type LinkFields,
@@ -15,6 +17,8 @@ export const defaultLexical = lexicalEditor({
     UnderlineFeature(),
     BoldFeature(),
     ItalicFeature(),
+    UnorderedListFeature(),
+    OrderedListFeature(),
     LinkFeature({
       enabledCollections: ['pages', 'posts'],
       fields: ({ defaultFields }) => {
