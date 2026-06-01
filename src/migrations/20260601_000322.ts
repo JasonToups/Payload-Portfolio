@@ -33,8 +33,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
    ALTER TABLE "scheduled_social_posts" DISABLE ROW LEVEL SECURITY;
   DROP TABLE "scheduled_social_posts" CASCADE;
-  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_scheduled_social_posts_fk";
-  
+
   ALTER TABLE "payload_jobs_log" ALTER COLUMN "task_slug" SET DATA TYPE text;
   DROP TYPE "public"."enum_payload_jobs_log_task_slug";
   CREATE TYPE "public"."enum_payload_jobs_log_task_slug" AS ENUM('inline', 'publishSocialPost', 'schedulePublish');
