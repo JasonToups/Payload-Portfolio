@@ -15,12 +15,11 @@ type ScheduledPostDoc = {
   publishedUrl?: string | null
 }
 
-type CreateScheduledPostBody = {
-  post: number
+type CreateSocialPostBody = {
+  linkedPost: number
   platform: Platform
   body: string
   scheduledFor: string
-  status: string
 }
 
 const PLATFORM_LABELS: Record<Platform, string> = {
@@ -148,7 +147,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
   // Fetch existing scheduled posts for this post
   useEffect(() => {
     if (!postId || !isOpen) return
-    fetch(`/api/scheduled-social-posts?where[post][equals]=${postId}&limit=20&depth=0`)
+    fetch(`/api/social-posts?where[linkedPost][equals]=${postId}&limit=20&depth=0`)
       .then((r) => r.json() as Promise<{ docs: ScheduledPostDoc[] }>)
       .then((d) => setScheduled(d.docs ?? []))
       .catch(() => {})
@@ -203,16 +202,15 @@ export const ScheduleSocialPostButton: React.FC = () => {
     setPhase('saving')
     setError(null)
 
-    const requestBody: CreateScheduledPostBody = {
-      post: postId,
+    const requestBody: CreateSocialPostBody = {
+      linkedPost: postId,
       platform,
       body,
       scheduledFor: scheduledFor.toISOString(),
-      status: 'pending',
     }
 
     try {
-      const res = await fetch('/api/scheduled-social-posts', {
+      const res = await fetch('/api/social-posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
@@ -237,7 +235,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
   const handleCancel = async (docId: number) => {
     if (!window.confirm('Cancel this scheduled post?')) return
     try {
-      await fetch(`/api/scheduled-social-posts/${docId}`, {
+      await fetch(`/api/social-posts/${docId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'cancelled' }),

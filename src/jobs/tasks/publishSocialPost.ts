@@ -1,11 +1,19 @@
 import type { TaskConfig } from 'payload'
 import type { Keyword, Post, SocialPost, SocialSetting } from '@/payload-types'
+import type { SocialPlatform } from '@/utilities/buildShareUrl'
 import { publishLinkedIn } from '@/lib/social/publishLinkedIn'
 import { publishThreads } from '@/lib/social/publishThreads'
 import { publishBlueSky } from '@/lib/social/publishBlueSky'
 import { publishTwitter } from '@/lib/social/publishTwitter'
 import { collectSocialPostImageUrls } from '@/utilities/collectSocialPostImageUrls'
 import { getServerSideURL } from '@/utilities/getURL'
+
+type ExistingShare = {
+  platform: SocialPlatform
+  sharedAt: string
+  shareUrl?: string | null
+  id?: string | null
+}
 
 function sanitizeTopicTag(raw: string): string {
   return raw.replace(/[^a-zA-Z0-9]/g, '')
@@ -217,6 +225,27 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
       data: { status: 'published', publishedAt: now, publishedUrl },
       overrideAccess: true,
     })
+
+    if (linkedPost) {
+      const freshPost = await req.payload.findByID({
+        collection: 'posts',
+        id: linkedPost.id,
+        depth: 0,
+        overrideAccess: true,
+      })
+      const existingShares = ((freshPost.socialShares ?? []) as ExistingShare[])
+      await req.payload.update({
+        collection: 'posts',
+        id: linkedPost.id,
+        data: {
+          socialShares: [
+            ...existingShares,
+            { platform: doc.platform as SocialPlatform, sharedAt: now, shareUrl: publishedUrl },
+          ],
+        },
+        overrideAccess: true,
+      })
+    }
 
     return { output: { publishedUrl } }
   },

@@ -371,12 +371,12 @@ export const Posts: CollectionConfig<'posts'> = {
               },
             },
             {
-              name: 'scheduledSocialPosts',
+              name: 'socialPosts',
+              label: 'Social Posts',
               type: 'join',
-              collection: 'scheduled-social-posts',
-              on: 'post',
+              collection: 'social-posts',
+              on: 'linkedPost',
               admin: {
-                allowCreate: false,
                 defaultColumns: ['platform', 'status', 'scheduledFor'],
               },
             },

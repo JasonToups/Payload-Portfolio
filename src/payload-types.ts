@@ -71,7 +71,6 @@ export interface Config {
     'email-templates': EmailTemplate;
     pages: Page;
     posts: Post;
-    'scheduled-social-posts': ScheduledSocialPost;
     'social-posts': SocialPost;
     'short-urls': ShortUrl;
     media: Media;
@@ -93,7 +92,7 @@ export interface Config {
   collectionsJoins: {
     posts: {
       broadcasts: 'broadcasts';
-      scheduledSocialPosts: 'scheduled-social-posts';
+      socialPosts: 'social-posts';
     };
     'payload-folders': {
       documentsAndFolders: 'payload-folders' | 'media';
@@ -104,7 +103,6 @@ export interface Config {
     'email-templates': EmailTemplatesSelect<false> | EmailTemplatesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
-    'scheduled-social-posts': ScheduledSocialPostsSelect<false> | ScheduledSocialPostsSelect<true>;
     'social-posts': SocialPostsSelect<false> | SocialPostsSelect<true>;
     'short-urls': ShortUrlsSelect<false> | ShortUrlsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -149,7 +147,6 @@ export interface Config {
   user: User;
   jobs: {
     tasks: {
-      publishScheduledSocialPost: TaskPublishScheduledSocialPost;
       publishSocialPost: TaskPublishSocialPost;
       schedulePublish: TaskSchedulePublish;
       inline: {
@@ -558,8 +555,8 @@ export interface Post {
     totalDocs?: number;
   };
   socialPostBody?: string | null;
-  scheduledSocialPosts?: {
-    docs?: (number | ScheduledSocialPost)[];
+  socialPosts?: {
+    docs?: (number | SocialPost)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
@@ -609,30 +606,46 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "scheduled-social-posts".
+ * via the `definition` "social-posts".
  */
-export interface ScheduledSocialPost {
+export interface SocialPost {
   id: number;
   /**
-   * The Payload Post to share.
+   * Internal label for this post — not published.
    */
-  post: number | Post;
+  title: string;
+  /**
+   * Text content for the social post.
+   */
+  body: string;
+  /**
+   * Optional: link to a Post to include its URL (auto-generates a short URL). Leave blank for a standalone post.
+   */
+  linkedPost?: (number | null) | Post;
+  /**
+   * Used as hashtags when publishing.
+   */
+  keywords?: (number | Keyword)[] | null;
+  /**
+   * Primary image. Used as the featured/thumbnail image.
+   */
+  heroImage?: (number | null) | Media;
+  /**
+   * Additional images. LinkedIn, Threads (2–20), and BlueSky (up to 4) support multiple images.
+   */
+  images?: (number | Media)[] | null;
   /**
    * Social media platform to publish to.
    */
   platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads';
   /**
-   * Text content for the social post. Pre-filled from the Post's Social Post Body.
+   * Managed by the scheduler — use "Publish Now" or set a schedule date.
    */
-  body: string;
+  status?: ('draft' | 'pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
   /**
-   * Date and time the post should be published.
+   * When to publish. Setting a date auto-schedules the post. Leave blank and use "Publish Now" to publish immediately.
    */
-  scheduledFor: string;
-  /**
-   * Managed by the scheduler — do not edit manually.
-   */
-  status?: ('pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
+  scheduledFor?: string | null;
   /**
    * Populated on successful publish.
    */
@@ -642,13 +655,13 @@ export interface ScheduledSocialPost {
    */
   publishedUrl?: string | null;
   /**
+   * Auto-generated short URL — created when a linked Post is selected.
+   */
+  shortUrl?: string | null;
+  /**
    * Populated on failure — check here when status is "failed".
    */
   errorMessage?: string | null;
-  /**
-   * Auto-generated short URL used in Threads and Bluesky posts.
-   */
-  shortUrl?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1424,67 +1437,6 @@ export interface TestimonialsBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "social-posts".
- */
-export interface SocialPost {
-  id: number;
-  /**
-   * Internal label for this post — not published.
-   */
-  title: string;
-  /**
-   * Text content for the social post.
-   */
-  body: string;
-  /**
-   * Optional: link to a Post to include its URL (auto-generates a short URL). Leave blank for a standalone post.
-   */
-  linkedPost?: (number | null) | Post;
-  /**
-   * Used as hashtags when publishing.
-   */
-  keywords?: (number | Keyword)[] | null;
-  /**
-   * Primary image. Used as the featured/thumbnail image.
-   */
-  heroImage?: (number | null) | Media;
-  /**
-   * Additional images. LinkedIn, Threads (2–20), and BlueSky (up to 4) support multiple images.
-   */
-  images?: (number | Media)[] | null;
-  /**
-   * Social media platform to publish to.
-   */
-  platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads';
-  /**
-   * Managed by the scheduler — use "Publish Now" or set a schedule date.
-   */
-  status?: ('draft' | 'pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
-  /**
-   * When to publish. Setting a date auto-schedules the post. Leave blank and use "Publish Now" to publish immediately.
-   */
-  scheduledFor?: string | null;
-  /**
-   * Populated on successful publish.
-   */
-  publishedAt?: string | null;
-  /**
-   * URL of the published social post.
-   */
-  publishedUrl?: string | null;
-  /**
-   * Auto-generated short URL — created when a linked Post is selected.
-   */
-  shortUrl?: string | null;
-  /**
-   * Populated on failure — check here when status is "failed".
-   */
-  errorMessage?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "short-urls".
  */
 export interface ShortUrl {
@@ -1667,7 +1619,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'publishScheduledSocialPost' | 'publishSocialPost' | 'schedulePublish';
+        taskSlug: 'inline' | 'publishSocialPost' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1700,7 +1652,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'publishScheduledSocialPost' | 'publishSocialPost' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'publishSocialPost' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1729,10 +1681,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: number | Post;
-      } | null)
-    | ({
-        relationTo: 'scheduled-social-posts';
-        value: number | ScheduledSocialPost;
       } | null)
     | ({
         relationTo: 'social-posts';
@@ -2213,7 +2161,7 @@ export interface PostsSelect<T extends boolean = true> {
       };
   broadcasts?: T;
   socialPostBody?: T;
-  scheduledSocialPosts?: T;
+  socialPosts?: T;
   socialShares?:
     | T
     | {
@@ -2225,23 +2173,6 @@ export interface PostsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "scheduled-social-posts_select".
- */
-export interface ScheduledSocialPostsSelect<T extends boolean = true> {
-  post?: T;
-  platform?: T;
-  body?: T;
-  scheduledFor?: T;
-  status?: T;
-  publishedAt?: T;
-  publishedUrl?: T;
-  errorMessage?: T;
-  shortUrl?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3184,18 +3115,6 @@ export interface SocialSettingsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TaskPublishScheduledSocialPost".
- */
-export interface TaskPublishScheduledSocialPost {
-  input: {
-    scheduledPostId: number;
-  };
-  output: {
-    publishedUrl?: string | null;
-  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

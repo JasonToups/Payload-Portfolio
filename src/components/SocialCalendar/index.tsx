@@ -9,13 +9,13 @@ type CalendarPost = {
   slug: string
 }
 
-type CalendarScheduledPost = {
+type CalendarSocialPost = {
   id: number
-  platform: 'linkedin' | 'bluesky' | 'threads'
+  title: string
+  platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads'
   status: string
   scheduledFor: string
   publishedAt?: string | null
-  post?: { title?: string; slug?: string } | number | null
 }
 
 type CalendarBroadcast = {
@@ -33,6 +33,7 @@ type CalendarItem =
 
 const PLATFORM_ICON: Record<string, string> = {
   linkedin: 'Li',
+  twitter: 'X',
   bluesky: 'Sky',
   threads: 'Th',
 }
@@ -66,9 +67,9 @@ export default function SocialCalendar() {
       fetch('/api/posts?where[_status][equals]=published&select=title,publishedAt,slug,id&limit=200&depth=0')
         .then((r) => r.json() as Promise<{ docs: CalendarPost[] }>)
         .catch(() => ({ docs: [] as CalendarPost[] })),
-      fetch('/api/scheduled-social-posts?where[status][not_equals]=cancelled&limit=200&depth=1')
-        .then((r) => r.json() as Promise<{ docs: CalendarScheduledPost[] }>)
-        .catch(() => ({ docs: [] as CalendarScheduledPost[] })),
+      fetch('/api/social-posts?where[status][not_equals]=cancelled&limit=200&depth=0')
+        .then((r) => r.json() as Promise<{ docs: CalendarSocialPost[] }>)
+        .catch(() => ({ docs: [] as CalendarSocialPost[] })),
       fetch('/api/broadcasts?where[sendStatus][not_equals]=draft&select=subject,scheduledAt,sentAt,sendStatus,id&limit=100&depth=0')
         .then((r) => r.json() as Promise<{ docs: CalendarBroadcast[] }>)
         .catch(() => ({ docs: [] as CalendarBroadcast[] })),
@@ -89,13 +90,11 @@ export default function SocialCalendar() {
       for (const s of socialRes.docs) {
         const dateStr = s.status === 'published' ? s.publishedAt : s.scheduledFor
         if (!dateStr) continue
-        const postObj = typeof s.post === 'object' && s.post ? s.post : null
-        const postTitle = postObj?.title ?? 'Untitled Post'
         all.push({
           kind: 'social',
           date: new Date(dateStr),
           id: s.id,
-          label: `${s.platform}: ${postTitle}`,
+          label: `${s.platform}: ${s.title}`,
           platform: s.platform,
           status: s.status,
         })
@@ -152,7 +151,7 @@ export default function SocialCalendar() {
   const pillHref = (item: CalendarItem): string => {
     if (item.kind === 'post') return `/admin/collections/posts/${item.id}`
     if (item.kind === 'broadcast') return `/admin/collections/broadcasts/${item.id}`
-    return `/admin/collections/scheduled-social-posts/${item.id}`
+    return `/admin/collections/social-posts/${item.id}`
   }
 
   const pillContent = (item: CalendarItem): string => {
