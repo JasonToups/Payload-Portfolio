@@ -44,7 +44,8 @@ export const MediaBlock: React.FC<Props> = (props) => {
     >
       {(media || staticImage) && (
         <Media
-          imgClassName={cn('border border-border rounded-[0.8rem]', imgClassName)}
+          imgClassName={cn('border border-border rounded-[0.8rem] w-full h-auto', imgClassName)}
+          pictureClassName="w-full"
           resource={media}
           src={staticImage}
         />
