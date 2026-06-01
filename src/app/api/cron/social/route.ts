@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const now = new Date().toISOString()
 
   const due = await payload.find({
-    collection: 'scheduled-social-posts',
+    collection: 'social-posts',
     where: {
       and: [
         { status: { equals: 'pending' } },
@@ -25,25 +25,6 @@ export async function GET(request: Request) {
 
   for (const doc of due.docs) {
     await payload.jobs.queue({
-      task: 'publishScheduledSocialPost',
-      input: { scheduledPostId: doc.id },
-    })
-  }
-
-  const dueSocialPosts = await payload.find({
-    collection: 'social-posts',
-    where: {
-      and: [
-        { status: { equals: 'pending' } },
-        { scheduledFor: { less_than_equal: now } },
-      ],
-    },
-    limit: 20,
-    overrideAccess: true,
-  })
-
-  for (const doc of dueSocialPosts.docs) {
-    await payload.jobs.queue({
       task: 'publishSocialPost',
       input: { socialPostId: doc.id },
     })
@@ -51,9 +32,5 @@ export async function GET(request: Request) {
 
   const result = await payload.jobs.run({ overrideAccess: true })
 
-  return Response.json({
-    scheduledQueued: due.totalDocs,
-    socialQueued: dueSocialPosts.totalDocs,
-    result,
-  })
+  return Response.json({ queued: due.totalDocs, result })
 }

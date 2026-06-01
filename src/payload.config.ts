@@ -24,12 +24,10 @@ import { EmailSettings } from './EmailSettings'
 import { EmailLayout } from './EmailLayout'
 import { SubscribePostBlock } from './SubscribePostBlock/config'
 import { SocialSettings } from './globals/SocialSettings'
-import { ScheduledSocialPosts } from './collections/ScheduledSocialPosts'
 import { ShortUrls } from './collections/ShortUrls'
 import { EmailTemplates } from './collections/EmailTemplates'
 import { subscribeForm } from './endpoints/seed/subscribe-form'
 import { toSlug } from './utilities/toSlug'
-import { publishScheduledSocialPostTask } from './jobs/tasks/publishScheduledSocialPost'
 import { publishSocialPostTask } from './jobs/tasks/publishSocialPost'
 import { SocialPosts } from './collections/SocialPosts'
 
@@ -142,7 +140,7 @@ export default buildConfig({
       connectionString: process.env.POSTGRES_URL || '',
     },
   }),
-  collections: [Broadcasts, EmailTemplates, Pages, Posts, ScheduledSocialPosts, SocialPosts, ShortUrls, Media, Categories, Keywords, Resume, Users],
+  collections: [Broadcasts, EmailTemplates, Pages, Posts, SocialPosts, ShortUrls, Media, Categories, Keywords, Resume, Users],
   cors: [getServerSideURL()].filter(Boolean),
   email: resendAdapter({
     apiKey: process.env.RESEND_API_KEY!,
@@ -179,6 +177,6 @@ export default buildConfig({
         return authHeader === `Bearer ${process.env.CRON_SECRET}`
       },
     },
-    tasks: [publishScheduledSocialPostTask, publishSocialPostTask],
+    tasks: [publishSocialPostTask],
   },
 })
