@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
-import { cropToOGAspectRatio } from './Media/hooks/cropToOGAspectRatio'
+import { constrainToOGBounds } from './Media/hooks/constrainToOGBounds'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -19,7 +19,7 @@ export const Media: CollectionConfig = {
   slug: 'media',
   folders: true,
   hooks: {
-    beforeOperation: [cropToOGAspectRatio],
+    beforeOperation: [constrainToOGBounds],
   },
   access: {
     create: authenticated,
