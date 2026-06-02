@@ -627,11 +627,16 @@ export interface SocialPost {
    */
   keywords?: (number | Keyword)[] | null;
   /**
-   * Primary image. Used as the featured/thumbnail image.
+   * URL = link-card post. Image = photo/carousel. Content = text only.
    */
+  postType: 'url' | 'image' | 'content';
+  /**
+   * URL to share. Auto-populated from the linked Post; edit to override.
+   */
+  url?: string | null;
   heroImage?: (number | null) | Media;
   /**
-   * Additional images. LinkedIn, Threads (2–20), and BlueSky (up to 4) support multiple images.
+   * 1 image = single image post. 2+ = carousel / multi-image post.
    */
   images?: (number | Media)[] | null;
   /**
@@ -643,7 +648,7 @@ export interface SocialPost {
    */
   status?: ('draft' | 'pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
   /**
-   * When to publish. Setting a date auto-schedules the post. Leave blank and use "Publish Now" to publish immediately.
+   * When to publish. Leave blank to publish immediately. Setting a date auto-schedules the post.
    */
   scheduledFor?: string | null;
   /**
@@ -2183,6 +2188,8 @@ export interface SocialPostsSelect<T extends boolean = true> {
   body?: T;
   linkedPost?: T;
   keywords?: T;
+  postType?: T;
+  url?: T;
   heroImage?: T;
   images?: T;
   platform?: T;

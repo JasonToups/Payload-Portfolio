@@ -86,13 +86,20 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
         ? (doc.linkedPost as Post)
         : null
 
+    const postType = doc.postType ?? 'url'
+
     const linkedPostUrl = linkedPost
       ? `${getServerSideURL()}/posts/${linkedPost.slug}`
       : undefined
 
-    const postUrl = doc.shortUrl ?? linkedPostUrl
+    // URL embed — only for URL-type posts; falls back through url field → shortUrl → derived slug URL
+    const postUrl =
+      postType === 'url'
+        ? (doc.url ?? doc.shortUrl ?? linkedPostUrl)
+        : undefined
 
-    const imageUrls = collectSocialPostImageUrls(doc)
+    // Images — only for Image-type posts
+    const imageUrls = postType === 'image' ? collectSocialPostImageUrls(doc) : []
 
     const keywords = (doc.keywords ?? []) as (number | Keyword)[]
     const resolvedKeywords = keywords.filter((k): k is Keyword => typeof k === 'object')
@@ -142,7 +149,7 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
 
         // Use the direct post URL for Threads — short URLs aren't followed by Threads' link scraper,
         // which causes the link card to resolve to the homepage instead of the post.
-        const thPostUrl = linkedPostUrl
+        const thPostUrl = postUrl
 
         const thBody = [
           doc.body,

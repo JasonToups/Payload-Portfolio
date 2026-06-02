@@ -11,6 +11,11 @@ export const SocialPosts: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'platform', 'status', 'scheduledFor', 'publishedAt'],
     group: 'Social',
+    components: {
+      edit: {
+        SaveButton: '@/collections/SocialPosts/components/SocialPostSaveArea#SocialPostSaveArea',
+      },
+    },
   },
   access: {
     read: ({ req: { user } }) => Boolean(user),
@@ -22,6 +27,15 @@ export const SocialPosts: CollectionConfig = {
     beforeChange: [socialPostBeforeChange],
   },
   fields: [
+    {
+      name: 'linkedPostAutoFill',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/collections/SocialPosts/components/LinkedPostAutoFill',
+        },
+      },
+    },
     {
       name: 'title',
       type: 'text',
@@ -58,11 +72,33 @@ export const SocialPosts: CollectionConfig = {
       },
     },
     {
+      name: 'postType',
+      type: 'select',
+      defaultValue: 'url',
+      required: true,
+      options: [
+        { label: 'URL', value: 'url' },
+        { label: 'Image', value: 'image' },
+        { label: 'Content', value: 'content' },
+      ],
+      admin: {
+        description: 'URL = link-card post. Image = photo/carousel. Content = text only.',
+      },
+    },
+    {
+      name: 'url',
+      type: 'text',
+      admin: {
+        description: 'URL to share. Auto-populated from the linked Post; edit to override.',
+        condition: (data) => (data?.postType ?? 'url') === 'url' && !data?.linkedPost,
+      },
+    },
+    {
       name: 'heroImage',
       type: 'upload',
       relationTo: 'media',
       admin: {
-        description: 'Primary image. Used as the featured/thumbnail image.',
+        hidden: true,
       },
     },
     {
@@ -71,17 +107,8 @@ export const SocialPosts: CollectionConfig = {
       relationTo: 'media',
       hasMany: true,
       admin: {
-        description:
-          'Additional images. LinkedIn, Threads (2–20), and BlueSky (up to 4) support multiple images.',
-      },
-    },
-    {
-      name: 'publishActions',
-      type: 'ui',
-      admin: {
-        components: {
-          Field: '@/collections/SocialPosts/components/SocialPostPublishButton',
-        },
+        description: '1 image = single image post. 2+ = carousel / multi-image post.',
+        condition: (data) => data?.postType === 'image',
       },
     },
     {
@@ -124,7 +151,7 @@ export const SocialPosts: CollectionConfig = {
         position: 'sidebar',
         date: { pickerAppearance: 'dayAndTime' },
         description:
-          'When to publish. Setting a date auto-schedules the post. Leave blank and use "Publish Now" to publish immediately.',
+          'When to publish. Leave blank to publish immediately. Setting a date auto-schedules the post.',
       },
     },
     {

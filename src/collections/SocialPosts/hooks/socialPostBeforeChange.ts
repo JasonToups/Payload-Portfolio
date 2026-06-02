@@ -10,7 +10,7 @@ const PLATFORM_LABELS: Record<string, string> = {
   threads: 'Threads',
 }
 
-export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data, req, operation }) => {
+export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data, req, operation, originalDoc }) => {
   const postId =
     data.linkedPost && typeof data.linkedPost === 'object'
       ? (data.linkedPost as { id: number }).id
@@ -34,6 +34,16 @@ export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data,
     }
   }
 
+  // Auto-populate body from the linked Post's socialPostBody
+  if (operation === 'create' && post?.socialPostBody && !data.body) {
+    data.body = post.socialPostBody
+  }
+
+  // Auto-populate url from the linked Post's slug for URL-type posts
+  if (operation === 'create' && post?.slug && !data.url && (data.postType ?? 'url') === 'url') {
+    data.url = `${getServerSideURL()}/posts/${post.slug}`
+  }
+
   if (postId && post?.slug && !data.shortUrl) {
     const code = randomBytes(3).toString('hex')
     const targetUrl = `${getServerSideURL()}/posts/${post.slug}`
@@ -54,7 +64,11 @@ export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data,
     data.status = 'pending'
   }
 
-  if (!data.scheduledFor && data.status === 'pending') {
+  // Only reset to draft when a previously-set schedule is being cleared.
+  // The publish route sets status='pending' on posts that never had a scheduledFor date —
+  // wasScheduled stays false for those, so the reset is skipped.
+  const wasScheduled = Boolean(originalDoc?.scheduledFor)
+  if (!data.scheduledFor && data.status === 'pending' && wasScheduled) {
     data.status = 'draft'
   }
 
