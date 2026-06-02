@@ -10,7 +10,7 @@ const PLATFORM_LABELS: Record<string, string> = {
   threads: 'Threads',
 }
 
-export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data, req }) => {
+export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data, req, operation }) => {
   const postId =
     data.linkedPost && typeof data.linkedPost === 'object'
       ? (data.linkedPost as { id: number }).id
@@ -24,6 +24,14 @@ export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data,
       depth: 0,
       overrideAccess: true,
     })) as Post
+  }
+
+  // Inherit keywords from the linked Post when creating a new SocialPost
+  if (operation === 'create' && post && !data.keywords?.length) {
+    const postKeywords = (post.keywords ?? []) as (number | { id: number })[]
+    if (postKeywords.length > 0) {
+      data.keywords = postKeywords.map((k) => (typeof k === 'object' ? k.id : k))
+    }
   }
 
   if (postId && post?.slug && !data.shortUrl) {
