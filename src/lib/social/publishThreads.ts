@@ -11,6 +11,7 @@ type PublishThreadsOptions = {
   body: string
   topicTag?: string
   imageUrls?: string[]
+  linkAttachment?: string
   settings: ThreadsSettings
 }
 
@@ -45,7 +46,7 @@ async function createItemContainer(
 }
 
 export async function publishThreads(options: PublishThreadsOptions): Promise<{ url: string }> {
-  const { body, topicTag, imageUrls = [], settings } = options
+  const { body, topicTag, imageUrls = [], linkAttachment, settings } = options
   const { accessToken, userId, expiresAt } = settings
 
   if (expiresAt && new Date(expiresAt) <= new Date()) {
@@ -65,6 +66,7 @@ export async function publishThreads(options: PublishThreadsOptions): Promise<{ 
         text: body,
         access_token: accessToken,
         ...topicTagParam,
+        ...(linkAttachment ? { link_attachment: linkAttachment } : {}),
       }),
     })
     if (!createRes.ok) {

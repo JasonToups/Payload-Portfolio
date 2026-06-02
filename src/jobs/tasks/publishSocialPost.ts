@@ -140,9 +140,13 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
         const firstKeyword = resolvedKeywords[0] ?? null
         const topicTag = firstKeyword ? sanitizeTopicTag(firstKeyword.name) || undefined : undefined
 
+        // Use the direct post URL for Threads — short URLs aren't followed by Threads' link scraper,
+        // which causes the link card to resolve to the homepage instead of the post.
+        const thPostUrl = linkedPostUrl
+
         const thBody = [
           doc.body,
-          ...(postUrl ? [postUrl] : []),
+          ...(thPostUrl ? [thPostUrl] : []),
           ...(hashtagString ? [hashtagString] : []),
         ].join('\n\n')
 
@@ -150,6 +154,8 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
           body: thBody,
           topicTag,
           imageUrls,
+          // link_attachment explicitly sets the link card URL for text-only posts (per Meta docs)
+          linkAttachment: imageUrls.length === 0 ? thPostUrl : undefined,
           settings: {
             accessToken: th.accessToken,
             userId: th.userId,
