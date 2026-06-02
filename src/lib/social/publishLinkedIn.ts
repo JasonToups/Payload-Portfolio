@@ -95,10 +95,15 @@ export async function publishLinkedIn(options: PublishLinkedInOptions): Promise<
     throw new Error('LinkedIn token has expired. Re-authorize from the admin panel.')
   }
 
-  // Upload all images in parallel (null results are filtered out)
-  const uploadedUrns = (
-    await Promise.all(imageUrls.map((imgUrl) => uploadImageToLinkedIn(imgUrl, personUrn, accessToken)))
-  ).filter((urn): urn is string => urn !== null)
+  // Article posts rely on LinkedIn scraping og:image from the URL — skip uploads for that case
+  const shouldUploadImages = imageUrls.length >= 2 || !url
+  const uploadedUrns = shouldUploadImages
+    ? (
+        await Promise.all(
+          imageUrls.map((imgUrl) => uploadImageToLinkedIn(imgUrl, personUrn, accessToken)),
+        )
+      ).filter((urn): urn is string => urn !== null)
+    : []
 
   let linkedInBody: Record<string, unknown>
 
@@ -121,9 +126,7 @@ export async function publishLinkedIn(options: PublishLinkedInOptions): Promise<
       isReshareDisabledByAuthor: false,
     }
   } else if (url) {
-    // Article post (0 or 1 image) — preserves the link preview card
-    const thumbnailUrn = uploadedUrns[0] ?? null
-
+    // Article post — LinkedIn auto-scrapes og:image from the URL for the preview card
     linkedInBody = {
       author: personUrn,
       commentary: body,
@@ -134,7 +137,6 @@ export async function publishLinkedIn(options: PublishLinkedInOptions): Promise<
           source: url,
           title: title ?? '',
           ...(description ? { description } : {}),
-          ...(thumbnailUrn ? { thumbnail: thumbnailUrn } : {}),
         },
       },
       lifecycleState: 'PUBLISHED',
