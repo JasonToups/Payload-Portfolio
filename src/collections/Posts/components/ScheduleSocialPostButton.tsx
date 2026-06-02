@@ -5,13 +5,13 @@ import { useEffect, useState } from 'react'
 
 type Platform = 'linkedin' | 'twitter' | 'bluesky' | 'threads'
 type PlatformStatus = 'unknown' | 'connected' | 'disconnected'
-type SchedulePhase = 'idle' | 'composing' | 'saving' | 'saved' | 'error'
+type SchedulePhase = 'idle' | 'composing' | 'saving' | 'saved' | 'sharing' | 'shared' | 'queued' | 'error'
 
 type ScheduledPostDoc = {
   id: number
   platform: Platform
   status: string
-  scheduledFor: string
+  scheduledFor?: string | null
   publishedUrl?: string | null
 }
 
@@ -20,6 +20,19 @@ type CreateSocialPostBody = {
   platform: Platform
   body: string
   scheduledFor: string
+}
+
+type CreateSocialPostBodyNow = {
+  linkedPost: number
+  platform: Platform
+  body: string
+}
+
+type PublishResponse = {
+  success: boolean
+  publishedUrl?: string
+  message?: string
+  error?: string
 }
 
 const PLATFORM_LABELS: Record<Platform, string> = {
@@ -103,6 +116,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
   const [phase, setPhase] = useState<SchedulePhase>('idle')
   const [error, setError] = useState<string | null>(null)
   const [scheduled, setScheduled] = useState<ScheduledPostDoc[]>([])
+  const [sharedUrl, setSharedUrl] = useState<string | null>(null)
 
   const [statuses, setStatuses] = useState<Record<Platform, PlatformStatus>>({
     linkedin: 'unknown',
@@ -229,6 +243,65 @@ export const ScheduleSocialPostButton: React.FC = () => {
     } catch (err: unknown) {
       setPhase('error')
       setError(err instanceof Error ? err.message : 'Failed to schedule post')
+    }
+  }
+
+  const handleShareNow = async () => {
+    if (!postId) return
+    if (statuses[platform] !== 'connected') {
+      setError(`${PLATFORM_LABELS[platform]} is not connected.`)
+      return
+    }
+
+    setPhase('sharing')
+    setError(null)
+
+    const requestBody: CreateSocialPostBodyNow = { linkedPost: postId, platform, body }
+
+    try {
+      const createRes = await fetch('/api/social-posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      })
+
+      if (!createRes.ok) {
+        const json = (await createRes.json()) as { errors?: { message: string }[] }
+        throw new Error(json.errors?.[0]?.message ?? 'Failed to create post')
+      }
+
+      const { doc: created } = (await createRes.json()) as { doc: ScheduledPostDoc }
+
+      const publishRes = await fetch(`/api/social-posts/${created.id}/publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      const publishData = (await publishRes.json()) as PublishResponse
+
+      if (!publishRes.ok && !publishData.success) {
+        throw new Error(publishData.error ?? 'Failed to publish post')
+      }
+
+      if (publishData.publishedUrl) {
+        setSharedUrl(publishData.publishedUrl)
+        setScheduled((prev) => [
+          ...prev,
+          { ...created, status: 'published', publishedUrl: publishData.publishedUrl },
+        ])
+        setPhase('shared')
+      } else {
+        setScheduled((prev) => [...prev, { ...created, status: 'pending' }])
+        setPhase('queued')
+      }
+
+      setTimeout(() => {
+        setPhase('composing')
+        setSharedUrl(null)
+      }, 4000)
+    } catch (err: unknown) {
+      setPhase('error')
+      setError(err instanceof Error ? err.message : 'Failed to publish post')
     }
   }
 
@@ -458,9 +531,27 @@ export const ScheduleSocialPostButton: React.FC = () => {
           </div>
 
           {/* Actions */}
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             <button
               className="btn btn--style-primary btn--size-small"
+              disabled={
+                phase === 'sharing' ||
+                statuses[platform] !== 'connected' ||
+                (platform === 'twitter' && twitterCharsRemaining < 0)
+              }
+              onClick={handleShareNow}
+              type="button"
+            >
+              {phase === 'sharing'
+                ? 'Publishing...'
+                : phase === 'shared'
+                  ? '✓ Published!'
+                  : phase === 'queued'
+                    ? 'Queued!'
+                    : 'Share Now'}
+            </button>
+            <button
+              className="btn btn--style-secondary btn--size-small"
               disabled={
                 !scheduledFor ||
                 phase === 'saving' ||
@@ -488,6 +579,26 @@ export const ScheduleSocialPostButton: React.FC = () => {
           {error && (
             <p style={{ color: 'var(--theme-error-500)', fontSize: '12px', marginTop: '8px' }}>
               {error}
+            </p>
+          )}
+
+          {phase === 'shared' && sharedUrl && (
+            <p style={{ color: 'var(--theme-success-500)', fontSize: '12px', marginTop: '8px' }}>
+              ✓ Published!{' '}
+              <a
+                href={sharedUrl}
+                rel="noopener noreferrer"
+                style={{ color: 'var(--theme-success-500)' }}
+                target="_blank"
+              >
+                View →
+              </a>
+            </p>
+          )}
+
+          {phase === 'queued' && (
+            <p style={{ color: '#f59e0b', fontSize: '12px', marginTop: '8px' }}>
+              Queued — will publish in ~35s (Threads requires a brief wait).
             </p>
           )}
 
@@ -563,9 +674,11 @@ export const ScheduleSocialPostButton: React.FC = () => {
                       >
                         {doc.status}
                       </span>
-                      <span style={{ color: 'var(--theme-text-dim)', fontSize: '11px' }}>
-                        {formatDate(doc.scheduledFor)}
-                      </span>
+                      {doc.scheduledFor && (
+                        <span style={{ color: 'var(--theme-text-dim)', fontSize: '11px' }}>
+                          {formatDate(doc.scheduledFor)}
+                        </span>
+                      )}
                     </div>
                     {doc.status === 'pending' && (
                       <button
