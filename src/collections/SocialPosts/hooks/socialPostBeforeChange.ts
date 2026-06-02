@@ -34,6 +34,16 @@ export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data,
     }
   }
 
+  // Auto-populate body from the linked Post's socialPostBody
+  if (operation === 'create' && post?.socialPostBody && !data.body) {
+    data.body = post.socialPostBody
+  }
+
+  // Auto-populate url from the linked Post's slug for URL-type posts
+  if (operation === 'create' && post?.slug && !data.url && (data.postType ?? 'url') === 'url') {
+    data.url = `${getServerSideURL()}/posts/${post.slug}`
+  }
+
   if (postId && post?.slug && !data.shortUrl) {
     const code = randomBytes(3).toString('hex')
     const targetUrl = `${getServerSideURL()}/posts/${post.slug}`
