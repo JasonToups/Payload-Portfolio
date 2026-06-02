@@ -11,6 +11,11 @@ export const SocialPosts: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'platform', 'status', 'scheduledFor', 'publishedAt'],
     group: 'Social',
+    components: {
+      edit: {
+        SaveButton: '@/collections/SocialPosts/components/SocialPostSaveArea#SocialPostSaveArea',
+      },
+    },
   },
   access: {
     read: ({ req: { user } }) => Boolean(user),
@@ -104,15 +109,6 @@ export const SocialPosts: CollectionConfig = {
       admin: {
         description: '1 image = single image post. 2+ = carousel / multi-image post.',
         condition: (data) => data?.postType === 'image',
-      },
-    },
-    {
-      name: 'publishActions',
-      type: 'ui',
-      admin: {
-        components: {
-          Field: '@/collections/SocialPosts/components/SocialPostPublishButton',
-        },
       },
     },
     {
