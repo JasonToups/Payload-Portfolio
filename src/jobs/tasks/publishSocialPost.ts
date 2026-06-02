@@ -186,11 +186,15 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
           throw new Error('BlueSky profile URL is not set in Social Settings')
         }
 
+        const bskyDescription = [linkedPost?.meta?.description, hashtagString || null]
+          .filter(Boolean)
+          .join('\n\n') || undefined
+
         const result = await publishBlueSky({
           body: doc.body,
           postUrl,
           title: linkedPost?.title,
-          description: linkedPost?.meta?.description ?? undefined,
+          description: bskyDescription,
           imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
           settings: { handle, appPassword },
         })
