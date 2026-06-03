@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from 'next/server'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+export const maxDuration = 60
+
 type RouteContext = { params: Promise<{ id: string }> }
 
 export async function POST(request: NextRequest, { params }: RouteContext): Promise<NextResponse> {
@@ -52,12 +54,6 @@ export async function POST(request: NextRequest, { params }: RouteContext): Prom
     task: 'publishSocialPost',
     input: { socialPostId },
   })
-
-  // Threads requires a 35s+ wait inside the publish function — return immediately
-  // and let the cron or a later jobs.run() complete it
-  if (doc.platform === 'threads') {
-    return NextResponse.json({ success: true, message: 'Queued — will publish shortly.' })
-  }
 
   await payload.jobs.run({ overrideAccess: true })
 
