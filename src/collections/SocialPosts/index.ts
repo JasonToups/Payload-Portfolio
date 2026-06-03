@@ -60,6 +60,7 @@ export const SocialPosts: CollectionConfig = {
       admin: {
         description:
           'Optional: link to a Post to include its URL (auto-generates a short URL). Leave blank for a standalone post.',
+        sortOptions: '-publishedAt',
       },
     },
     {
