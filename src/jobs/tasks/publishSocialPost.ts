@@ -157,7 +157,6 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
 
         const thBody = [
           doc.body,
-          ...(thPostUrl ? [thPostUrl] : []),
           ...(hashtagString ? [hashtagString] : []),
         ].join('\n\n')
 

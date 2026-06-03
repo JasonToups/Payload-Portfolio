@@ -1,6 +1,3 @@
-// Max Vercel function duration — Threads requires a ~35s wait between container create and publish
-export const maxDuration = 60
-
 type ThreadsSettings = {
   accessToken: string
   userId: string
@@ -18,8 +15,33 @@ type PublishThreadsOptions = {
 type ThreadsCreateResponse = { id: string }
 type ThreadsPublishResponse = { id: string }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+type ThreadsContainerStatus = {
+  status: 'FINISHED' | 'IN_PROGRESS' | 'ERROR' | 'EXPIRED'
+  error_message?: string
+  id: string
+}
+
+async function pollContainerStatus(
+  containerId: string,
+  accessToken: string,
+  maxWaitMs = 30_000,
+  intervalMs = 5_000,
+): Promise<void> {
+  const deadline = Date.now() + maxWaitMs
+  while (Date.now() < deadline) {
+    const res = await fetch(
+      `https://graph.threads.net/v1.0/${containerId}?fields=status,error_message&access_token=${encodeURIComponent(accessToken)}`,
+    )
+    if (!res.ok) throw new Error(`Threads status check failed: ${await res.text()}`)
+    const data = (await res.json()) as ThreadsContainerStatus
+    if (data.status === 'FINISHED') return
+    if (data.status === 'ERROR')
+      throw new Error(`Threads container error: ${data.error_message ?? 'unknown'}`)
+    if (data.status === 'EXPIRED') throw new Error('Threads container expired before publishing')
+    // IN_PROGRESS — wait and retry
+    await new Promise<void>((resolve) => setTimeout(resolve, intervalMs))
+  }
+  throw new Error('Threads container did not finish processing within 30 seconds')
 }
 
 async function createItemContainer(
@@ -116,8 +138,8 @@ export async function publishThreads(options: PublishThreadsOptions): Promise<{ 
     creationId = ((await carouselRes.json()) as ThreadsCreateResponse).id
   }
 
-  // Wait for the container to reach FINISHED state (~30s per Meta docs)
-  await sleep(35_000)
+  // Poll until the container reaches FINISHED state (up to 30s per Meta docs)
+  await pollContainerStatus(creationId, accessToken)
 
   // Publish the container
   const publishRes = await fetch(`https://graph.threads.net/v1.0/${userId}/threads_publish`, {
