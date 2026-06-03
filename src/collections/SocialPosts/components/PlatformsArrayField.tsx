@@ -169,7 +169,7 @@ export function PlatformsArrayField() {
   const { value, setValue } = useField<PlatformEntry[]>({ path: 'platforms' })
   const [addOpen, setAddOpen] = useState(false)
 
-  const entries: PlatformEntry[] = value ?? []
+  const entries: PlatformEntry[] = Array.isArray(value) ? value : []
 
   const usedPlatforms = new Set(entries.map((e) => e.platform))
   const availablePlatforms = ALL_PLATFORMS.filter((p) => !usedPlatforms.has(p))
