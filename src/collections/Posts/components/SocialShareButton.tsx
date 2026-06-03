@@ -39,7 +39,8 @@ function buildComposedText(text: string, url: string, hashtags: string[]): strin
   const hashtagString = hashtags.length
     ? hashtags.map((h) => `#${h.replace(/ /g, '_')}`).join(' ')
     : ''
-  return [text, url, hashtagString].filter(Boolean).join('\n\n')
+  const bodyWithHashtags = hashtagString ? `${text.trim()} ${hashtagString}` : text
+  return [bodyWithHashtags, url].filter(Boolean).join('\n\n')
 }
 
 type LinkedInComposeProps = {

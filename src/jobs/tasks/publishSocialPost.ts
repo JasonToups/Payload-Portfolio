@@ -124,7 +124,7 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
         const liHashtags = resolvedKeywords
           .map((k) => `#${k.name.replace(/ /g, '_')}`)
           .join(' ')
-        const liCommentary = liHashtags ? `${doc.body}\n\n${liHashtags}` : doc.body
+        const liCommentary = liHashtags ? `${doc.body.trim()} ${liHashtags}` : doc.body
 
         type ResolvedMedia = { url?: string | null }
         const ogMedia =
