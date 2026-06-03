@@ -648,6 +648,10 @@ export interface SocialPost {
    */
   status?: ('draft' | 'pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
   /**
+   * Populated on failure — check here when status is "failed".
+   */
+  errorMessage?: string | null;
+  /**
    * When to publish. Leave blank to publish immediately. Setting a date auto-schedules the post.
    */
   scheduledFor?: string | null;
@@ -663,10 +667,6 @@ export interface SocialPost {
    * Auto-generated short URL — created when a linked Post is selected.
    */
   shortUrl?: string | null;
-  /**
-   * Populated on failure — check here when status is "failed".
-   */
-  errorMessage?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2194,11 +2194,11 @@ export interface SocialPostsSelect<T extends boolean = true> {
   images?: T;
   platform?: T;
   status?: T;
+  errorMessage?: T;
   scheduledFor?: T;
   publishedAt?: T;
   publishedUrl?: T;
   shortUrl?: T;
-  errorMessage?: T;
   updatedAt?: T;
   createdAt?: T;
 }
