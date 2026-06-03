@@ -44,10 +44,12 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
   onFail: async ({ input, req }) => {
     const id = (input as { socialPostId?: number }).socialPostId
     if (!id) return
+    // errorMessage was already written by the handler on each failed attempt —
+    // here we just mark the final status so the admin shows the real error.
     await req.payload.update({
       collection: 'social-posts',
       id,
-      data: { status: 'failed', errorMessage: 'Failed after 2 attempts — check platform credentials.' },
+      data: { status: 'failed' },
       overrideAccess: true,
     })
   },
@@ -110,6 +112,7 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
 
     let publishedUrl: string
 
+    try {
     switch (doc.platform) {
       case 'linkedin': {
         const li = social.linkedin
@@ -232,6 +235,16 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
 
       default:
         throw new Error(`Unsupported platform: ${doc.platform}`)
+    }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      await req.payload.update({
+        collection: 'social-posts',
+        id: socialPostId,
+        data: { errorMessage },
+        overrideAccess: true,
+      })
+      throw err
     }
 
     const now = new Date().toISOString()
