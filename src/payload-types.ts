@@ -647,9 +647,6 @@ export interface SocialPost {
     errorMessage?: string | null;
     id?: string | null;
   }[];
-  /**
-   * When to publish. Leave blank to publish immediately. Setting a date auto-schedules the post.
-   */
   scheduledFor?: string | null;
   /**
    * Auto-generated short URL — created when a linked Post is selected.

@@ -175,8 +175,9 @@ export const SocialPosts: CollectionConfig = {
       admin: {
         position: 'sidebar',
         date: { pickerAppearance: 'dayAndTime' },
-        description:
-          'When to publish. Leave blank to publish immediately. Setting a date auto-schedules the post.',
+        components: {
+          Field: '@/collections/SocialPosts/components/ScheduledForField#ScheduledForField',
+        },
       },
     },
     {
