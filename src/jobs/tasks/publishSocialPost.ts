@@ -95,9 +95,10 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
       : undefined
 
     // URL embed — only for URL-type posts; falls back through url field → shortUrl → derived slug URL
+    // Trim to guard against stored URLs that were created before NEXT_PUBLIC_SERVER_URL was trimmed.
     const postUrl =
       postType === 'url'
-        ? (doc.url ?? doc.shortUrl ?? linkedPostUrl)
+        ? (doc.url?.trim() ?? doc.shortUrl?.trim() ?? linkedPostUrl)
         : undefined
 
     // Images — only for Image-type posts
