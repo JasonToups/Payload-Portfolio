@@ -16,6 +16,7 @@ type PublishLinkedInOptions = {
   title?: string
   description?: string
   imageUrls?: string[]
+  thumbnailUrl?: string
   settings: LinkedInSettings
 }
 
@@ -88,7 +89,7 @@ async function uploadImageToLinkedIn(
 }
 
 export async function publishLinkedIn(options: PublishLinkedInOptions): Promise<{ url: string }> {
-  const { body, url, title, description, imageUrls = [], settings } = options
+  const { body, url, title, description, imageUrls = [], thumbnailUrl, settings } = options
   const { accessToken, personUrn, expiresAt } = settings
 
   if (expiresAt && new Date(expiresAt) <= new Date()) {
@@ -126,7 +127,11 @@ export async function publishLinkedIn(options: PublishLinkedInOptions): Promise<
       isReshareDisabledByAuthor: false,
     }
   } else if (url) {
-    // Article post — LinkedIn auto-scrapes og:image from the URL for the preview card
+    // Article post — upload the hero/OG image as the card thumbnail if provided
+    const thumbnailUrn = thumbnailUrl
+      ? await uploadImageToLinkedIn(thumbnailUrl, personUrn, accessToken)
+      : null
+
     linkedInBody = {
       author: personUrn,
       commentary: body,
@@ -137,6 +142,7 @@ export async function publishLinkedIn(options: PublishLinkedInOptions): Promise<
           source: url,
           title: title ?? '',
           ...(description ? { description } : {}),
+          ...(thumbnailUrn ? { thumbnail: thumbnailUrn } : {}),
         },
       },
       lifecycleState: 'PUBLISHED',

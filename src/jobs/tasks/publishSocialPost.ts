@@ -126,12 +126,24 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
           .join(' ')
         const liCommentary = liHashtags ? `${doc.body}\n\n${liHashtags}` : doc.body
 
+        type ResolvedMedia = { url?: string | null }
+        const ogMedia =
+          typeof linkedPost?.meta?.image === 'object' && linkedPost.meta.image !== null
+            ? (linkedPost.meta.image as ResolvedMedia)
+            : null
+        const heroMedia =
+          typeof linkedPost?.heroImage === 'object' && linkedPost.heroImage !== null
+            ? (linkedPost.heroImage as ResolvedMedia)
+            : null
+        const thumbnailUrl = ogMedia?.url ?? heroMedia?.url ?? undefined
+
         const result = await publishLinkedIn({
           body: liCommentary,
           url: postUrl,
           title: linkedPost?.title,
           description: linkedPost?.meta?.description ?? undefined,
           imageUrls,
+          thumbnailUrl: thumbnailUrl ?? undefined,
           settings: {
             accessToken: li.accessToken,
             personUrn: li.personUrn,
