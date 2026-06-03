@@ -1,28 +1,71 @@
 'use client'
 
-import { SaveButton, useDocumentInfo } from '@payloadcms/ui'
+import { SaveButton, useDocumentInfo, useField } from '@payloadcms/ui'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { PlatformEntry } from '../types'
+import { PUBLISHABLE_STATUSES } from '../types'
 
-type PublishResponse =
-  | { success: true; publishedUrl?: string; message?: string }
-  | { success: false; error: string }
+type PublishResult =
+  | { success: true; published?: string[]; failed?: string[]; queued?: string[]; message?: string }
+  | { success: false; error: string; published?: string[]; failed?: string[]; queued?: string[] }
 
 export function SocialPostSaveArea() {
   const { id, savedDocumentData } = useDocumentInfo()
   const router = useRouter()
   const [publishing, setPublishing] = useState(false)
+  const [publishResult, setPublishResult] = useState<PublishResult | null>(null)
 
-  const status = (savedDocumentData?.status ?? 'draft') as string
-  const canPublish = ['draft', 'failed', 'cancelled'].includes(status)
+  // Watch live form state to detect platforms array changes after publish
+  const { value: livePlatforms } = useField<PlatformEntry[]>({ path: 'platforms' })
+
+  // Snapshot of platforms at the moment of last publish — used to detect changes
+  const publishSnapshotRef = useRef<string | null>(null)
+
+  const savedPlatforms = (savedDocumentData?.platforms ?? []) as PlatformEntry[]
+  const hasPublishable = savedPlatforms.some((p) => PUBLISHABLE_STATUSES.includes(p.status))
+
+  // After publishing, disable the button until the platforms array changes
+  const [publishedOnce, setPublishedOnce] = useState(false)
+
+  useEffect(() => {
+    if (!publishedOnce) return
+    const currentSnapshot = JSON.stringify(
+      (livePlatforms ?? []).map((e) => ({ platform: e.platform, status: e.status })),
+    )
+    if (currentSnapshot !== publishSnapshotRef.current) {
+      setPublishedOnce(false)
+    }
+  }, [livePlatforms, publishedOnce])
+
+  const anyFailed = savedPlatforms.some((p) => p.status === 'failed')
+  const buttonLabel = publishing
+    ? 'Publishing…'
+    : anyFailed && !savedPlatforms.some((p) => p.status === 'draft')
+      ? 'Retry Failed'
+      : 'Publish'
+
+  const canPublish = !publishing && !publishedOnce && hasPublishable && Boolean(id)
 
   const handlePublish = async () => {
     if (!id) return
     setPublishing(true)
+    setPublishResult(null)
+
+    // Snapshot current form state so we can detect changes later
+    publishSnapshotRef.current = JSON.stringify(
+      (livePlatforms ?? []).map((e) => ({ platform: e.platform, status: e.status })),
+    )
+
     try {
-      await fetch(`/api/social-posts/${id as number}/publish`, { method: 'POST' })
+      const res = await fetch(`/api/social-posts/${id as number}/publish`, { method: 'POST' })
+      const data = (await res.json()) as PublishResult
+      setPublishResult(data)
+      if (data.success) {
+        setPublishedOnce(true)
+      }
     } catch {
-      // sidebar Status / Error Message fields reflect the outcome after refresh
+      setPublishResult({ success: false, error: 'Network error — check status in sidebar.' })
     } finally {
       setPublishing(false)
       router.refresh()
@@ -30,18 +73,30 @@ export function SocialPostSaveArea() {
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      {id && (
-        <button
-          type="button"
-          onClick={handlePublish}
-          disabled={publishing || !canPublish}
-          className="btn btn--style-secondary btn--size-medium"
-        >
-          {publishing ? 'Publishing…' : 'Publish'}
-        </button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {id && (
+          <button
+            type="button"
+            onClick={handlePublish}
+            disabled={!canPublish}
+            className="btn btn--style-secondary btn--size-medium"
+          >
+            {buttonLabel}
+          </button>
+        )}
+        <SaveButton />
+      </div>
+      {publishResult && !publishResult.success && (
+        <span style={{ color: 'var(--theme-error-500)', fontSize: '11px' }}>
+          {publishResult.error}
+        </span>
       )}
-      <SaveButton />
+      {publishResult?.success && (publishResult.failed?.length ?? 0) > 0 && (
+        <span style={{ color: 'var(--theme-warning-500, #92400e)', fontSize: '11px' }}>
+          {publishResult.failed!.join(', ')} failed — see sidebar for details.
+        </span>
+      )}
     </div>
   )
 }

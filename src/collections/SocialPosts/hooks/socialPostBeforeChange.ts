@@ -2,13 +2,7 @@ import { randomBytes } from 'crypto'
 import type { CollectionBeforeChangeHook } from 'payload'
 import type { Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
-
-const PLATFORM_LABELS: Record<string, string> = {
-  linkedin: 'LinkedIn',
-  twitter: 'Twitter / X',
-  bluesky: 'BlueSky',
-  threads: 'Threads',
-}
+import type { PlatformEntry } from '../types'
 
 export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data, req, operation, originalDoc }) => {
   const postId =
@@ -56,20 +50,35 @@ export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data,
   }
 
   if (!data.title && post) {
-    const label = PLATFORM_LABELS[data.platform as string] ?? String(data.platform)
-    data.title = `${label} — ${post.title}`
+    data.title = post.title
   }
 
-  if (data.scheduledFor && data.status === 'draft') {
-    data.status = 'pending'
+  // Deduplicate platforms — keep first occurrence of each platform slug
+  if (Array.isArray(data.platforms)) {
+    const seen = new Set<string>()
+    data.platforms = (data.platforms as PlatformEntry[]).filter((entry) => {
+      if (!entry.platform || seen.has(entry.platform)) return false
+      seen.add(entry.platform)
+      return true
+    })
   }
 
-  // Only reset to draft when a previously-set schedule is being cleared.
-  // The publish route sets status='pending' on posts that never had a scheduledFor date —
-  // wasScheduled stays false for those, so the reset is skipped.
+  const platforms = (data.platforms ?? []) as PlatformEntry[]
+
+  // When scheduledFor is set, transition all draft platform entries to pending
+  if (data.scheduledFor) {
+    data.platforms = platforms.map((entry) =>
+      entry.status === 'draft' ? { ...entry, status: 'pending' } : entry,
+    )
+  }
+
+  // When scheduledFor is cleared, reset pending entries back to draft
+  // (but only if a schedule was previously set — don't interfere with publish-route-initiated pending)
   const wasScheduled = Boolean(originalDoc?.scheduledFor)
-  if (!data.scheduledFor && data.status === 'pending' && wasScheduled) {
-    data.status = 'draft'
+  if (!data.scheduledFor && wasScheduled) {
+    data.platforms = platforms.map((entry) =>
+      entry.status === 'pending' ? { ...entry, status: 'draft' } : entry,
+    )
   }
 
   return data

@@ -1,5 +1,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import type { SocialPost } from '@/payload-types'
+import type { PlatformEntry } from '@/collections/SocialPosts/types'
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
@@ -15,7 +17,7 @@ export async function GET(request: Request) {
     collection: 'social-posts',
     where: {
       and: [
-        { status: { equals: 'pending' } },
+        { 'platforms.status': { equals: 'pending' } },
         { scheduledFor: { less_than_equal: now } },
       ],
     },
@@ -23,14 +25,22 @@ export async function GET(request: Request) {
     overrideAccess: true,
   })
 
-  for (const doc of due.docs) {
-    await payload.jobs.queue({
-      task: 'publishSocialPost',
-      input: { socialPostId: doc.id },
-    })
+  let queued = 0
+
+  for (const doc of due.docs as SocialPost[]) {
+    const platformEntries = (doc.platforms ?? []) as PlatformEntry[]
+    const pendingEntries = platformEntries.filter((e) => e.status === 'pending')
+
+    for (const entry of pendingEntries) {
+      await payload.jobs.queue({
+        task: 'publishSocialPost',
+        input: { socialPostId: doc.id, platform: entry.platform },
+      })
+      queued++
+    }
   }
 
   const result = await payload.jobs.run({ overrideAccess: true })
 
-  return Response.json({ queued: due.totalDocs, result })
+  return Response.json({ queued, result })
 }
