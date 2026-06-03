@@ -43,6 +43,50 @@ async function uploadBlob(agent: BskyAgent, url: string): Promise<BlobRef | null
   }
 }
 
+function extractOGMeta(html: string, property: string): string | undefined {
+  // handles both attribute orderings: property="…" content="…" and content="…" property="…"
+  const re1 = new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']+)["']`, 'i')
+  const re2 = new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${property}["']`, 'i')
+  return (html.match(re1) ?? html.match(re2))?.[1]
+}
+
+async function fetchOGCard(
+  url: string,
+  agent: BskyAgent,
+  fallbackTitle?: string,
+  fallbackDescription?: string,
+): Promise<{ $type: string; external: ExternalEmbed }> {
+  const card: ExternalEmbed = {
+    uri: url,
+    title: fallbackTitle ?? '',
+    description: fallbackDescription ?? '',
+  }
+
+  try {
+    const res = await fetch(url)
+    if (res.ok) {
+      const html = await res.text()
+
+      const ogTitle = extractOGMeta(html, 'og:title')
+      const ogDesc = extractOGMeta(html, 'og:description')
+      const ogImage = extractOGMeta(html, 'og:image')
+
+      if (ogTitle) card.title = ogTitle
+      if (ogDesc) card.description = ogDesc
+
+      if (ogImage) {
+        const imgUrl = ogImage.startsWith('http') ? ogImage : new URL(ogImage, url).href
+        const thumbBlob = await uploadBlob(agent, imgUrl)
+        if (thumbBlob) card.thumb = thumbBlob
+      }
+    }
+  } catch {
+    // page fetch failed — use fallbacks, post card without image
+  }
+
+  return { $type: 'app.bsky.embed.external', external: card }
+}
+
 export async function publishBlueSky(options: PublishBlueSkyOptions): Promise<{ url: string }> {
   const { body, settings, postUrl, title, description, imageUrls } = options
   const { handle, appPassword } = settings
@@ -56,18 +100,7 @@ export async function publishBlueSky(options: PublishBlueSkyOptions): Promise<{ 
   let embed: { $type: string; external: ExternalEmbed } | BlueSkyImagesEmbed | undefined
 
   if (postUrl) {
-    // Website card embed — matches app.bsky.embed.external spec
-    // Thumb is optional; if upload fails the card still posts without an image
-    const thumbBlob = imageUrls?.[0] ? await uploadBlob(agent, imageUrls[0]) : null
-    embed = {
-      $type: 'app.bsky.embed.external',
-      external: {
-        uri: postUrl,
-        title: title ?? '',
-        description: description ?? '',
-        ...(thumbBlob ? { thumb: thumbBlob } : {}),
-      },
-    }
+    embed = await fetchOGCard(postUrl, agent, title, description)
   } else if (imageUrls && imageUrls.length > 0) {
     // Pure image post — no URL to card, upload up to 4 images
     const blobs = (

@@ -1,5 +1,5 @@
 import type { TaskConfig } from 'payload'
-import type { Keyword, Media, Post, SocialPost, SocialSetting } from '@/payload-types'
+import type { Keyword, Post, SocialPost, SocialSetting } from '@/payload-types'
 import type { SocialPlatform } from '@/utilities/buildShareUrl'
 import { publishLinkedIn } from '@/lib/social/publishLinkedIn'
 import { publishThreads } from '@/lib/social/publishThreads'
@@ -197,28 +197,17 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
           throw new Error('BlueSky profile URL is not set in Social Settings')
         }
 
-        // Hashtags go in the post body, not the card description
+        // Hashtags go in the post body, not the card description.
+        // title/description are fallbacks — fetchOGCard in publishBlueSky scrapes the real OG tags.
         const bskyDescription = linkedPost?.meta?.description ?? undefined
         const bskyBody = hashtagString ? `${doc.body}\n\n${hashtagString}` : doc.body
-
-        // For URL-type posts use the linked post's hero image as the card thumbnail
-        const heroMedia =
-          typeof linkedPost?.heroImage === 'object' && linkedPost.heroImage !== null
-            ? (linkedPost.heroImage as Media)
-            : null
-        const heroImageUrl = heroMedia?.url
-          ? heroMedia.url.startsWith('http')
-            ? heroMedia.url
-            : `${getServerSideURL()}${heroMedia.url}`
-          : undefined
-        const bskyImageUrls = imageUrls.length > 0 ? imageUrls : (heroImageUrl ? [heroImageUrl] : undefined)
 
         const result = await publishBlueSky({
           body: bskyBody,
           postUrl,
           title: linkedPost?.title,
           description: bskyDescription,
-          imageUrls: bskyImageUrls,
+          imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
           settings: { handle, appPassword },
         })
         publishedUrl = result.url
