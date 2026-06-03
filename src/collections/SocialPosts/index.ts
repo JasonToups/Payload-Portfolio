@@ -163,6 +163,7 @@ export const SocialPosts: CollectionConfig = {
         date: { pickerAppearance: 'dayAndTime' },
         description:
           'When to publish. Leave blank to publish immediately. Setting a date auto-schedules the post.',
+        condition: (data) => data?.status !== 'published',
       },
     },
     {
