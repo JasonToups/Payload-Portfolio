@@ -46,6 +46,7 @@ import { default as default_b6555656dcd74c7005ae117623d68b06 } from '@/collectio
 import { ScheduleSocialPostButton as ScheduleSocialPostButton_61cb1bb4725a2663f45f2e7838c43c83 } from '@/collections/Posts/components/ScheduleSocialPostButton'
 import { default as default_42df5dbd8f2a8e7fd046f17ffe7f51e4 } from '@/collections/Posts/components/SocialSharesCell'
 import { default as default_ac0cf27f0cad2e0ca93545fdfc3190d3 } from '@/collections/SocialPosts/components/LinkedPostAutoFill'
+import { ImagesField as ImagesField_a8e335e89bad6d931f5fb17db08f6433 } from '@/collections/SocialPosts/components/ImagesField'
 import { PlatformsCell as PlatformsCell_55a186fb7af4e3a36672fefc53f19a39 } from '@/collections/SocialPosts/components/PlatformsCell'
 import { PlatformsArrayField as PlatformsArrayField_ca925a82795a8f68b644c7e93b336ace } from '@/collections/SocialPosts/components/PlatformsArrayField'
 import { ScheduledForField as ScheduledForField_cc620f028a443dd7f4f6a4061dad2cd0 } from '@/collections/SocialPosts/components/ScheduledForField'
@@ -113,6 +114,7 @@ export const importMap = {
   "@/collections/Posts/components/ScheduleSocialPostButton#ScheduleSocialPostButton": ScheduleSocialPostButton_61cb1bb4725a2663f45f2e7838c43c83,
   "@/collections/Posts/components/SocialSharesCell#default": default_42df5dbd8f2a8e7fd046f17ffe7f51e4,
   "@/collections/SocialPosts/components/LinkedPostAutoFill#default": default_ac0cf27f0cad2e0ca93545fdfc3190d3,
+  "@/collections/SocialPosts/components/ImagesField#ImagesField": ImagesField_a8e335e89bad6d931f5fb17db08f6433,
   "@/collections/SocialPosts/components/PlatformsCell#PlatformsCell": PlatformsCell_55a186fb7af4e3a36672fefc53f19a39,
   "@/collections/SocialPosts/components/PlatformsArrayField#PlatformsArrayField": PlatformsArrayField_ca925a82795a8f68b644c7e93b336ace,
   "@/collections/SocialPosts/components/ScheduledForField#ScheduledForField": ScheduledForField_cc620f028a443dd7f4f6a4061dad2cd0,

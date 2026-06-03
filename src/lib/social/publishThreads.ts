@@ -117,7 +117,11 @@ export async function publishThreads(options: PublishThreadsOptions): Promise<{ 
   } else {
     // Carousel post (2–20 images)
     const itemIds = await Promise.all(
-      imageUrls.map((url) => createItemContainer(userId, accessToken, url)),
+      imageUrls.map(async (url) => {
+        const id = await createItemContainer(userId, accessToken, url)
+        await pollContainerStatus(id, accessToken)
+        return id
+      }),
     )
 
     const carouselRes = await fetch(`https://graph.threads.net/v1.0/${userId}/threads`, {
