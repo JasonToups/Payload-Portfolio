@@ -1,6 +1,7 @@
 'use client'
 
 import { SaveButton, useDocumentInfo } from '@payloadcms/ui'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 type PublishResponse =
@@ -30,6 +31,7 @@ function StatusBadge({ label, color }: StatusBadgeProps) {
 
 export function SocialPostSaveArea() {
   const { id, savedDocumentData } = useDocumentInfo()
+  const router = useRouter()
   const [publishing, setPublishing] = useState(false)
   const [result, setResult] = useState<{ success: boolean; message: string; url?: string } | null>(
     null,
@@ -57,12 +59,14 @@ export function SocialPostSaveArea() {
           : ('message' in data ? data.message : undefined) ?? 'Queued — will publish shortly.'
         setResult({ success: true, message, url })
       } else {
-        setResult({ success: false, message: data.error ?? 'Publish failed.' })
+        // Error is written to the errorMessage field in the sidebar — refresh to show it there
+        setResult(null)
       }
     } catch {
       setResult({ success: false, message: 'Network error — try again.' })
     } finally {
       setPublishing(false)
+      router.refresh()
     }
   }
 

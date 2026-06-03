@@ -145,6 +145,16 @@ export const SocialPosts: CollectionConfig = {
       },
     },
     {
+      name: 'errorMessage',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Populated on failure — check here when status is "failed".',
+        condition: (data) => Boolean(data?.errorMessage),
+      },
+    },
+    {
       name: 'scheduledFor',
       type: 'date',
       admin: {
@@ -180,15 +190,6 @@ export const SocialPosts: CollectionConfig = {
         position: 'sidebar',
         readOnly: true,
         description: 'Auto-generated short URL — created when a linked Post is selected.',
-      },
-    },
-    {
-      name: 'errorMessage',
-      type: 'text',
-      admin: {
-        position: 'sidebar',
-        readOnly: true,
-        description: 'Populated on failure — check here when status is "failed".',
       },
     },
   ],
