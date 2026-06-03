@@ -110,6 +110,10 @@ export const SocialPosts: CollectionConfig = {
       admin: {
         description: '1 image = single image post. 2+ = carousel / multi-image post.',
         condition: (data) => data?.postType === 'image',
+        sortOptions: '-createdAt',
+        components: {
+          Field: '@/collections/SocialPosts/components/ImagesField#ImagesField',
+        },
       },
     },
     {
