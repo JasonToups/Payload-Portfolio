@@ -1,9 +1,9 @@
 'use client'
 
-import { SaveButton, useDocumentInfo, useField } from '@payloadcms/ui'
+import { SaveButton, useDocumentInfo, useFormFields } from '@payloadcms/ui'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import type { PlatformEntry } from '../types'
+import type { PlatformEntry, PlatformPublishStatus } from '../types'
 import { PUBLISHABLE_STATUSES } from '../types'
 
 type PublishResult =
@@ -16,27 +16,35 @@ export function SocialPostSaveArea() {
   const [publishing, setPublishing] = useState(false)
   const [publishResult, setPublishResult] = useState<PublishResult | null>(null)
 
-  // Watch live form state to detect platforms array changes after publish
-  const { value: livePlatforms } = useField<PlatformEntry[]>({ path: 'platforms' })
+  // Watch live form state to detect platforms array changes after publish.
+  // useField({ path: 'platforms' }) returns a row count (number), not the array —
+  // so we read individual indexed fields via useFormFields instead.
+  const platformsSnapshot = useFormFields(([fields]) => {
+    const count = typeof fields['platforms']?.value === 'number' ? (fields['platforms'].value as number) : 0
+    const items: Array<{ platform: string; status: string }> = []
+    for (let i = 0; i < count; i++) {
+      const platform = fields[`platforms.${i}.platform`]?.value as string | undefined
+      const status = (fields[`platforms.${i}.status`]?.value as string) ?? 'draft'
+      if (platform) items.push({ platform, status })
+    }
+    return JSON.stringify(items)
+  })
 
   // Snapshot of platforms at the moment of last publish — used to detect changes
   const publishSnapshotRef = useRef<string | null>(null)
 
   const savedPlatforms = (savedDocumentData?.platforms ?? []) as PlatformEntry[]
-  const hasPublishable = savedPlatforms.some((p) => PUBLISHABLE_STATUSES.includes(p.status))
+  const hasPublishable = savedPlatforms.some((p) => PUBLISHABLE_STATUSES.includes(p.status as PlatformPublishStatus))
 
   // After publishing, disable the button until the platforms array changes
   const [publishedOnce, setPublishedOnce] = useState(false)
 
   useEffect(() => {
     if (!publishedOnce) return
-    const currentSnapshot = JSON.stringify(
-      (livePlatforms ?? []).map((e) => ({ platform: e.platform, status: e.status })),
-    )
-    if (currentSnapshot !== publishSnapshotRef.current) {
+    if (platformsSnapshot !== publishSnapshotRef.current) {
       setPublishedOnce(false)
     }
-  }, [livePlatforms, publishedOnce])
+  }, [platformsSnapshot, publishedOnce])
 
   const anyFailed = savedPlatforms.some((p) => p.status === 'failed')
   const buttonLabel = publishing
@@ -53,9 +61,7 @@ export function SocialPostSaveArea() {
     setPublishResult(null)
 
     // Snapshot current form state so we can detect changes later
-    publishSnapshotRef.current = JSON.stringify(
-      (livePlatforms ?? []).map((e) => ({ platform: e.platform, status: e.status })),
-    )
+    publishSnapshotRef.current = platformsSnapshot
 
     try {
       const res = await fetch(`/api/social-posts/${id as number}/publish`, { method: 'POST' })

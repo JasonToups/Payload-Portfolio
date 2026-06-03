@@ -121,6 +121,7 @@ export const SocialPosts: CollectionConfig = {
         position: 'sidebar',
         components: {
           Field: '@/collections/SocialPosts/components/PlatformsArrayField#PlatformsArrayField',
+          Cell: '@/collections/SocialPosts/components/PlatformsCell#PlatformsCell',
         },
       },
       fields: [

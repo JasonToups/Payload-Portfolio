@@ -1,9 +1,13 @@
 'use client'
 
-import { useField } from '@payloadcms/ui'
-import { useState } from 'react'
+import { useDocumentInfo, useField, useForm, useFormFields } from '@payloadcms/ui'
+import { useMemo, useState } from 'react'
 import type { PlatformEntry, PlatformPublishStatus, PlatformSlug } from '../types'
 import { ALL_PLATFORMS, PLATFORM_LABELS } from '../types'
+
+interface PlatformRow extends PlatformEntry {
+  rowIndex: number
+}
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString('en-US', {
@@ -166,20 +170,86 @@ function PlatformSection({
 }
 
 export function PlatformsArrayField() {
-  const { value, setValue } = useField<PlatformEntry[]>({ path: 'platforms' })
+  const { id: docId } = useDocumentInfo()
   const [addOpen, setAddOpen] = useState(false)
+  const { dispatchFields } = useForm()
+  const { value: titleValue, setValue: setTitleValue } = useField<string>({ path: 'title' })
 
-  const entries: PlatformEntry[] = Array.isArray(value) ? value : []
+  // Read platforms from indexed form fields — Payload stores array row count at 'platforms'
+  // and individual field values at 'platforms.N.fieldName'.
+  // useField({ path: 'platforms' }) returns the count (number), not the array.
+  const formStateJSON = useFormFields(([fields]) => {
+    const count = typeof fields['platforms']?.value === 'number' ? (fields['platforms'].value as number) : 0
+    const rows: PlatformRow[] = []
+    for (let i = 0; i < count; i++) {
+      const platform = fields[`platforms.${i}.platform`]?.value as PlatformSlug | undefined
+      if (!platform) continue
+      rows.push({
+        rowIndex: i,
+        platform,
+        status: (fields[`platforms.${i}.status`]?.value as PlatformPublishStatus) ?? 'draft',
+        publishedAt: (fields[`platforms.${i}.publishedAt`]?.value as string | null) ?? null,
+        publishedUrl: (fields[`platforms.${i}.publishedUrl`]?.value as string | null) ?? null,
+        errorMessage: (fields[`platforms.${i}.errorMessage`]?.value as string | null) ?? null,
+      })
+    }
+    return JSON.stringify({ count, rows })
+  })
+
+  const { rowCount, entries } = useMemo<{ rowCount: number; entries: PlatformRow[] }>(() => {
+    try {
+      const parsed = JSON.parse(formStateJSON) as { count: number; rows: PlatformRow[] }
+      return { rowCount: parsed.count, entries: parsed.rows }
+    } catch {
+      return { rowCount: 0, entries: [] }
+    }
+  }, [formStateJSON])
 
   const usedPlatforms = new Set(entries.map((e) => e.platform))
   const availablePlatforms = ALL_PLATFORMS.filter((p) => !usedPlatforms.has(p))
 
+  // Rebuild the title whenever the platforms list changes.
+  // Strips any existing " — Platform1, Platform2" suffix and appends the new one.
+  // Only runs on new documents to avoid overwriting manually customised titles.
+  const syncTitle = (nextEntries: PlatformEntry[]) => {
+    if (docId) return
+    const base = (titleValue ?? '').replace(/ — .+$/, '').trim()
+    if (!base) return
+    const suffix = nextEntries.map((e) => PLATFORM_LABELS[e.platform]).join(', ')
+    setTitleValue(suffix ? `${base} — ${suffix}` : base)
+  }
+
   const handleRemove = (platform: PlatformSlug) => {
-    setValue(entries.filter((e) => e.platform !== platform))
+    const row = entries.find((e) => e.platform === platform)
+    if (!row) return
+    dispatchFields({ type: 'REMOVE_ROW', path: 'platforms', rowIndex: row.rowIndex })
+    const next = entries.filter((e) => e.platform !== platform)
+    syncTitle(next)
   }
 
   const handleAdd = (platform: PlatformSlug) => {
-    setValue([...entries, { platform, status: 'draft' }])
+    // If there are uninitialized empty rows (e.g. from minRows: 1), fill the first one
+    // rather than appending a new row — otherwise the empty row fails 'required' validation.
+    const usedIndices = new Set(entries.map((e) => e.rowIndex))
+    let targetIndex = -1
+    for (let i = 0; i < rowCount; i++) {
+      if (!usedIndices.has(i)) {
+        targetIndex = i
+        break
+      }
+    }
+
+    if (targetIndex !== -1) {
+      dispatchFields({ type: 'UPDATE', path: `platforms.${targetIndex}.platform`, value: platform })
+    } else {
+      // rowIndex omitted → Payload appends at end; new row lands at index rowCount
+      dispatchFields({ type: 'ADD_ROW', path: 'platforms' })
+      dispatchFields({ type: 'UPDATE', path: `platforms.${rowCount}.platform`, value: platform })
+    }
+
+    const newRowIndex = targetIndex !== -1 ? targetIndex : rowCount
+    const next = [...entries, { rowIndex: newRowIndex, platform, status: 'draft' as const }]
+    syncTitle(next)
     setAddOpen(false)
   }
 

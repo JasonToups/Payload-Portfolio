@@ -3,6 +3,7 @@ import type { CollectionBeforeChangeHook } from 'payload'
 import type { Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 import type { PlatformEntry } from '../types'
+import { PLATFORM_LABELS } from '../types'
 
 export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data, req, operation, originalDoc }) => {
   const postId =
@@ -50,7 +51,9 @@ export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data,
   }
 
   if (!data.title && post) {
-    data.title = post.title
+    const platforms = (data.platforms ?? []) as PlatformEntry[]
+    const suffix = platforms.map((e) => PLATFORM_LABELS[e.platform]).join(', ')
+    data.title = suffix ? `${post.title} — ${suffix}` : post.title
   }
 
   // Deduplicate platforms — keep first occurrence of each platform slug
