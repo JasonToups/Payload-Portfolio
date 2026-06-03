@@ -639,30 +639,15 @@ export interface SocialPost {
    * 1 image = single image post. 2+ = carousel / multi-image post.
    */
   images?: (number | Media)[] | null;
-  /**
-   * Social media platform to publish to.
-   */
-  platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads';
-  /**
-   * Managed by the scheduler — use "Publish Now" or set a schedule date.
-   */
-  status?: ('draft' | 'pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
-  /**
-   * Populated on failure — check here when status is "failed".
-   */
-  errorMessage?: string | null;
-  /**
-   * When to publish. Leave blank to publish immediately. Setting a date auto-schedules the post.
-   */
+  platforms: {
+    platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads';
+    status?: ('draft' | 'pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
+    publishedAt?: string | null;
+    publishedUrl?: string | null;
+    errorMessage?: string | null;
+    id?: string | null;
+  }[];
   scheduledFor?: string | null;
-  /**
-   * Populated on successful publish.
-   */
-  publishedAt?: string | null;
-  /**
-   * URL of the published social post.
-   */
-  publishedUrl?: string | null;
   /**
    * Auto-generated short URL — created when a linked Post is selected.
    */
@@ -2192,12 +2177,17 @@ export interface SocialPostsSelect<T extends boolean = true> {
   url?: T;
   heroImage?: T;
   images?: T;
-  platform?: T;
-  status?: T;
-  errorMessage?: T;
+  platforms?:
+    | T
+    | {
+        platform?: T;
+        status?: T;
+        publishedAt?: T;
+        publishedUrl?: T;
+        errorMessage?: T;
+        id?: T;
+      };
   scheduledFor?: T;
-  publishedAt?: T;
-  publishedUrl?: T;
   shortUrl?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3130,6 +3120,7 @@ export interface SocialSettingsSelect<T extends boolean = true> {
 export interface TaskPublishSocialPost {
   input: {
     socialPostId: number;
+    platform: string;
   };
   output: {
     publishedUrl?: string | null;

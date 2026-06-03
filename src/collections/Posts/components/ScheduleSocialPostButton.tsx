@@ -2,44 +2,38 @@
 
 import { DatePicker, useDocumentInfo } from '@payloadcms/ui'
 import { useEffect, useState } from 'react'
+import type { PlatformSlug } from '@/collections/SocialPosts/types'
+import { ALL_PLATFORMS, PLATFORM_LABELS } from '@/collections/SocialPosts/types'
 
-type Platform = 'linkedin' | 'twitter' | 'bluesky' | 'threads'
 type PlatformStatus = 'unknown' | 'connected' | 'disconnected'
 type SchedulePhase = 'idle' | 'composing' | 'saving' | 'saved' | 'sharing' | 'shared' | 'queued' | 'error'
 
 type ScheduledPostDoc = {
   id: number
-  platform: Platform
-  status: string
+  platforms: { platform: PlatformSlug; status: string; publishedUrl?: string | null }[]
   scheduledFor?: string | null
-  publishedUrl?: string | null
 }
 
 type CreateSocialPostBody = {
   linkedPost: number
-  platform: Platform
+  platforms: PlatformSlug[]
   body: string
   scheduledFor: string
 }
 
 type CreateSocialPostBodyNow = {
   linkedPost: number
-  platform: Platform
+  platforms: PlatformSlug[]
   body: string
 }
 
 type PublishResponse = {
   success: boolean
-  publishedUrl?: string
+  published?: string[]
+  failed?: string[]
+  queued?: string[]
   message?: string
   error?: string
-}
-
-const PLATFORM_LABELS: Record<Platform, string> = {
-  linkedin: 'LinkedIn',
-  twitter: 'Twitter / X',
-  bluesky: 'BlueSky',
-  threads: 'Threads',
 }
 
 // Twitter t.co shortens all URLs to 23 chars; \n\n separator = 2 chars
@@ -49,15 +43,12 @@ const TWITTER_SEPARATOR_CHARS = 2
 
 function getNextPublishDate(hourPacific: number): Date {
   const now = new Date()
-  // Interpret "now" in Pacific time
   const pacificNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }))
   const pacificTarget = new Date(pacificNow)
   pacificTarget.setHours(hourPacific, 0, 0, 0)
-  // If that time has already passed today (Pacific), roll to tomorrow
   if (pacificTarget <= pacificNow) {
     pacificTarget.setDate(pacificTarget.getDate() + 1)
   }
-  // Shift back to a real UTC Date by applying the same offset
   const utcOffset = now.getTime() - pacificNow.getTime()
   return new Date(pacificTarget.getTime() + utcOffset)
 }
@@ -110,15 +101,15 @@ export const ScheduleSocialPostButton: React.FC = () => {
   const postId = id as number | undefined
 
   const [isOpen, setIsOpen] = useState(false)
-  const [platform, setPlatform] = useState<Platform>('linkedin')
+  const [selectedPlatforms, setSelectedPlatforms] = useState<PlatformSlug[]>(['linkedin'])
   const [body, setBody] = useState('')
   const [scheduledFor, setScheduledFor] = useState<Date | null>(null)
   const [phase, setPhase] = useState<SchedulePhase>('idle')
   const [error, setError] = useState<string | null>(null)
   const [scheduled, setScheduled] = useState<ScheduledPostDoc[]>([])
-  const [sharedUrl, setSharedUrl] = useState<string | null>(null)
+  const [sharedUrls, setSharedUrls] = useState<string[]>([])
 
-  const [statuses, setStatuses] = useState<Record<Platform, PlatformStatus>>({
+  const [statuses, setStatuses] = useState<Record<PlatformSlug, PlatformStatus>>({
     linkedin: 'unknown',
     twitter: 'unknown',
     bluesky: 'unknown',
@@ -161,7 +152,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
   // Fetch existing scheduled posts for this post
   useEffect(() => {
     if (!postId || !isOpen) return
-    fetch(`/api/social-posts?where[linkedPost][equals]=${postId}&limit=20&depth=0`)
+    fetch(`/api/social-posts?where[linkedPost][equals]=${postId}&limit=20&depth=1`)
       .then((r) => r.json() as Promise<{ docs: ScheduledPostDoc[] }>)
       .then((d) => setScheduled(d.docs ?? []))
       .catch(() => {})
@@ -190,6 +181,12 @@ export const ScheduleSocialPostButton: React.FC = () => {
     setScheduledFor(null)
   }
 
+  const togglePlatform = (platform: PlatformSlug) => {
+    setSelectedPlatforms((prev) =>
+      prev.includes(platform) ? prev.filter((p) => p !== platform) : [...prev, platform],
+    )
+  }
+
   const handleConnectTwitter = () => {
     openAuthPopup('/api/twitter/auth', 'twitter-connected', () => {
       setStatuses((s) => ({ ...s, twitter: 'connected' }))
@@ -202,14 +199,32 @@ export const ScheduleSocialPostButton: React.FC = () => {
     })
   }
 
+  const validatePlatforms = (): string | null => {
+    if (selectedPlatforms.length === 0) return 'Select at least one platform.'
+    const disconnected = selectedPlatforms.filter((p) => statuses[p] !== 'connected')
+    if (disconnected.length > 0) {
+      return `${disconnected.map((p) => PLATFORM_LABELS[p]).join(', ')} ${disconnected.length === 1 ? 'is' : 'are'} not connected.`
+    }
+    return null
+  }
+
+  const twitterSelected = selectedPlatforms.includes('twitter')
+  const twitterCharsUsed = body.length + TWITTER_SEPARATOR_CHARS + TWITTER_URL_CHARS
+  const twitterCharsRemaining = TWITTER_MAX_CHARS - twitterCharsUsed
+
   const handleSchedule = async () => {
     if (!postId || !scheduledFor) return
     if (scheduledFor <= new Date()) {
       setError('Scheduled time must be in the future.')
       return
     }
-    if (statuses[platform] !== 'connected') {
-      setError(`${PLATFORM_LABELS[platform]} is not connected.`)
+    const validationError = validatePlatforms()
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+    if (twitterSelected && twitterCharsRemaining < 0) {
+      setError('Tweet is too long.')
       return
     }
 
@@ -218,7 +233,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
 
     const requestBody: CreateSocialPostBody = {
       linkedPost: postId,
-      platform,
+      platforms: selectedPlatforms,
       body,
       scheduledFor: scheduledFor.toISOString(),
     }
@@ -248,15 +263,20 @@ export const ScheduleSocialPostButton: React.FC = () => {
 
   const handleShareNow = async () => {
     if (!postId) return
-    if (statuses[platform] !== 'connected') {
-      setError(`${PLATFORM_LABELS[platform]} is not connected.`)
+    const validationError = validatePlatforms()
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+    if (twitterSelected && twitterCharsRemaining < 0) {
+      setError('Tweet is too long.')
       return
     }
 
     setPhase('sharing')
     setError(null)
 
-    const requestBody: CreateSocialPostBodyNow = { linkedPost: postId, platform, body }
+    const requestBody: CreateSocialPostBodyNow = { linkedPost: postId, platforms: selectedPlatforms, body }
 
     try {
       const createRes = await fetch('/api/social-posts', {
@@ -283,21 +303,25 @@ export const ScheduleSocialPostButton: React.FC = () => {
         throw new Error(publishData.error ?? 'Failed to publish post')
       }
 
-      if (publishData.publishedUrl) {
-        setSharedUrl(publishData.publishedUrl)
-        setScheduled((prev) => [
-          ...prev,
-          { ...created, status: 'published', publishedUrl: publishData.publishedUrl },
-        ])
-        setPhase('shared')
-      } else {
-        setScheduled((prev) => [...prev, { ...created, status: 'pending' }])
+      const urls = (publishData.published ?? [])
+        .map((platform) => {
+          const entry = created.platforms?.find((e) => e.platform === platform)
+          return entry?.publishedUrl ?? null
+        })
+        .filter((u): u is string => Boolean(u))
+
+      setSharedUrls(urls)
+      setScheduled((prev) => [...prev, created])
+
+      if ((publishData.queued?.length ?? 0) > 0) {
         setPhase('queued')
+      } else {
+        setPhase('shared')
       }
 
       setTimeout(() => {
         setPhase('composing')
-        setSharedUrl(null)
+        setSharedUrls([])
       }, 4000)
     } catch (err: unknown) {
       setPhase('error')
@@ -308,13 +332,23 @@ export const ScheduleSocialPostButton: React.FC = () => {
   const handleCancel = async (docId: number) => {
     if (!window.confirm('Cancel this scheduled post?')) return
     try {
+      // Cancel all pending platform entries by setting their status to cancelled
+      const docRes = await fetch(`/api/social-posts/${docId}?depth=0`)
+      const docData = (await docRes.json()) as ScheduledPostDoc
+      const updatedPlatforms = (docData.platforms ?? []).map((e) =>
+        e.status === 'pending' ? { ...e, status: 'cancelled' } : e,
+      )
       await fetch(`/api/social-posts/${docId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'cancelled' }),
+        body: JSON.stringify({ platforms: updatedPlatforms }),
       })
       setScheduled((prev) =>
-        prev.map((d) => (d.id === docId ? { ...d, status: 'cancelled' } : d)),
+        prev.map((d) =>
+          d.id === docId
+            ? { ...d, platforms: (d.platforms ?? []).map((e) => e.status === 'pending' ? { ...e, status: 'cancelled' } : e) }
+            : d,
+        ),
       )
     } catch {
       setError('Failed to cancel scheduled post.')
@@ -323,11 +357,9 @@ export const ScheduleSocialPostButton: React.FC = () => {
 
   if (!postId) return null
 
-  const pendingCount = scheduled.filter((d) => d.status === 'pending').length
-
-  // Twitter character counter: body + \n\n + t.co URL (always 23 chars)
-  const twitterCharsUsed = body.length + TWITTER_SEPARATOR_CHARS + TWITTER_URL_CHARS
-  const twitterCharsRemaining = TWITTER_MAX_CHARS - twitterCharsUsed
+  const pendingCount = scheduled.filter((d) =>
+    (d.platforms ?? []).some((e) => e.status === 'pending'),
+  ).length
 
   return (
     <div
@@ -403,77 +435,85 @@ export const ScheduleSocialPostButton: React.FC = () => {
             </button>
           </div>
 
-          {/* Platform selector */}
+          {/* Multi-select platform toggles */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-            {(['linkedin', 'twitter', 'bluesky', 'threads'] as Platform[]).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPlatform(p)}
-                style={{
-                  alignItems: 'center',
-                  background:
-                    platform === p ? 'var(--theme-success-100)' : 'var(--theme-elevation-0)',
-                  border: `1px solid ${platform === p ? 'var(--theme-success-500)' : 'var(--theme-border)'}`,
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  fontSize: '12px',
-                  gap: '4px',
-                  padding: '4px 10px',
-                }}
-                type="button"
-              >
-                <StatusDot status={statuses[p]} />
-                {PLATFORM_LABELS[p]}
-              </button>
-            ))}
+            {ALL_PLATFORMS.map((p) => {
+              const selected = selectedPlatforms.includes(p)
+              return (
+                <button
+                  key={p}
+                  onClick={() => togglePlatform(p)}
+                  style={{
+                    alignItems: 'center',
+                    background: selected ? 'var(--theme-success-100)' : 'var(--theme-elevation-0)',
+                    border: `1px solid ${selected ? 'var(--theme-success-500)' : 'var(--theme-border)'}`,
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    fontSize: '12px',
+                    gap: '4px',
+                    padding: '4px 10px',
+                  }}
+                  type="button"
+                >
+                  <StatusDot status={statuses[p]} />
+                  {PLATFORM_LABELS[p]}
+                </button>
+              )
+            })}
           </div>
 
-          {/* Connection prompt for selected platform */}
-          {statuses[platform] === 'disconnected' && (
-            <div
-              style={{
-                background: 'var(--theme-elevation-100)',
-                borderRadius: '4px',
-                marginBottom: '10px',
-                padding: '8px 12px',
-              }}
-            >
-              <span style={{ color: 'var(--theme-text-dim)', fontSize: '12px' }}>
-                {PLATFORM_LABELS[platform]} is not connected.{' '}
-              </span>
-              {platform === 'twitter' && (
-                <button
-                  className="btn btn--style-secondary btn--size-small"
-                  onClick={handleConnectTwitter}
-                  type="button"
-                  style={{ fontSize: '12px', padding: '2px 8px' }}
-                >
-                  Connect Twitter / X
-                </button>
-              )}
-              {platform === 'threads' && (
-                <button
-                  className="btn btn--style-secondary btn--size-small"
-                  onClick={handleConnectThreads}
-                  type="button"
-                  style={{ fontSize: '12px', padding: '2px 8px' }}
-                >
-                  Connect Threads
-                </button>
-              )}
-              {platform === 'linkedin' && (
+          {/* Connection prompts for disconnected selected platforms */}
+          {selectedPlatforms
+            .filter((p) => statuses[p] === 'disconnected')
+            .map((p) => (
+              <div
+                key={p}
+                style={{
+                  background: 'var(--theme-elevation-100)',
+                  borderRadius: '4px',
+                  marginBottom: '10px',
+                  padding: '8px 12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
                 <span style={{ color: 'var(--theme-text-dim)', fontSize: '12px' }}>
-                  Connect via the LinkedIn button above.
+                  {PLATFORM_LABELS[p]} is not connected.{' '}
                 </span>
-              )}
-              {platform === 'bluesky' && (
-                <span style={{ color: 'var(--theme-text-dim)', fontSize: '12px' }}>
-                  Add your handle and app password in BlueSky Settings.
-                </span>
-              )}
-            </div>
-          )}
+                {p === 'twitter' && (
+                  <button
+                    className="btn btn--style-secondary btn--size-small"
+                    onClick={handleConnectTwitter}
+                    type="button"
+                    style={{ fontSize: '12px', padding: '2px 8px' }}
+                  >
+                    Connect Twitter / X
+                  </button>
+                )}
+                {p === 'threads' && (
+                  <button
+                    className="btn btn--style-secondary btn--size-small"
+                    onClick={handleConnectThreads}
+                    type="button"
+                    style={{ fontSize: '12px', padding: '2px 8px' }}
+                  >
+                    Connect Threads
+                  </button>
+                )}
+                {p === 'linkedin' && (
+                  <span style={{ color: 'var(--theme-text-dim)', fontSize: '12px' }}>
+                    Connect via the LinkedIn button above.
+                  </span>
+                )}
+                {p === 'bluesky' && (
+                  <span style={{ color: 'var(--theme-text-dim)', fontSize: '12px' }}>
+                    Add your handle and app password in BlueSky Settings.
+                  </span>
+                )}
+              </div>
+            ))}
 
           {/* Post body */}
           <textarea
@@ -493,11 +533,16 @@ export const ScheduleSocialPostButton: React.FC = () => {
             value={body}
           />
 
-          {/* Twitter character counter */}
-          {platform === 'twitter' && (
+          {/* Twitter character counter (shown when Twitter is selected) */}
+          {twitterSelected && (
             <div
               style={{
-                color: twitterCharsRemaining < 0 ? 'var(--theme-error-500)' : twitterCharsRemaining <= 20 ? '#f59e0b' : 'var(--theme-text-dim)',
+                color:
+                  twitterCharsRemaining < 0
+                    ? 'var(--theme-error-500)'
+                    : twitterCharsRemaining <= 20
+                      ? '#f59e0b'
+                      : 'var(--theme-text-dim)',
                 fontSize: '11px',
                 marginBottom: '6px',
                 textAlign: 'right',
@@ -515,7 +560,7 @@ export const ScheduleSocialPostButton: React.FC = () => {
               gap: '10px',
               flexWrap: 'wrap',
               marginBottom: '12px',
-              marginTop: platform === 'twitter' ? '0' : '6px',
+              marginTop: twitterSelected ? '0' : '6px',
             }}
           >
             <span
@@ -536,8 +581,9 @@ export const ScheduleSocialPostButton: React.FC = () => {
               className="btn btn--style-primary btn--size-small"
               disabled={
                 phase === 'sharing' ||
-                statuses[platform] !== 'connected' ||
-                (platform === 'twitter' && twitterCharsRemaining < 0)
+                selectedPlatforms.length === 0 ||
+                selectedPlatforms.some((p) => statuses[p] !== 'connected') ||
+                (twitterSelected && twitterCharsRemaining < 0)
               }
               onClick={handleShareNow}
               type="button"
@@ -555,8 +601,9 @@ export const ScheduleSocialPostButton: React.FC = () => {
               disabled={
                 !scheduledFor ||
                 phase === 'saving' ||
-                statuses[platform] !== 'connected' ||
-                (platform === 'twitter' && twitterCharsRemaining < 0)
+                selectedPlatforms.length === 0 ||
+                selectedPlatforms.some((p) => statuses[p] !== 'connected') ||
+                (twitterSelected && twitterCharsRemaining < 0)
               }
               onClick={handleSchedule}
               type="button"
@@ -582,18 +629,22 @@ export const ScheduleSocialPostButton: React.FC = () => {
             </p>
           )}
 
-          {phase === 'shared' && sharedUrl && (
-            <p style={{ color: 'var(--theme-success-500)', fontSize: '12px', marginTop: '8px' }}>
-              ✓ Published!{' '}
-              <a
-                href={sharedUrl}
-                rel="noopener noreferrer"
-                style={{ color: 'var(--theme-success-500)' }}
-                target="_blank"
-              >
-                View →
-              </a>
-            </p>
+          {phase === 'shared' && sharedUrls.length > 0 && (
+            <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {sharedUrls.map((url) => (
+                <p key={url} style={{ color: 'var(--theme-success-500)', fontSize: '12px', margin: 0 }}>
+                  ✓ Published!{' '}
+                  <a
+                    href={url}
+                    rel="noopener noreferrer"
+                    style={{ color: 'var(--theme-success-500)' }}
+                    target="_blank"
+                  >
+                    View →
+                  </a>
+                </p>
+              ))}
+            </div>
           )}
 
           {phase === 'queued' && (
@@ -624,90 +675,82 @@ export const ScheduleSocialPostButton: React.FC = () => {
                 Scheduled Posts
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {scheduled.map((doc) => (
-                  <div
-                    key={doc.id}
-                    style={{
-                      alignItems: 'center',
-                      background: 'var(--theme-elevation-0)',
-                      border: '1px solid var(--theme-border)',
-                      borderRadius: '4px',
-                      display: 'flex',
-                      gap: '8px',
-                      justifyContent: 'space-between',
-                      padding: '6px 10px',
-                    }}
-                  >
+                {scheduled.map((doc) => {
+                  const hasPending = (doc.platforms ?? []).some((e) => e.status === 'pending')
+                  return (
                     <div
+                      key={doc.id}
                       style={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
+                        background: 'var(--theme-elevation-0)',
+                        border: '1px solid var(--theme-border)',
+                        borderRadius: '4px',
+                        padding: '8px 10px',
                       }}
                     >
-                      <span style={{ fontSize: '12px', fontWeight: 500 }}>
-                        {PLATFORM_LABELS[doc.platform]}
-                      </span>
-                      <span
+                      <div
                         style={{
-                          background:
-                            doc.status === 'published'
-                              ? 'var(--theme-success-100)'
-                              : doc.status === 'failed'
-                                ? 'var(--theme-error-100)'
-                                : doc.status === 'cancelled'
-                                  ? 'var(--theme-elevation-200)'
-                                  : 'var(--theme-warning-100)',
-                          borderRadius: '3px',
-                          color:
-                            doc.status === 'published'
-                              ? 'var(--theme-success-600)'
-                              : doc.status === 'failed'
-                                ? 'var(--theme-error-500)'
-                                : 'var(--theme-text-dim)',
-                          fontSize: '10px',
-                          fontWeight: 600,
-                          padding: '1px 5px',
-                          textTransform: 'uppercase',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          marginBottom: '4px',
                         }}
                       >
-                        {doc.status}
-                      </span>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                          {(doc.platforms ?? []).map((entry) => (
+                            <span
+                              key={entry.platform}
+                              style={{
+                                background:
+                                  entry.status === 'published'
+                                    ? 'var(--theme-success-100)'
+                                    : entry.status === 'failed'
+                                      ? 'var(--theme-error-100)'
+                                      : entry.status === 'cancelled'
+                                        ? 'var(--theme-elevation-200)'
+                                        : 'var(--theme-warning-100)',
+                                borderRadius: '3px',
+                                color:
+                                  entry.status === 'published'
+                                    ? 'var(--theme-success-600)'
+                                    : entry.status === 'failed'
+                                      ? 'var(--theme-error-500)'
+                                      : 'var(--theme-text-dim)',
+                                fontSize: '10px',
+                                fontWeight: 600,
+                                padding: '1px 5px',
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              {PLATFORM_LABELS[entry.platform]} · {entry.status}
+                            </span>
+                          ))}
+                        </div>
+                        {hasPending && (
+                          <button
+                            onClick={() => handleCancel(doc.id)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'var(--theme-error-500)',
+                              cursor: 'pointer',
+                              fontSize: '11px',
+                              padding: '2px 4px',
+                              flexShrink: 0,
+                            }}
+                            type="button"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
                       {doc.scheduledFor && (
                         <span style={{ color: 'var(--theme-text-dim)', fontSize: '11px' }}>
                           {formatDate(doc.scheduledFor)}
                         </span>
                       )}
                     </div>
-                    {doc.status === 'pending' && (
-                      <button
-                        onClick={() => handleCancel(doc.id)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--theme-error-500)',
-                          cursor: 'pointer',
-                          fontSize: '11px',
-                          padding: '2px 4px',
-                        }}
-                        type="button"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                    {doc.status === 'published' && doc.publishedUrl && (
-                      <a
-                        href={doc.publishedUrl}
-                        rel="noopener noreferrer"
-                        style={{ color: 'var(--theme-success-500)', fontSize: '11px' }}
-                        target="_blank"
-                      >
-                        View →
-                      </a>
-                    )}
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )}

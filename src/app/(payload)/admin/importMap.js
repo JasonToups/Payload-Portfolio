@@ -46,6 +46,9 @@ import { default as default_b6555656dcd74c7005ae117623d68b06 } from '@/collectio
 import { ScheduleSocialPostButton as ScheduleSocialPostButton_61cb1bb4725a2663f45f2e7838c43c83 } from '@/collections/Posts/components/ScheduleSocialPostButton'
 import { default as default_42df5dbd8f2a8e7fd046f17ffe7f51e4 } from '@/collections/Posts/components/SocialSharesCell'
 import { default as default_ac0cf27f0cad2e0ca93545fdfc3190d3 } from '@/collections/SocialPosts/components/LinkedPostAutoFill'
+import { PlatformsCell as PlatformsCell_55a186fb7af4e3a36672fefc53f19a39 } from '@/collections/SocialPosts/components/PlatformsCell'
+import { PlatformsArrayField as PlatformsArrayField_ca925a82795a8f68b644c7e93b336ace } from '@/collections/SocialPosts/components/PlatformsArrayField'
+import { ScheduledForField as ScheduledForField_cc620f028a443dd7f4f6a4061dad2cd0 } from '@/collections/SocialPosts/components/ScheduledForField'
 import { SocialPostSaveArea as SocialPostSaveArea_7790f95a15acb28fd3f83f1cee044d8a } from '@/collections/SocialPosts/components/SocialPostSaveArea'
 import { FolderTableCell as FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -110,6 +113,9 @@ export const importMap = {
   "@/collections/Posts/components/ScheduleSocialPostButton#ScheduleSocialPostButton": ScheduleSocialPostButton_61cb1bb4725a2663f45f2e7838c43c83,
   "@/collections/Posts/components/SocialSharesCell#default": default_42df5dbd8f2a8e7fd046f17ffe7f51e4,
   "@/collections/SocialPosts/components/LinkedPostAutoFill#default": default_ac0cf27f0cad2e0ca93545fdfc3190d3,
+  "@/collections/SocialPosts/components/PlatformsCell#PlatformsCell": PlatformsCell_55a186fb7af4e3a36672fefc53f19a39,
+  "@/collections/SocialPosts/components/PlatformsArrayField#PlatformsArrayField": PlatformsArrayField_ca925a82795a8f68b644c7e93b336ace,
+  "@/collections/SocialPosts/components/ScheduledForField#ScheduledForField": ScheduledForField_cc620f028a443dd7f4f6a4061dad2cd0,
   "@/collections/SocialPosts/components/SocialPostSaveArea#SocialPostSaveArea": SocialPostSaveArea_7790f95a15acb28fd3f83f1cee044d8a,
   "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/next/rsc#FolderField": FolderField_f9c02e79a4aed9a3924487c0cd4cafb1,

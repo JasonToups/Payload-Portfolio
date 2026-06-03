@@ -7,6 +7,7 @@ import { publishBlueSky } from '@/lib/social/publishBlueSky'
 import { publishTwitter } from '@/lib/social/publishTwitter'
 import { collectSocialPostImageUrls } from '@/utilities/collectSocialPostImageUrls'
 import { getServerSideURL } from '@/utilities/getURL'
+import type { PlatformEntry } from '@/collections/SocialPosts/types'
 
 type ExistingShare = {
   platform: SocialPlatform
@@ -19,42 +20,46 @@ function sanitizeTopicTag(raw: string): string {
   return raw.replace(/[^a-zA-Z0-9]/g, '')
 }
 
-type TaskIO = { input: { socialPostId: number }; output: { publishedUrl: string } }
+type TaskIO = { input: { socialPostId: number; platform: string }; output: { publishedUrl: string } }
 
 export const publishSocialPostTask: TaskConfig<TaskIO> = {
   slug: 'publishSocialPost',
   label: 'Publish Social Post',
   inputSchema: [
-    {
-      name: 'socialPostId',
-      type: 'number',
-      required: true,
-    },
+    { name: 'socialPostId', type: 'number', required: true },
+    { name: 'platform', type: 'text', required: true },
   ],
   outputSchema: [
-    {
-      name: 'publishedUrl',
-      type: 'text',
-    },
+    { name: 'publishedUrl', type: 'text' },
   ],
   retries: {
     attempts: 2,
     backoff: { type: 'fixed', delay: 60_000 },
   },
   onFail: async ({ input, req }) => {
-    const id = (input as { socialPostId?: number }).socialPostId
-    if (!id) return
-    // errorMessage was already written by the handler on each failed attempt —
-    // here we just mark the final status so the admin shows the real error.
+    const { socialPostId, platform } = input as { socialPostId?: number; platform?: string }
+    if (!socialPostId || !platform) return
+
+    const fresh = (await req.payload.findByID({
+      collection: 'social-posts',
+      id: socialPostId,
+      depth: 0,
+      overrideAccess: true,
+    })) as SocialPost
+
+    const updatedPlatforms = ((fresh.platforms ?? []) as PlatformEntry[]).map((entry) =>
+      entry.platform === platform ? { ...entry, status: 'failed' as const } : entry,
+    )
+
     await req.payload.update({
       collection: 'social-posts',
-      id,
-      data: { status: 'failed' },
+      id: socialPostId,
+      data: { platforms: updatedPlatforms },
       overrideAccess: true,
     })
   },
   handler: async ({ input, req }) => {
-    const { socialPostId } = input
+    const { socialPostId, platform } = input
 
     const doc = (await req.payload.findByID({
       collection: 'social-posts',
@@ -67,16 +72,37 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
       throw new Error(`Social post ${socialPostId} not found`)
     }
 
-    if (doc.status !== 'pending') {
-      return { output: { publishedUrl: doc.publishedUrl ?? '' } }
+    const platformEntries = (doc.platforms ?? []) as PlatformEntry[]
+    const targetEntry = platformEntries.find((e) => e.platform === platform)
+
+    if (!targetEntry) {
+      throw new Error(`Platform entry "${platform}" not found in social post ${socialPostId}`)
     }
 
-    await req.payload.update({
-      collection: 'social-posts',
-      id: socialPostId,
-      data: { status: 'processing' },
-      overrideAccess: true,
-    })
+    if (targetEntry.status !== 'pending') {
+      return { output: { publishedUrl: targetEntry.publishedUrl ?? '' } }
+    }
+
+    // Helper: fetch fresh doc, update the target platform entry, and save
+    const updatePlatformEntry = async (updates: Partial<PlatformEntry>) => {
+      const fresh = (await req.payload.findByID({
+        collection: 'social-posts',
+        id: socialPostId,
+        depth: 0,
+        overrideAccess: true,
+      })) as SocialPost
+      const updated = ((fresh.platforms ?? []) as PlatformEntry[]).map((entry) =>
+        entry.platform === platform ? { ...entry, ...updates } : entry,
+      )
+      await req.payload.update({
+        collection: 'social-posts',
+        id: socialPostId,
+        data: { platforms: updated },
+        overrideAccess: true,
+      })
+    }
+
+    await updatePlatformEntry({ status: 'processing' })
 
     const social = (await req.payload.findGlobal({
       slug: 'social-settings',
@@ -94,14 +120,11 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
       ? `${getServerSideURL()}/posts/${linkedPost.slug}`
       : undefined
 
-    // URL embed — only for URL-type posts; falls back through url field → shortUrl → derived slug URL
-    // Trim to guard against stored URLs that were created before NEXT_PUBLIC_SERVER_URL was trimmed.
     const postUrl =
       postType === 'url'
         ? (doc.url?.trim() ?? doc.shortUrl?.trim() ?? linkedPostUrl)
         : undefined
 
-    // Images — only for Image-type posts
     const imageUrls = postType === 'image' ? collectSocialPostImageUrls(doc) : []
 
     const keywords = (doc.keywords ?? []) as (number | Keyword)[]
@@ -114,160 +137,145 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
     let publishedUrl: string
 
     try {
-    switch (doc.platform) {
-      case 'linkedin': {
-        const li = social.linkedin
-        if (!li?.accessToken || !li?.personUrn) {
-          throw new Error('LinkedIn is not connected')
+      switch (platform) {
+        case 'linkedin': {
+          const li = social.linkedin
+          if (!li?.accessToken || !li?.personUrn) {
+            throw new Error('LinkedIn is not connected')
+          }
+
+          const liHashtags = resolvedKeywords
+            .map((k) => `#${k.name.replace(/ /g, '_')}`)
+            .join(' ')
+          const liCommentary = liHashtags ? `${doc.body.trim()} ${liHashtags}` : doc.body
+
+          type ResolvedMedia = { url?: string | null }
+          const ogMedia =
+            typeof linkedPost?.meta?.image === 'object' && linkedPost.meta.image !== null
+              ? (linkedPost.meta.image as ResolvedMedia)
+              : null
+          const heroMedia =
+            typeof linkedPost?.heroImage === 'object' && linkedPost.heroImage !== null
+              ? (linkedPost.heroImage as ResolvedMedia)
+              : null
+          const thumbnailUrl = ogMedia?.url ?? heroMedia?.url ?? undefined
+
+          const result = await publishLinkedIn({
+            body: liCommentary,
+            url: postUrl,
+            title: linkedPost?.title,
+            description: linkedPost?.meta?.description ?? undefined,
+            imageUrls,
+            thumbnailUrl: thumbnailUrl ?? undefined,
+            settings: {
+              accessToken: li.accessToken,
+              personUrn: li.personUrn,
+              expiresAt: li.expiresAt,
+            },
+          })
+          publishedUrl = result.url
+          break
         }
 
-        const liHashtags = resolvedKeywords
-          .map((k) => `#${k.name.replace(/ /g, '_')}`)
-          .join(' ')
-        const liCommentary = liHashtags ? `${doc.body.trim()} ${liHashtags}` : doc.body
+        case 'threads': {
+          const th = social.threads
+          if (!th?.accessToken || !th?.userId) {
+            throw new Error('Threads is not connected')
+          }
 
-        type ResolvedMedia = { url?: string | null }
-        const ogMedia =
-          typeof linkedPost?.meta?.image === 'object' && linkedPost.meta.image !== null
-            ? (linkedPost.meta.image as ResolvedMedia)
-            : null
-        const heroMedia =
-          typeof linkedPost?.heroImage === 'object' && linkedPost.heroImage !== null
-            ? (linkedPost.heroImage as ResolvedMedia)
-            : null
-        const thumbnailUrl = ogMedia?.url ?? heroMedia?.url ?? undefined
+          const firstKeyword = resolvedKeywords[0] ?? null
+          const topicTag = firstKeyword ? sanitizeTopicTag(firstKeyword.name) || undefined : undefined
 
-        const result = await publishLinkedIn({
-          body: liCommentary,
-          url: postUrl,
-          title: linkedPost?.title,
-          description: linkedPost?.meta?.description ?? undefined,
-          imageUrls,
-          thumbnailUrl: thumbnailUrl ?? undefined,
-          settings: {
-            accessToken: li.accessToken,
-            personUrn: li.personUrn,
-            expiresAt: li.expiresAt,
-          },
-        })
-        publishedUrl = result.url
-        break
+          const thPostUrl = postUrl
+
+          const thBody = [
+            doc.body,
+            ...(hashtagString ? [hashtagString] : []),
+          ].join('\n\n')
+
+          const result = await publishThreads({
+            body: thBody,
+            topicTag,
+            imageUrls,
+            linkAttachment: imageUrls.length === 0 ? thPostUrl : undefined,
+            settings: {
+              accessToken: th.accessToken,
+              userId: th.userId,
+              expiresAt: th.expiresAt,
+            },
+          })
+          publishedUrl = result.url
+          break
+        }
+
+        case 'bluesky': {
+          const appPassword = process.env.BLUESKY_APP_PASSWORD
+          if (!appPassword) {
+            throw new Error('BLUESKY_APP_PASSWORD is not set')
+          }
+
+          const blueskyProfile = social.profiles?.find((p) => p.platform === 'bluesky')
+          const blueskyUrl = blueskyProfile?.url ?? ''
+          let handle: string | null = null
+          try {
+            const segments = new URL(blueskyUrl).pathname.split('/').filter(Boolean)
+            handle = segments[1] ?? null
+          } catch {
+            handle = null
+          }
+
+          if (!handle) {
+            throw new Error('BlueSky profile URL is not set in Social Settings')
+          }
+
+          const bskyDescription = linkedPost?.meta?.description ?? undefined
+          const bskyBody = hashtagString ? `${doc.body}\n\n${hashtagString}` : doc.body
+
+          const result = await publishBlueSky({
+            body: bskyBody,
+            postUrl,
+            title: linkedPost?.title,
+            description: bskyDescription,
+            imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+            settings: { handle, appPassword },
+          })
+          publishedUrl = result.url
+          break
+        }
+
+        case 'twitter': {
+          const tw = social.twitter
+          if (!tw?.accessToken) {
+            throw new Error('Twitter is not connected')
+          }
+
+          const result = await publishTwitter({
+            body: doc.body,
+            postUrl,
+            imageUrls,
+            settings: {
+              accessToken: tw.accessToken,
+              refreshToken: tw.refreshToken,
+              expiresAt: tw.expiresAt,
+              username: tw.username,
+            },
+          })
+          publishedUrl = result.url
+          break
+        }
+
+        default:
+          throw new Error(`Unsupported platform: ${platform}`)
       }
-
-      case 'threads': {
-        const th = social.threads
-        if (!th?.accessToken || !th?.userId) {
-          throw new Error('Threads is not connected')
-        }
-
-        const firstKeyword = resolvedKeywords[0] ?? null
-        const topicTag = firstKeyword ? sanitizeTopicTag(firstKeyword.name) || undefined : undefined
-
-        // Use the direct post URL for Threads — short URLs aren't followed by Threads' link scraper,
-        // which causes the link card to resolve to the homepage instead of the post.
-        const thPostUrl = postUrl
-
-        const thBody = [
-          doc.body,
-          ...(hashtagString ? [hashtagString] : []),
-        ].join('\n\n')
-
-        const result = await publishThreads({
-          body: thBody,
-          topicTag,
-          imageUrls,
-          // link_attachment explicitly sets the link card URL for text-only posts (per Meta docs)
-          linkAttachment: imageUrls.length === 0 ? thPostUrl : undefined,
-          settings: {
-            accessToken: th.accessToken,
-            userId: th.userId,
-            expiresAt: th.expiresAt,
-          },
-        })
-        publishedUrl = result.url
-        break
-      }
-
-      case 'bluesky': {
-        const appPassword = process.env.BLUESKY_APP_PASSWORD
-        if (!appPassword) {
-          throw new Error('BLUESKY_APP_PASSWORD is not set')
-        }
-
-        const blueskyProfile = social.profiles?.find((p) => p.platform === 'bluesky')
-        const blueskyUrl = blueskyProfile?.url ?? ''
-        let handle: string | null = null
-        try {
-          const segments = new URL(blueskyUrl).pathname.split('/').filter(Boolean)
-          handle = segments[1] ?? null
-        } catch {
-          handle = null
-        }
-
-        if (!handle) {
-          throw new Error('BlueSky profile URL is not set in Social Settings')
-        }
-
-        // Hashtags go in the post body, not the card description.
-        // title/description are fallbacks — fetchOGCard in publishBlueSky scrapes the real OG tags.
-        const bskyDescription = linkedPost?.meta?.description ?? undefined
-        const bskyBody = hashtagString ? `${doc.body}\n\n${hashtagString}` : doc.body
-
-        const result = await publishBlueSky({
-          body: bskyBody,
-          postUrl,
-          title: linkedPost?.title,
-          description: bskyDescription,
-          imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
-          settings: { handle, appPassword },
-        })
-        publishedUrl = result.url
-        break
-      }
-
-      case 'twitter': {
-        const tw = social.twitter
-        if (!tw?.accessToken) {
-          throw new Error('Twitter is not connected')
-        }
-
-        const result = await publishTwitter({
-          body: doc.body,
-          postUrl,
-          imageUrls,
-          settings: {
-            accessToken: tw.accessToken,
-            refreshToken: tw.refreshToken,
-            expiresAt: tw.expiresAt,
-            username: tw.username,
-          },
-        })
-        publishedUrl = result.url
-        break
-      }
-
-      default:
-        throw new Error(`Unsupported platform: ${doc.platform}`)
-    }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err)
-      await req.payload.update({
-        collection: 'social-posts',
-        id: socialPostId,
-        data: { errorMessage },
-        overrideAccess: true,
-      })
+      await updatePlatformEntry({ errorMessage })
       throw err
     }
 
     const now = new Date().toISOString()
 
-    await req.payload.update({
-      collection: 'social-posts',
-      id: socialPostId,
-      data: { status: 'published', publishedAt: now, publishedUrl },
-      overrideAccess: true,
-    })
+    await updatePlatformEntry({ status: 'published', publishedAt: now, publishedUrl })
 
     if (linkedPost) {
       const freshPost = await req.payload.findByID({
@@ -283,7 +291,7 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
         data: {
           socialShares: [
             ...existingShares,
-            { platform: doc.platform as SocialPlatform, sharedAt: now, shareUrl: publishedUrl },
+            { platform: platform as SocialPlatform, sharedAt: now, shareUrl: publishedUrl },
           ],
         },
         overrideAccess: true,

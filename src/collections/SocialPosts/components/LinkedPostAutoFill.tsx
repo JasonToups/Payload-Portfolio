@@ -13,18 +13,10 @@ type PostAutoFillData = {
   slug?: string | null
 }
 
-const PLATFORM_LABELS: Record<string, string> = {
-  linkedin: 'LinkedIn',
-  twitter: 'Twitter / X',
-  bluesky: 'BlueSky',
-  threads: 'Threads',
-}
-
 const LinkedPostAutoFill: React.FC = () => {
   const { id: docId } = useDocumentInfo()
   const { dispatchFields } = useForm()
   const { value: linkedPostValue } = useField<LinkedPostFieldValue>({ path: 'linkedPost' })
-  const { value: platform } = useField<string | null>({ path: 'platform' })
   const { value: bodyValue } = useField<string | null>({ path: 'body' })
   const { value: keywordsValue } = useField<(number | { id: number })[] | null>({ path: 'keywords' })
 
@@ -38,7 +30,7 @@ const LinkedPostAutoFill: React.FC = () => {
         ? linkedPostValue
         : null
 
-  // Auto-fill body and keywords when linkedPost is set on a new document
+  // Auto-fill body, keywords, and title when linkedPost is set on a new document
   useEffect(() => {
     if (docId || !linkedPostId || hasFetchedRef.current) return
     hasFetchedRef.current = true
@@ -58,36 +50,10 @@ const LinkedPostAutoFill: React.FC = () => {
           dispatchFields({ type: 'UPDATE', path: 'keywords', value: ids })
         }
 
-        // Set title if platform is already selected
-        if (platform) {
-          const label = PLATFORM_LABELS[platform] ?? platform
-          dispatchFields({ type: 'UPDATE', path: 'title', value: `${label} — ${post.title}` })
-        }
+        dispatchFields({ type: 'UPDATE', path: 'title', value: post.title })
       })
       .catch(() => {})
   }, [linkedPostId, docId]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Update title whenever platform changes on a new document with a linked post
-  useEffect(() => {
-    if (docId || !linkedPostId || !platform) return
-
-    const setTitle = (post: PostAutoFillData) => {
-      const label = PLATFORM_LABELS[platform] ?? platform
-      dispatchFields({ type: 'UPDATE', path: 'title', value: `${label} — ${post.title}` })
-    }
-
-    if (postDataRef.current) {
-      setTitle(postDataRef.current)
-    } else {
-      fetch(`/api/posts/${linkedPostId}?depth=0`)
-        .then((r) => r.json() as Promise<PostAutoFillData>)
-        .then((post) => {
-          postDataRef.current = post
-          setTitle(post)
-        })
-        .catch(() => {})
-    }
-  }, [platform, linkedPostId, docId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return null
 }

@@ -9,7 +9,7 @@ export const SocialPosts: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'platform', 'status', 'scheduledFor', 'publishedAt'],
+    defaultColumns: ['title', 'platforms', 'scheduledFor'],
     group: 'Social',
     components: {
       edit: {
@@ -113,47 +113,62 @@ export const SocialPosts: CollectionConfig = {
       },
     },
     {
-      name: 'platform',
-      type: 'select',
+      name: 'platforms',
+      type: 'array',
       required: true,
-      options: [
-        { label: 'LinkedIn', value: 'linkedin' },
-        { label: 'Twitter / X', value: 'twitter' },
-        { label: 'BlueSky', value: 'bluesky' },
-        { label: 'Threads', value: 'threads' },
+      minRows: 1,
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '@/collections/SocialPosts/components/PlatformsArrayField#PlatformsArrayField',
+          Cell: '@/collections/SocialPosts/components/PlatformsCell#PlatformsCell',
+        },
+      },
+      fields: [
+        {
+          name: 'platform',
+          type: 'select',
+          required: true,
+          options: [
+            { label: 'LinkedIn', value: 'linkedin' },
+            { label: 'Twitter / X', value: 'twitter' },
+            { label: 'BlueSky', value: 'bluesky' },
+            { label: 'Threads', value: 'threads' },
+          ],
+        },
+        {
+          name: 'status',
+          type: 'select',
+          defaultValue: 'draft',
+          options: [
+            { label: 'Draft', value: 'draft' },
+            { label: 'Pending', value: 'pending' },
+            { label: 'Processing', value: 'processing' },
+            { label: 'Published', value: 'published' },
+            { label: 'Failed', value: 'failed' },
+            { label: 'Cancelled', value: 'cancelled' },
+          ],
+          admin: { readOnly: true },
+        },
+        {
+          name: 'publishedAt',
+          type: 'date',
+          admin: {
+            readOnly: true,
+            date: { pickerAppearance: 'dayAndTime' },
+          },
+        },
+        {
+          name: 'publishedUrl',
+          type: 'text',
+          admin: { readOnly: true },
+        },
+        {
+          name: 'errorMessage',
+          type: 'text',
+          admin: { readOnly: true },
+        },
       ],
-      admin: {
-        position: 'sidebar',
-        description: 'Social media platform to publish to.',
-      },
-    },
-    {
-      name: 'status',
-      type: 'select',
-      defaultValue: 'draft',
-      options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Pending', value: 'pending' },
-        { label: 'Processing', value: 'processing' },
-        { label: 'Published', value: 'published' },
-        { label: 'Failed', value: 'failed' },
-        { label: 'Cancelled', value: 'cancelled' },
-      ],
-      admin: {
-        position: 'sidebar',
-        readOnly: true,
-        description: 'Managed by the scheduler — use "Publish Now" or set a schedule date.',
-      },
-    },
-    {
-      name: 'errorMessage',
-      type: 'text',
-      admin: {
-        position: 'sidebar',
-        readOnly: true,
-        description: 'Populated on failure — check here when status is "failed".',
-        condition: (data) => Boolean(data?.errorMessage),
-      },
     },
     {
       name: 'scheduledFor',
@@ -161,28 +176,9 @@ export const SocialPosts: CollectionConfig = {
       admin: {
         position: 'sidebar',
         date: { pickerAppearance: 'dayAndTime' },
-        description:
-          'When to publish. Leave blank to publish immediately. Setting a date auto-schedules the post.',
-        condition: (data) => data?.status !== 'published',
-      },
-    },
-    {
-      name: 'publishedAt',
-      type: 'date',
-      admin: {
-        position: 'sidebar',
-        readOnly: true,
-        date: { pickerAppearance: 'dayAndTime' },
-        description: 'Populated on successful publish.',
-      },
-    },
-    {
-      name: 'publishedUrl',
-      type: 'text',
-      admin: {
-        position: 'sidebar',
-        readOnly: true,
-        description: 'URL of the published social post.',
+        components: {
+          Field: '@/collections/SocialPosts/components/ScheduledForField#ScheduledForField',
+        },
       },
     },
     {
