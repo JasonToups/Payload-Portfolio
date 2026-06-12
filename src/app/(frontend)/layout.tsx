@@ -42,6 +42,8 @@ import { getSiteSettings } from '@/utilities/getSiteSettings'
 import { getSocialSettings } from '@/utilities/getSocialSettings'
 import { draftMode } from 'next/headers'
 
+import { Analytics } from '@vercel/analytics/next'
+
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 
@@ -81,6 +83,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <main>{children}</main>
           <Footer />
         </Providers>
+        <Analytics />
       </body>
     </html>
   )
