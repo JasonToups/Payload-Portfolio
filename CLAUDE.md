@@ -42,7 +42,9 @@ pnpm run test:e2e
 # Generate TypeScript types from Payload config
 pnpm generate:types
 
-# Generate import map for Payload
+# Regenerate Payload admin import map
+# REQUIRED after adding any new custom admin component (Field, Cell, edit.SaveButton, etc.)
+# Skipping causes the component to silently disappear in the admin UI with no error.
 pnpm generate:importmap
 
 # Run the Payload CLI directly
@@ -99,9 +101,13 @@ Production deployment (`pnpm build`) automatically runs `payload migrate` before
 
 1. **`src/`** - Main source code directory:
    - `app/` - Next.js app router files (frontend pages, API routes)
-   - `collections/` - Payload CMS collection definitions (Pages, Posts, Media, Categories, Users)
+   - `collections/` - Payload CMS collection definitions (Pages, Posts, Media, Categories, Users, SocialPosts, Keywords, EmailTemplates, Broadcasts)
    - `blocks/` - Layout building blocks (Hero, Content, Media, CallToAction, Archive)
    - `components/` - Reusable UI components
+   - `lib/social/` - Platform-specific social media publish functions (`publishLinkedIn`, `publishBlueSky`, `publishThreads`, `publishTwitter`)
+   - `jobs/` - Payload background job task definitions (e.g. `publishSocialPost`)
+   - `features/` - Custom Lexical rich-text feature plugins (e.g. MarkdownConverter)
+   - `fields/` - Reusable Payload field configurations
    - `Footer/` & `Header/` - Site header and footer configurations
    - `SiteSettings/` - Global site settings configuration
    - `utilities/` - Utility functions for metadata, URL handling, etc.
@@ -129,6 +135,21 @@ This template implements comprehensive SEO and metadata handling:
 4. **Open Graph Integration**:
    - The `mergeOpenGraph()` function combines site defaults with page-specific content
    - Proper handling of image URLs (OG images) through the media collection
+
+### Social Posts System
+
+The `SocialPosts` collection (`src/collections/SocialPosts/`) handles cross-platform publishing to LinkedIn, Twitter/X, BlueSky, and Threads from a single record.
+
+- **Multi-platform**: one `SocialPost` targets multiple platforms via a `platforms` array; each entry independently tracks `status`, `publishedAt`, `publishedUrl`, and `errorMessage`.
+- **Platform status state machine**: `draft → pending → processing → published / failed`. Both `draft` and `failed` are retryable.
+- **Immediate publish**: the `SocialPostSaveArea` custom save component calls `POST /api/social-posts/[id]/publish`, which queues one `publishSocialPost` Payload job per platform and runs them synchronously within the request.
+- **Scheduled publish**: setting `scheduledFor` transitions `draft` platforms to `pending` via `socialPostBeforeChange`. The cron endpoint `GET /api/cron/social` (protected by `CRON_SECRET` bearer token) queries for `platforms.status = pending AND scheduledFor <= now` and queues jobs.
+- **Auto-fill on create**: `socialPostBeforeChange` auto-populates `body`, `url`, `keywords`, `title`, and `shortUrl` from the linked Post.
+- **Image collection**: `src/utilities/collectSocialPostImageUrls.ts` is the single entry point for resolving social post images — handles `heroImage` fallback, `images[]` array, relative→absolute URL normalization, deduplication, and the 20-image platform cap. Fetch the doc at `depth: 2` or image objects will be raw IDs with no `.url`.
+
+**Required env vars**: `CRON_SECRET` (cron route bearer), `BLUESKY_APP_PASSWORD` (BlueSky app password — not OAuth).
+
+**Adding a new platform**: add to `PlatformSlug` in `src/collections/SocialPosts/types.ts` → create `src/lib/social/publishXxx.ts` → add case to `src/jobs/tasks/publishSocialPost.ts` → add option to the `platforms.platform` select field → `pnpm generate:types` → `pnpm migrate:create`.
 
 ### Metadata Generation Flow
 
