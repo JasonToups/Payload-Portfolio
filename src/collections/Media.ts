@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
-import { constrainToOGBounds } from './Media/hooks/constrainToOGBounds'
+import { fixOrientation } from './Media/hooks/fixOrientation'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -19,7 +19,7 @@ export const Media: CollectionConfig = {
   slug: 'media',
   folders: true,
   hooks: {
-    beforeOperation: [constrainToOGBounds],
+    beforeOperation: [fixOrientation],
   },
   access: {
     create: authenticated,
