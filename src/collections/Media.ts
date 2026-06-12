@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url'
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
 import { fixOrientation } from './Media/hooks/fixOrientation'
+import { inferFolderFromReferer } from './Media/hooks/inferFolderFromReferer'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -20,6 +21,7 @@ export const Media: CollectionConfig = {
   folders: true,
   hooks: {
     beforeOperation: [fixOrientation],
+    beforeChange: [inferFolderFromReferer],
   },
   access: {
     create: authenticated,
