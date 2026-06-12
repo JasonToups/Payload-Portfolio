@@ -74,6 +74,7 @@ export const plugins: Plugin[] = [
       media: true,
     },
     token: process.env.BLOB_READ_WRITE_TOKEN || '',
+    clientUploads: true,
   }),
   redirectsPlugin({
     collections: ['pages', 'posts'],
