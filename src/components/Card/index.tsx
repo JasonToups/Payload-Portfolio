@@ -11,7 +11,7 @@ import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
 
 export type CardPostData = Pick<
   Post,
-  'id' | 'slug' | 'categories' | 'meta' | 'title' | 'keywords' | 'publishedAt'
+  'id' | 'slug' | 'categories' | 'meta' | 'title' | 'keywords' | 'publishedAt' | 'heroImage'
 > &
   Partial<Pick<Post, 'content'>>
 
@@ -26,8 +26,14 @@ export const Card: React.FC<{
 }> = (props) => {
   const { className, doc, priority, relationTo, showCategories, title: titleFromProps, index: _index = 0 } = props
 
-  const { slug, categories, keywords, meta, title, publishedAt, content } = doc || {}
+  const { slug, categories, keywords, meta, title, publishedAt, content, heroImage } = doc || {}
   const { description, image: metaImage } = meta || {}
+  const displayImage =
+    metaImage && typeof metaImage !== 'string'
+      ? metaImage
+      : heroImage && typeof heroImage !== 'string'
+        ? heroImage
+        : null
 
   const hasCategories = categories && Array.isArray(categories) && categories.length > 0
   const hasKeywords = keywords && Array.isArray(keywords) && keywords.length > 0
@@ -46,9 +52,9 @@ export const Card: React.FC<{
 
       {/* Mobile: blurred full-card backdrop */}
       <div className="bg-[#2e2c2a] overflow-hidden absolute inset-0 md:hidden">
-        {metaImage && typeof metaImage !== 'string' && (
+        {displayImage && (
           <Media
-            resource={metaImage}
+            resource={displayImage}
             size="33vw"
             imgClassName="absolute inset-0 w-full h-full object-cover object-center blur-[10px] scale-110"
             fill
@@ -60,9 +66,9 @@ export const Card: React.FC<{
 
       {/* Desktop: 16:9 image at top of card */}
       <div className="hidden md:block relative overflow-hidden rounded-[15px] bg-[#2e2c2a] aspect-video">
-        {metaImage && typeof metaImage !== 'string' && (
+        {displayImage && (
           <Media
-            resource={metaImage}
+            resource={displayImage}
             size="33vw"
             imgClassName="absolute inset-0 w-full h-full object-cover object-center"
             fill
