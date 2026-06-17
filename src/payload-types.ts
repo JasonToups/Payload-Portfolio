@@ -2892,7 +2892,18 @@ export interface SubscribePostBlock {
 export interface SocialSetting {
   id: number;
   /**
-   * Pre-fills the schedule time in the compose form. To change the actual cron schedule, update vercel.json and redeploy.
+   * Time zone used for the Daily Publish Time and the default schedule on new social posts.
+   */
+  timezone:
+    | 'America/Los_Angeles'
+    | 'America/Denver'
+    | 'America/Phoenix'
+    | 'America/Chicago'
+    | 'America/New_York'
+    | 'America/Anchorage'
+    | 'Pacific/Honolulu';
+  /**
+   * Pre-fills the schedule time on new social posts (defaults them to 1 hour before this time, so they're ready when the daily publish cron runs). IMPORTANT: On Vercel's Free plan, the actual cron is a single daily run defined in vercel.json. To change when the cron literally fires, update vercel.json's `schedule` to match this hour in UTC and redeploy.
    */
   dailyPublishHour?: ('7' | '8' | '9' | '10' | '11' | '12' | '13' | '14' | '15') | null;
   /**
@@ -3078,6 +3089,7 @@ export interface SubscribePostBlockSelect<T extends boolean = true> {
  * via the `definition` "social-settings_select".
  */
 export interface SocialSettingsSelect<T extends boolean = true> {
+  timezone?: T;
   dailyPublishHour?: T;
   profiles?:
     | T
