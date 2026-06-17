@@ -4,19 +4,10 @@ import { useDocumentInfo, useField, useForm, useFormFields } from '@payloadcms/u
 import { useMemo, useState } from 'react'
 import type { PlatformEntry, PlatformPublishStatus, PlatformSlug } from '../types'
 import { ALL_PLATFORMS, PLATFORM_LABELS } from '../types'
+import { formatDateWithSettingsTimezone, useSettingsTimezone } from './useSettingsTimezone'
 
 interface PlatformRow extends PlatformEntry {
   rowIndex: number
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  })
 }
 
 const STATUS_STYLES: Record<
@@ -67,11 +58,17 @@ function StatusBadge({ status }: { status: PlatformPublishStatus }) {
 function PlatformSection({
   entry,
   onRemove,
+  settingsTimezone,
 }: {
   entry: PlatformEntry
   onRemove: () => void
+  settingsTimezone: string | null
 }) {
   const isLocked = entry.status === 'processing' || entry.status === 'published'
+  const publishedAtFormatted =
+    entry.publishedAt && settingsTimezone
+      ? formatDateWithSettingsTimezone({ iso: entry.publishedAt, settingsTimezone })
+      : null
 
   return (
     <div
@@ -121,9 +118,10 @@ function PlatformSection({
       {/* Published details */}
       {entry.status === 'published' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {entry.publishedAt && (
+          {publishedAtFormatted && (
             <span style={{ color: 'var(--theme-text-dim)', fontSize: '11px' }}>
-              {formatDate(entry.publishedAt)}
+              {publishedAtFormatted.primary}
+              {publishedAtFormatted.local && ` · Local: ${publishedAtFormatted.local}`}
             </span>
           )}
           {entry.publishedUrl && (
@@ -171,6 +169,7 @@ function PlatformSection({
 
 export function PlatformsArrayField() {
   const { id: docId } = useDocumentInfo()
+  const settingsTimezone = useSettingsTimezone()
   const [addOpen, setAddOpen] = useState(false)
   const { dispatchFields } = useForm()
   const { value: titleValue, setValue: setTitleValue } = useField<string>({ path: 'title' })
@@ -279,6 +278,7 @@ export function PlatformsArrayField() {
           key={entry.platform}
           entry={entry}
           onRemove={() => handleRemove(entry.platform)}
+          settingsTimezone={settingsTimezone}
         />
       ))}
 

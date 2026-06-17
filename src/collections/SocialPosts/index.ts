@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { socialPostBeforeChange } from './hooks/socialPostBeforeChange'
+import { getNextPublishDate } from '@/utilities/getNextPublishDate'
 
 export const SocialPosts: CollectionConfig = {
   slug: 'social-posts',
@@ -9,7 +10,7 @@ export const SocialPosts: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'platforms', 'scheduledFor'],
+    defaultColumns: ['scheduledFor', 'title', 'linkedPost'],
     group: 'Social',
     components: {
       edit: {
@@ -177,6 +178,7 @@ export const SocialPosts: CollectionConfig = {
     {
       name: 'scheduledFor',
       type: 'date',
+      defaultValue: async () => (await getNextPublishDate({ hourOffset: -1 })).toISOString(),
       admin: {
         position: 'sidebar',
         date: { pickerAppearance: 'dayAndTime' },

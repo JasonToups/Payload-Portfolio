@@ -362,12 +362,12 @@ export const Posts: CollectionConfig<'posts'> = {
               },
             },
             {
-              name: 'scheduleSocialPost',
+              name: 'scheduleSocialPostButton',
               type: 'ui',
               admin: {
                 condition: (data) => data?._status === 'published',
                 components: {
-                  Field: '@/collections/Posts/components/ScheduleSocialPostButton#ScheduleSocialPostButton',
+                  Field: '@/collections/Posts/components/ScheduleSocialPostNavButton#ScheduleSocialPostNavButton',
                 },
               },
             },
@@ -378,7 +378,7 @@ export const Posts: CollectionConfig<'posts'> = {
               collection: 'social-posts',
               on: 'linkedPost',
               admin: {
-                defaultColumns: ['platform', 'status', 'scheduledFor'],
+                defaultColumns: ['title', 'scheduledFor', 'platforms'],
               },
             },
             {

@@ -2,24 +2,19 @@
 
 import { DatePicker, useField } from '@payloadcms/ui'
 import { useState } from 'react'
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    timeZoneName: 'short',
-  })
-}
+import { formatDateWithSettingsTimezone, useSettingsTimezone } from './useSettingsTimezone'
 
 export function ScheduledForField() {
   const { value, setValue } = useField<string | null>({ path: 'scheduledFor' })
+  const settingsTimezone = useSettingsTimezone()
   const [pickerOpen, setPickerOpen] = useState(false)
   const [draft, setDraft] = useState<Date | null>(null)
 
   const hasSchedule = Boolean(value)
+  const formatted =
+    hasSchedule && settingsTimezone
+      ? formatDateWithSettingsTimezone({ iso: value!, settingsTimezone })
+      : null
 
   const handleOpen = () => {
     setDraft(value ? new Date(value) : null)
@@ -70,9 +65,16 @@ export function ScheduledForField() {
             padding: '8px 10px',
           }}
         >
-          <span style={{ color: 'var(--theme-text)', fontSize: '12px' }}>
-            {formatDate(value!)}
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            <span style={{ color: 'var(--theme-text)', fontSize: '12px' }}>
+              {formatted?.primary ?? value}
+            </span>
+            {formatted?.local && (
+              <span style={{ color: 'var(--theme-text-dim)', fontSize: '11px' }}>
+                Local: {formatted.local}
+              </span>
+            )}
+          </div>
           <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
             <button
               onClick={handleOpen}
