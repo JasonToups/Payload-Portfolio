@@ -65,7 +65,7 @@ export default async function Post({ params: paramsPromise }: Args) {
         : []
 
   return (
-    <article className="bg-post">
+    <article className="post bg-post">
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
@@ -78,7 +78,7 @@ export default async function Post({ params: paramsPromise }: Args) {
       <div className="pt-0 pb-0">
         <div className="flex flex-col lg:grid lg:grid-cols-4">
           {/* Post Body: top on mobile, center 50% (cols 2–3) on desktop */}
-          <div className="lg:col-start-2 lg:col-span-2 py-8 px-10">
+          <div className="lg:col-start-2 lg:col-span-2 py-8 px-0 md:px-10">
             <RichText data={post.content} enableGutter={false} />
           </div>
 

@@ -313,6 +313,24 @@
   font-weight: 400;
 }
 
+/* ─── Posts ───────────────────────────────────────────────────────────────── */
+.post h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  padding: 0 0.5rem;
+}
+
+.post p {
+  padding: 0 1rem;
+}
+
+.post ol {
+  padding: 0 1rem 0 2rem;
+}
+
 /* ─── Scroll reveal animations ────────────────────────────────────────────── */
 
 @keyframes reveal-up {
