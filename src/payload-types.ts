@@ -622,9 +622,6 @@ export interface SocialPost {
    * Optional: link to a Post to include its URL (auto-generates a short URL). Leave blank for a standalone post.
    */
   linkedPost?: (number | null) | Post;
-  /**
-   * Used as hashtags when publishing.
-   */
   keywords?: (number | Keyword)[] | null;
   /**
    * URL = link-card post. Image = photo/carousel. Content = text only.
