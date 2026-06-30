@@ -12,6 +12,7 @@ export interface PlatformEntry {
   id?: string | null
   platform: PlatformSlug
   status: PlatformPublishStatus
+  body?: string | null
   publishedAt?: string | null
   publishedUrl?: string | null
   errorMessage?: string | null

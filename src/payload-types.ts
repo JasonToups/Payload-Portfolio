@@ -615,14 +615,14 @@ export interface SocialPost {
    */
   title: string;
   /**
+   * URL = external link-card post. Linked Post = link card from one of your Posts. Image = photo/carousel. Content = text only.
+   */
+  postType: 'url' | 'linkedPost' | 'image' | 'content';
+  /**
    * Text content for the social post.
    */
   body: string;
   keywords?: (number | Keyword)[] | null;
-  /**
-   * URL = external link-card post. Linked Post = link card from one of your Posts. Image = photo/carousel. Content = text only.
-   */
-  postType: 'url' | 'linkedPost' | 'image' | 'content';
   /**
    * The Post to share. Its URL, short URL, and link-card metadata are auto-generated.
    */
@@ -651,6 +651,10 @@ export interface SocialPost {
   platforms: {
     platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads';
     status?: ('draft' | 'pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
+    /**
+     * Literal text sent to this platform. Edited via the Platform Bodies editor.
+     */
+    body?: string | null;
     publishedAt?: string | null;
     publishedUrl?: string | null;
     errorMessage?: string | null;
@@ -2183,9 +2187,9 @@ export interface PostsSelect<T extends boolean = true> {
  */
 export interface SocialPostsSelect<T extends boolean = true> {
   title?: T;
+  postType?: T;
   body?: T;
   keywords?: T;
-  postType?: T;
   linkedPost?: T;
   url?: T;
   metaTitle?: T;
@@ -2198,6 +2202,7 @@ export interface SocialPostsSelect<T extends boolean = true> {
     | {
         platform?: T;
         status?: T;
+        body?: T;
         publishedAt?: T;
         publishedUrl?: T;
         errorMessage?: T;

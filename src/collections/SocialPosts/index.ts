@@ -39,6 +39,22 @@ export const SocialPosts: CollectionConfig = {
       },
     },
     {
+      name: 'postType',
+      type: 'select',
+      defaultValue: 'url',
+      required: true,
+      options: [
+        { label: 'URL', value: 'url' },
+        { label: 'Linked Post', value: 'linkedPost' },
+        { label: 'Image', value: 'image' },
+        { label: 'Content', value: 'content' },
+      ],
+      admin: {
+        description:
+          'URL = external link-card post. Linked Post = link card from one of your Posts. Image = photo/carousel. Content = text only.',
+      },
+    },
+    {
       name: 'body',
       type: 'textarea',
       required: true,
@@ -59,22 +75,6 @@ export const SocialPosts: CollectionConfig = {
       },
     },
     {
-      name: 'postType',
-      type: 'select',
-      defaultValue: 'url',
-      required: true,
-      options: [
-        { label: 'URL', value: 'url' },
-        { label: 'Linked Post', value: 'linkedPost' },
-        { label: 'Image', value: 'image' },
-        { label: 'Content', value: 'content' },
-      ],
-      admin: {
-        description:
-          'URL = external link-card post. Linked Post = link card from one of your Posts. Image = photo/carousel. Content = text only.',
-      },
-    },
-    {
       name: 'linkedPost',
       type: 'relationship',
       relationTo: 'posts',
@@ -91,6 +91,15 @@ export const SocialPosts: CollectionConfig = {
       admin: {
         description: 'URL to share. Link-card metadata is auto-scraped; edit to override.',
         condition: (data) => (data?.postType ?? 'url') === 'url',
+      },
+    },
+    {
+      name: 'platformBodies',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/collections/SocialPosts/components/PlatformBodiesField#PlatformBodiesField',
+        },
       },
     },
     {
@@ -198,6 +207,13 @@ export const SocialPosts: CollectionConfig = {
             { label: 'Cancelled', value: 'cancelled' },
           ],
           admin: { readOnly: true },
+        },
+        {
+          name: 'body',
+          type: 'textarea',
+          admin: {
+            description: 'Literal text sent to this platform. Edited via the Platform Bodies editor.',
+          },
         },
         {
           name: 'publishedAt',

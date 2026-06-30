@@ -7,6 +7,7 @@ import { publishBlueSky } from '@/lib/social/publishBlueSky'
 import { publishTwitter } from '@/lib/social/publishTwitter'
 import { collectSocialPostImageUrls } from '@/utilities/collectSocialPostImageUrls'
 import { getServerSideURL } from '@/utilities/getURL'
+import { composePlatformBody, composeThreadsTopic } from '@/lib/social/composePlatformBody'
 import type { PlatformEntry } from '@/collections/SocialPosts/types'
 
 type ExistingShare = {
@@ -14,10 +15,6 @@ type ExistingShare = {
   sharedAt: string
   shareUrl?: string | null
   id?: string | null
-}
-
-function sanitizeTopicTag(raw: string): string {
-  return raw.replace(/[^a-zA-Z0-9]/g, '')
 }
 
 type TaskIO = { input: { socialPostId: number; platform: string }; output: { publishedUrl: string } }
@@ -130,9 +127,11 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
     const keywords = (doc.keywords ?? []) as (number | Keyword)[]
     const resolvedKeywords = keywords.filter((k): k is Keyword => typeof k === 'object')
 
-    const hashtagString = resolvedKeywords
-      .map((k) => `#${k.name.replace(/\s+/g, '')}`)
-      .join(' ')
+    // The literal text sent to this platform: the stored per-platform body, or composed
+    // from the base body + keywords as a fallback for empty/legacy entries.
+    const text = targetEntry.body?.trim()
+      ? targetEntry.body
+      : composePlatformBody(targetEntry.platform, doc.body, resolvedKeywords)
 
     let publishedUrl: string
 
@@ -144,13 +143,8 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
             throw new Error('LinkedIn is not connected')
           }
 
-          const liHashtags = resolvedKeywords
-            .map((k) => `#${k.name.replace(/ /g, '_')}`)
-            .join(' ')
-          const liCommentary = liHashtags ? `${doc.body.trim()} ${liHashtags}` : doc.body
-
           const result = await publishLinkedIn({
-            body: liCommentary,
+            body: text,
             url: postUrl,
             title: doc.metaTitle ?? undefined,
             description: doc.metaDescription ?? undefined,
@@ -172,15 +166,14 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
             throw new Error('Threads is not connected')
           }
 
-          const firstKeyword = resolvedKeywords[0] ?? null
-          const topicTag = firstKeyword ? sanitizeTopicTag(firstKeyword.name) || undefined : undefined
+          const topicTag = composeThreadsTopic(resolvedKeywords)
 
           const thPostUrl = postUrl
 
           // Threads honors only one topic tag (the first keyword via topicTag);
           // it does not support additional hashtags, so the body stays clean.
           const result = await publishThreads({
-            body: doc.body,
+            body: text,
             topicTag,
             imageUrls,
             linkAttachment: imageUrls.length === 0 ? thPostUrl : undefined,
@@ -214,10 +207,8 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
             throw new Error('BlueSky profile URL is not set in Social Settings')
           }
 
-          const bskyBody = hashtagString ? `${doc.body}\n\n${hashtagString}` : doc.body
-
           const result = await publishBlueSky({
-            body: bskyBody,
+            body: text,
             postUrl,
             title: doc.metaTitle ?? undefined,
             description: doc.metaDescription ?? undefined,
@@ -236,7 +227,7 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
           }
 
           const result = await publishTwitter({
-            body: doc.body,
+            body: text,
             postUrl,
             imageUrls,
             settings: {
