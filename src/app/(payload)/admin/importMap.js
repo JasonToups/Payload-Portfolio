@@ -46,6 +46,7 @@ import { default as default_b6555656dcd74c7005ae117623d68b06 } from '@/collectio
 import { ScheduleSocialPostNavButton as ScheduleSocialPostNavButton_ccabb931604efcae554aff7e68862571 } from '@/collections/Posts/components/ScheduleSocialPostNavButton'
 import { default as default_42df5dbd8f2a8e7fd046f17ffe7f51e4 } from '@/collections/Posts/components/SocialSharesCell'
 import { default as default_ac0cf27f0cad2e0ca93545fdfc3190d3 } from '@/collections/SocialPosts/components/LinkedPostAutoFill'
+import { SocialCardPreview as SocialCardPreview_bb87af34c0892a5042c0acf0591b270e } from '@/collections/SocialPosts/components/SocialCardPreview'
 import { ImagesField as ImagesField_a8e335e89bad6d931f5fb17db08f6433 } from '@/collections/SocialPosts/components/ImagesField'
 import { PlatformsCell as PlatformsCell_55a186fb7af4e3a36672fefc53f19a39 } from '@/collections/SocialPosts/components/PlatformsCell'
 import { PlatformsArrayField as PlatformsArrayField_ca925a82795a8f68b644c7e93b336ace } from '@/collections/SocialPosts/components/PlatformsArrayField'
@@ -114,6 +115,7 @@ export const importMap = {
   "@/collections/Posts/components/ScheduleSocialPostNavButton#ScheduleSocialPostNavButton": ScheduleSocialPostNavButton_ccabb931604efcae554aff7e68862571,
   "@/collections/Posts/components/SocialSharesCell#default": default_42df5dbd8f2a8e7fd046f17ffe7f51e4,
   "@/collections/SocialPosts/components/LinkedPostAutoFill#default": default_ac0cf27f0cad2e0ca93545fdfc3190d3,
+  "@/collections/SocialPosts/components/SocialCardPreview#SocialCardPreview": SocialCardPreview_bb87af34c0892a5042c0acf0591b270e,
   "@/collections/SocialPosts/components/ImagesField#ImagesField": ImagesField_a8e335e89bad6d931f5fb17db08f6433,
   "@/collections/SocialPosts/components/PlatformsCell#PlatformsCell": PlatformsCell_55a186fb7af4e3a36672fefc53f19a39,
   "@/collections/SocialPosts/components/PlatformsArrayField#PlatformsArrayField": PlatformsArrayField_ca925a82795a8f68b644c7e93b336ace,

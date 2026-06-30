@@ -30,6 +30,7 @@ import * as migration_20260601_000322 from './20260601_000322';
 import * as migration_20260602_194600 from './20260602_194600';
 import * as migration_20260603_154531 from './20260603_154531';
 import * as migration_20260617_171039 from './20260617_171039';
+import * as migration_20260629_225244_meta_fields_social_posts from './20260629_225244_meta_fields_social_posts';
 
 export const migrations = [
   {
@@ -190,6 +191,11 @@ export const migrations = [
   {
     up: migration_20260617_171039.up,
     down: migration_20260617_171039.down,
-    name: '20260617_171039'
+    name: '20260617_171039',
+  },
+  {
+    up: migration_20260629_225244_meta_fields_social_posts.up,
+    down: migration_20260629_225244_meta_fields_social_posts.down,
+    name: '20260629_225244_meta_fields_social_posts'
   },
 ];

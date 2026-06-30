@@ -634,6 +634,18 @@ export interface SocialPost {
    * URL to share. Auto-populated from the linked Post; edit to override.
    */
   url?: string | null;
+  /**
+   * Link-card title. Auto-scraped from the URL (internal or external); edit to override.
+   */
+  metaTitle?: string | null;
+  /**
+   * Link-card description. Auto-scraped from the URL; edit to override.
+   */
+  metaDescription?: string | null;
+  /**
+   * Link-card image URL. Auto-scraped from the URL; paste an absolute image URL to override.
+   */
+  metaImageUrl?: string | null;
   heroImage?: (number | null) | Media;
   /**
    * 1 image = single image post. 2+ = carousel / multi-image post.
@@ -2175,6 +2187,9 @@ export interface SocialPostsSelect<T extends boolean = true> {
   keywords?: T;
   postType?: T;
   url?: T;
+  metaTitle?: T;
+  metaDescription?: T;
+  metaImageUrl?: T;
   heroImage?: T;
   images?: T;
   platforms?:
