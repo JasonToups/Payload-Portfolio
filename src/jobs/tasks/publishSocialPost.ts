@@ -177,13 +177,10 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
 
           const thPostUrl = postUrl
 
-          const thBody = [
-            doc.body,
-            ...(hashtagString ? [hashtagString] : []),
-          ].join('\n\n')
-
+          // Threads honors only one topic tag (the first keyword via topicTag);
+          // it does not support additional hashtags, so the body stays clean.
           const result = await publishThreads({
-            body: thBody,
+            body: doc.body,
             topicTag,
             imageUrls,
             linkAttachment: imageUrls.length === 0 ? thPostUrl : undefined,
