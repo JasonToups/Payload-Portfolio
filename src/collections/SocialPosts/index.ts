@@ -10,7 +10,7 @@ export const SocialPosts: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['scheduledFor', 'title', 'linkedPost'],
+    defaultColumns: ['title', 'platforms', 'scheduledFor'],
     group: 'Social',
     components: {
       edit: {
