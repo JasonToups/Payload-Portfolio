@@ -26,8 +26,9 @@ export async function GET(request: NextRequest) {
     return new NextResponse('OAuth failed: invalid or missing state.', { status: 400 })
   }
 
-  const appId = process.env.FACEBOOK_APP_ID
-  const appSecret = process.env.FACEBOOK_APP_SECRET
+  // Shared Meta app — reuse the Threads App ID/Secret when Facebook-specific ones aren't set.
+  const appId = process.env.FACEBOOK_APP_ID ?? process.env.THREADS_APP_ID
+  const appSecret = process.env.FACEBOOK_APP_SECRET ?? process.env.THREADS_APP_SECRET
   const redirectUri = process.env.FACEBOOK_REDIRECT_URI
 
   if (!appId || !appSecret || !redirectUri) {
