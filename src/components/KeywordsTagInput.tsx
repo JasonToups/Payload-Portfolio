@@ -1,5 +1,20 @@
 'use client'
 
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  horizontalListSortingStrategy,
+  SortableContext,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useField } from '@payloadcms/ui'
 import { Plus } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -22,6 +37,63 @@ type KeywordsTagInputProps = {
   path?: string
   /** Helper text shown under the input. */
   helperText?: string
+}
+
+type SortableChipProps = {
+  id: string | number
+  label: string
+  onRemove: (id: string | number) => void
+}
+
+/** A single keyword chip that can be dragged to reorder via @dnd-kit. */
+const SortableChip: React.FC<SortableChipProps> = ({ id, label, onRemove }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: String(id),
+  })
+
+  return (
+    <span
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      style={{
+        alignItems: 'center',
+        background: 'var(--theme-elevation-200)',
+        borderRadius: '3px',
+        color: 'var(--theme-text)',
+        cursor: 'grab',
+        display: 'inline-flex',
+        fontSize: '16px',
+        gap: '4px',
+        opacity: isDragging ? 0.5 : 1,
+        padding: '2px 6px',
+        touchAction: 'none',
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+    >
+      {label}
+      <button
+        aria-label={`Remove ${label}`}
+        onClick={(e) => {
+          e.stopPropagation()
+          onRemove(id)
+        }}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: 'var(--theme-text-dim)',
+          cursor: 'pointer',
+          fontSize: '16px',
+          lineHeight: 1,
+          padding: '0 2px',
+        }}
+        type="button"
+      >
+        ×
+      </button>
+    </span>
+  )
 }
 
 /**
@@ -155,6 +227,21 @@ const KeywordsTagInput: React.FC<KeywordsTagInputProps> = ({
     setValue(currentIds.filter((existing) => existing !== id))
   }
 
+  // Drag-to-reorder. A small activation distance ensures a click on a chip's
+  // remove (×) button is treated as a click, not the start of a drag.
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = currentIds.findIndex((id) => String(id) === active.id)
+    const newIndex = currentIds.findIndex((id) => String(id) === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    setValue(arrayMove(currentIds, oldIndex, newIndex))
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     switch (e.key) {
       case 'Tab':
@@ -216,42 +303,22 @@ const KeywordsTagInput: React.FC<KeywordsTagInputProps> = ({
           padding: '4px 8px',
         }}
       >
-        {currentIds.map((id) => (
-          <span
-            key={id}
-            style={{
-              alignItems: 'center',
-              background: 'var(--theme-elevation-200)',
-              borderRadius: '3px',
-              color: 'var(--theme-text)',
-              display: 'inline-flex',
-              fontSize: '16px',
-              gap: '4px',
-              padding: '2px 6px',
-            }}
-          >
-            {resolvedNames[id] ?? String(id)}
-            <button
-              aria-label={`Remove ${resolvedNames[id] ?? id}`}
-              onClick={(e) => {
-                e.stopPropagation()
-                removeKeyword(id)
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--theme-text-dim)',
-                cursor: 'pointer',
-                fontSize: '16px',
-                lineHeight: 1,
-                padding: '0 2px',
-              }}
-              type="button"
-            >
-              ×
-            </button>
-          </span>
-        ))}
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+          sensors={sensors}
+        >
+          <SortableContext items={currentIds.map(String)} strategy={horizontalListSortingStrategy}>
+            {currentIds.map((id) => (
+              <SortableChip
+                key={id}
+                id={id}
+                label={resolvedNames[id] ?? String(id)}
+                onRemove={removeKeyword}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
 
         <input
           ref={inputRef}
