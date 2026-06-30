@@ -2,7 +2,7 @@ import { randomBytes } from 'crypto'
 import type { CollectionBeforeChangeHook } from 'payload'
 import type { Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
-import { fetchOpenGraph } from '@/utilities/fetchOpenGraph'
+import { fetchOpenGraph, isWeakMetaTitle } from '@/utilities/fetchOpenGraph'
 import type { PlatformEntry } from '../types'
 import { PLATFORM_LABELS } from '../types'
 
@@ -41,17 +41,19 @@ export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data,
   }
 
   // Resolve link-card metadata by scraping the target URL — the same procedure
-  // for internal Post URLs and external URLs. Only runs when not yet populated,
-  // so manual overrides (and values set by the client) are preserved. Fails soft.
+  // for internal Post URLs and external URLs. Runs when not yet populated, or
+  // when the stored title is "weak" (a degraded/gated page left " - YouTube"),
+  // so existing bad records self-heal. A real (non-weak) title is preserved as a
+  // manual override. Fails soft.
+  const titleIsWeak = isWeakMetaTitle(data.metaTitle)
   if (
     (data.postType ?? 'url') === 'url' &&
     typeof data.url === 'string' &&
     data.url.trim() &&
-    !data.metaTitle &&
-    !data.metaImageUrl
+    (titleIsWeak || !data.metaImageUrl)
   ) {
     const meta = await fetchOpenGraph(data.url.trim())
-    if (meta.title && !data.metaTitle) data.metaTitle = meta.title
+    if (meta.title && titleIsWeak) data.metaTitle = meta.title
     if (meta.description && !data.metaDescription) data.metaDescription = meta.description
     if (meta.imageUrl && !data.metaImageUrl) data.metaImageUrl = meta.imageUrl
   }
