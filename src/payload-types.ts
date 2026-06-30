@@ -656,6 +656,10 @@ export interface SocialPost {
     errorMessage?: string | null;
     id?: string | null;
   }[];
+  /**
+   * Overall status across all platforms. Auto-computed.
+   */
+  publishStatus?: ('draft' | 'scheduled' | 'published' | 'partial' | 'failed') | null;
   scheduledFor?: string | null;
   /**
    * Auto-generated short URL — created when a linked Post is selected.
@@ -2199,6 +2203,7 @@ export interface SocialPostsSelect<T extends boolean = true> {
         errorMessage?: T;
         id?: T;
       };
+  publishStatus?: T;
   scheduledFor?: T;
   shortUrl?: T;
   updatedAt?: T;

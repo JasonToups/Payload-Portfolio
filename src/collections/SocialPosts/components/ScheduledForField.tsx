@@ -52,7 +52,7 @@ export function ScheduledForField() {
             textTransform: 'uppercase',
           }}
         >
-          Scheduled For
+          Publish Date
         </p>
         <div
           style={{
@@ -124,7 +124,7 @@ export function ScheduledForField() {
             textTransform: 'uppercase',
           }}
         >
-          Schedule For
+          Set Publish Date
         </p>
         <DatePicker
           onChange={(val) => setDraft(val instanceof Date ? val : null)}
@@ -138,7 +138,7 @@ export function ScheduledForField() {
             onClick={handleConfirm}
             type="button"
           >
-            Set Schedule
+            Set Date
           </button>
           <button
             onClick={handleCancel}
@@ -168,7 +168,7 @@ export function ScheduledForField() {
         style={{ width: '100%' }}
         type="button"
       >
-        Schedule Post
+        Set Publish Date
       </button>
     </div>
   )
