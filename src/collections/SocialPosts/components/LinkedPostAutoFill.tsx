@@ -1,7 +1,7 @@
 'use client'
 
 import { useDocumentInfo, useField, useForm } from '@payloadcms/ui'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 type LinkedPostFieldValue = number | { id: number } | null
 
@@ -26,6 +26,8 @@ type ResolvedMeta = {
  *    the single OG-scrape endpoint for BOTH internal Post URLs and external URLs.
  *    Meta is re-resolved only when the target URL changes, so manual overrides
  *    to the meta fields stick.
+ *  - A "Re-fetch metadata" button force-refreshes the meta fields from the
+ *    current URL (overwrites), so a stored degraded value can be corrected.
  */
 const LinkedPostAutoFill: React.FC = () => {
   const { id: docId } = useDocumentInfo()
@@ -40,6 +42,9 @@ const LinkedPostAutoFill: React.FC = () => {
   const lastResolvedUrlRef = useRef<string | null>(null)
   const initializedRef = useRef(false)
 
+  const [internalUrl, setInternalUrl] = useState<string | null>(null)
+  const [isRefetching, setIsRefetching] = useState(false)
+
   const linkedPostId =
     typeof linkedPostValue === 'object' && linkedPostValue !== null
       ? linkedPostValue.id
@@ -48,11 +53,12 @@ const LinkedPostAutoFill: React.FC = () => {
         : null
 
   // Resolve link-card metadata from a URL and populate the meta fields.
-  // Deduped on the URL so we never re-scrape the same target twice.
+  // Deduped on the URL unless `force` is set (the manual re-fetch button).
   const resolveMeta = useCallback(
-    async (url: string) => {
+    async (url: string, force = false) => {
       const trimmed = url.trim()
-      if (!trimmed || lastResolvedUrlRef.current === trimmed) return
+      if (!trimmed) return
+      if (!force && lastResolvedUrlRef.current === trimmed) return
       lastResolvedUrlRef.current = trimmed
 
       try {
@@ -76,12 +82,19 @@ const LinkedPostAutoFill: React.FC = () => {
 
   // Linked Post auto-fill (new documents only) + resolve meta from the post URL.
   useEffect(() => {
-    if (docId || !linkedPostId || hasFetchedPostRef.current) return
-    hasFetchedPostRef.current = true
+    if (!linkedPostId) {
+      setInternalUrl(null)
+      return
+    }
 
     fetch(`/api/posts/${linkedPostId}?depth=1`)
       .then((r) => r.json() as Promise<PostAutoFillData>)
       .then((post) => {
+        if (post.slug) setInternalUrl(`${window.location.origin}/posts/${post.slug}`)
+
+        if (docId || hasFetchedPostRef.current) return
+        hasFetchedPostRef.current = true
+
         if (post.socialPostBody && !bodyValue) {
           dispatchFields({ type: 'UPDATE', path: 'body', value: post.socialPostBody })
         }
@@ -118,7 +131,32 @@ const LinkedPostAutoFill: React.FC = () => {
     return () => clearTimeout(timer)
   }, [urlValue, postType, linkedPostId, resolveMeta])
 
-  return null
+  // Target URL the re-fetch button operates on.
+  const targetUrl = linkedPostId ? internalUrl : (urlValue?.trim() ?? null)
+
+  if ((postType ?? 'url') !== 'url' || !targetUrl) return null
+
+  const handleRefetch = async () => {
+    setIsRefetching(true)
+    try {
+      await resolveMeta(targetUrl, true)
+    } finally {
+      setIsRefetching(false)
+    }
+  }
+
+  return (
+    <div style={{ marginBottom: '12px' }}>
+      <button
+        type="button"
+        className="btn btn--style-secondary btn--size-small"
+        onClick={handleRefetch}
+        disabled={isRefetching}
+      >
+        {isRefetching ? 'Fetching…' : 'Re-fetch metadata'}
+      </button>
+    </div>
+  )
 }
 
 export default LinkedPostAutoFill
