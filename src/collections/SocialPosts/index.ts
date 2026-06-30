@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { socialPostBeforeChange } from './hooks/socialPostBeforeChange'
+import { isLinkCardPostType } from './types'
 import { getNextPublishDate } from '@/utilities/getNextPublishDate'
 
 export const SocialPosts: CollectionConfig = {
@@ -46,16 +47,6 @@ export const SocialPosts: CollectionConfig = {
       },
     },
     {
-      name: 'linkedPost',
-      type: 'relationship',
-      relationTo: 'posts',
-      admin: {
-        description:
-          'Optional: link to a Post to include its URL (auto-generates a short URL). Leave blank for a standalone post.',
-        sortOptions: '-publishedAt',
-      },
-    },
-    {
       name: 'keywords',
       type: 'relationship',
       relationTo: 'keywords',
@@ -73,19 +64,32 @@ export const SocialPosts: CollectionConfig = {
       required: true,
       options: [
         { label: 'URL', value: 'url' },
+        { label: 'Linked Post', value: 'linkedPost' },
         { label: 'Image', value: 'image' },
         { label: 'Content', value: 'content' },
       ],
       admin: {
-        description: 'URL = link-card post. Image = photo/carousel. Content = text only.',
+        description:
+          'URL = external link-card post. Linked Post = link card from one of your Posts. Image = photo/carousel. Content = text only.',
+      },
+    },
+    {
+      name: 'linkedPost',
+      type: 'relationship',
+      relationTo: 'posts',
+      admin: {
+        description:
+          'The Post to share. Its URL, short URL, and link-card metadata are auto-generated.',
+        condition: (data) => data?.postType === 'linkedPost',
+        sortOptions: '-publishedAt',
       },
     },
     {
       name: 'url',
       type: 'text',
       admin: {
-        description: 'URL to share. Auto-populated from the linked Post; edit to override.',
-        condition: (data) => (data?.postType ?? 'url') === 'url' && !data?.linkedPost,
+        description: 'URL to share. Link-card metadata is auto-scraped; edit to override.',
+        condition: (data) => (data?.postType ?? 'url') === 'url',
       },
     },
     {
@@ -103,7 +107,7 @@ export const SocialPosts: CollectionConfig = {
       admin: {
         description:
           'Link-card title. Auto-scraped from the URL (internal or external); edit to override.',
-        condition: (data) => (data?.postType ?? 'url') === 'url',
+        condition: (data) => isLinkCardPostType(data?.postType),
       },
     },
     {
@@ -113,7 +117,7 @@ export const SocialPosts: CollectionConfig = {
         rows: 2,
         description:
           'Link-card description. Auto-scraped from the URL; edit to override.',
-        condition: (data) => (data?.postType ?? 'url') === 'url',
+        condition: (data) => isLinkCardPostType(data?.postType),
       },
     },
     {
@@ -122,7 +126,7 @@ export const SocialPosts: CollectionConfig = {
       admin: {
         description:
           'Link-card image URL. Auto-scraped from the URL; paste an absolute image URL to override.',
-        condition: (data) => (data?.postType ?? 'url') === 'url',
+        condition: (data) => isLinkCardPostType(data?.postType),
       },
     },
     {

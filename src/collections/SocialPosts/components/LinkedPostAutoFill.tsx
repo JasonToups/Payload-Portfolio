@@ -2,6 +2,7 @@
 
 import { useDocumentInfo, useField, useForm } from '@payloadcms/ui'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { isLinkCardPostType } from '../types'
 
 type LinkedPostFieldValue = number | { id: number } | null
 
@@ -123,7 +124,7 @@ const LinkedPostAutoFill: React.FC = () => {
       return
     }
 
-    if ((postType ?? 'url') !== 'url' || linkedPostId) return
+    if (!isLinkCardPostType(postType) || linkedPostId) return
     const url = urlValue?.trim()
     if (!url) return
 
@@ -134,7 +135,7 @@ const LinkedPostAutoFill: React.FC = () => {
   // Target URL the re-fetch button operates on.
   const targetUrl = linkedPostId ? internalUrl : (urlValue?.trim() ?? null)
 
-  if ((postType ?? 'url') !== 'url' || !targetUrl) return null
+  if (!isLinkCardPostType(postType) || !targetUrl) return null
 
   const handleRefetch = async () => {
     setIsRefetching(true)

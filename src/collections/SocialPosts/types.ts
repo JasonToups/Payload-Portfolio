@@ -27,3 +27,9 @@ export const PLATFORM_LABELS: Record<PlatformSlug, string> = {
 export const ALL_PLATFORMS: PlatformSlug[] = ['linkedin', 'twitter', 'bluesky', 'threads']
 
 export const PUBLISHABLE_STATUSES: PlatformPublishStatus[] = ['draft', 'failed']
+
+export type PostType = 'url' | 'image' | 'content' | 'linkedPost'
+
+/** Post types that render a link card (auto URL + scraped meta). */
+export const isLinkCardPostType = (postType?: string | null): boolean =>
+  (postType ?? 'url') === 'url' || postType === 'linkedPost'

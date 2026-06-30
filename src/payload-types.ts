@@ -618,17 +618,17 @@ export interface SocialPost {
    * Text content for the social post.
    */
   body: string;
-  /**
-   * Optional: link to a Post to include its URL (auto-generates a short URL). Leave blank for a standalone post.
-   */
-  linkedPost?: (number | null) | Post;
   keywords?: (number | Keyword)[] | null;
   /**
-   * URL = link-card post. Image = photo/carousel. Content = text only.
+   * URL = external link-card post. Linked Post = link card from one of your Posts. Image = photo/carousel. Content = text only.
    */
-  postType: 'url' | 'image' | 'content';
+  postType: 'url' | 'linkedPost' | 'image' | 'content';
   /**
-   * URL to share. Auto-populated from the linked Post; edit to override.
+   * The Post to share. Its URL, short URL, and link-card metadata are auto-generated.
+   */
+  linkedPost?: (number | null) | Post;
+  /**
+   * URL to share. Link-card metadata is auto-scraped; edit to override.
    */
   url?: string | null;
   /**
@@ -2180,9 +2180,9 @@ export interface PostsSelect<T extends boolean = true> {
 export interface SocialPostsSelect<T extends boolean = true> {
   title?: T;
   body?: T;
-  linkedPost?: T;
   keywords?: T;
   postType?: T;
+  linkedPost?: T;
   url?: T;
   metaTitle?: T;
   metaDescription?: T;

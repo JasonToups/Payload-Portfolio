@@ -22,7 +22,7 @@ export function ScheduleSocialPostNavButton() {
         Schedule Social Media Post
       </p>
       <Link
-        href={`/admin/collections/social-posts/create?linkedPost=${id}`}
+        href={`/admin/collections/social-posts/create?linkedPost=${id}&postType=linkedPost`}
         className="btn btn--style-secondary btn--size-medium"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
       >

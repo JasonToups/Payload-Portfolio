@@ -4,7 +4,7 @@ import type { Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 import { fetchOpenGraph, isWeakMetaTitle } from '@/utilities/fetchOpenGraph'
 import type { PlatformEntry } from '../types'
-import { PLATFORM_LABELS } from '../types'
+import { isLinkCardPostType, PLATFORM_LABELS } from '../types'
 
 export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data, req, operation, originalDoc }) => {
   const postId =
@@ -35,8 +35,8 @@ export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data,
     data.body = post.socialPostBody
   }
 
-  // Auto-populate url from the linked Post's slug for URL-type posts
-  if (operation === 'create' && post?.slug && !data.url && (data.postType ?? 'url') === 'url') {
+  // Auto-populate url from the linked Post's slug for link-card posts
+  if (operation === 'create' && post?.slug && !data.url && isLinkCardPostType(data.postType)) {
     data.url = `${getServerSideURL()}/posts/${post.slug}`
   }
 
@@ -47,7 +47,7 @@ export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data,
   // manual override. Fails soft.
   const titleIsWeak = isWeakMetaTitle(data.metaTitle)
   if (
-    (data.postType ?? 'url') === 'url' &&
+    isLinkCardPostType(data.postType) &&
     typeof data.url === 'string' &&
     data.url.trim() &&
     (titleIsWeak || !data.metaImageUrl)
