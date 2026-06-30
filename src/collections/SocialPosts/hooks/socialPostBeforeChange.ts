@@ -4,7 +4,7 @@ import type { Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 import { fetchOpenGraph, isWeakMetaTitle } from '@/utilities/fetchOpenGraph'
 import type { PlatformEntry } from '../types'
-import { isLinkCardPostType, PLATFORM_LABELS } from '../types'
+import { computePublishStatus, isLinkCardPostType, PLATFORM_LABELS } from '../types'
 
 export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data, req, operation, originalDoc }) => {
   const postId =
@@ -102,6 +102,19 @@ export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data,
       entry.status === 'pending' ? { ...entry, status: 'draft' } : entry,
     )
   }
+
+  // Never-scheduled posts (e.g. immediate publish): stamp the publish date from the
+  // earliest platform publish so the list always has a sort key.
+  if (!data.scheduledFor) {
+    const dates = ((data.platforms ?? []) as PlatformEntry[])
+      .map((e) => e.publishedAt)
+      .filter((d): d is string => Boolean(d))
+      .sort()
+    if (dates.length) data.scheduledFor = dates[0]
+  }
+
+  // Maintain aggregate status for list display / filter / sort.
+  data.publishStatus = computePublishStatus((data.platforms ?? []) as PlatformEntry[])
 
   return data
 }

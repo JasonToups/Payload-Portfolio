@@ -9,9 +9,10 @@ export const SocialPosts: CollectionConfig = {
     singular: 'Social Post',
     plural: 'Social Posts',
   },
+  defaultSort: '-scheduledFor',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'platforms', 'scheduledFor'],
+    defaultColumns: ['title', 'publishStatus', 'platforms', 'scheduledFor'],
     group: 'Social',
     components: {
       edit: {
@@ -219,8 +220,27 @@ export const SocialPosts: CollectionConfig = {
       ],
     },
     {
+      name: 'publishStatus',
+      type: 'select',
+      defaultValue: 'draft',
+      label: 'Status',
+      options: [
+        { label: 'Draft', value: 'draft' },
+        { label: 'Scheduled', value: 'scheduled' },
+        { label: 'Published', value: 'published' },
+        { label: 'Partial', value: 'partial' },
+        { label: 'Failed', value: 'failed' },
+      ],
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        description: 'Overall status across all platforms. Auto-computed.',
+      },
+    },
+    {
       name: 'scheduledFor',
       type: 'date',
+      label: 'Publish Date',
       defaultValue: async () => (await getNextPublishDate({ hourOffset: -1 })).toISOString(),
       admin: {
         position: 'sidebar',
