@@ -21,6 +21,7 @@ const SHORT_LABELS: Record<PlatformSlug, string> = {
   twitter:  'X',
   bluesky:  'Sky',
   threads:  'Th',
+  facebook: 'Fb',
 }
 
 export function PlatformsCell({ rowData }: PlatformsCellProps) {

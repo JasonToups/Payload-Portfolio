@@ -402,6 +402,7 @@ export const Posts: CollectionConfig<'posts'> = {
                     { label: 'Threads', value: 'threads' },
                     { label: 'BlueSky', value: 'bluesky' },
                     { label: 'LinkedIn', value: 'linkedin' },
+                    { label: 'Facebook', value: 'facebook' },
                   ],
                 },
                 {

@@ -565,7 +565,7 @@ export interface Post {
    */
   socialShares?:
     | {
-        platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin';
+        platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'facebook';
         sharedAt: string;
         /**
          * Optional: URL of the published social post
@@ -649,7 +649,7 @@ export interface SocialPost {
    */
   images?: (number | Media)[] | null;
   platforms: {
-    platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads';
+    platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads' | 'facebook';
     status?: ('draft' | 'pending' | 'processing' | 'published' | 'failed' | 'cancelled') | null;
     /**
      * Literal text sent to this platform. Edited via the Platform Bodies editor.
@@ -2964,6 +2964,15 @@ export interface SocialSetting {
     userId?: string | null;
     username?: string | null;
   };
+  /**
+   * Page token is set automatically via the Connect Facebook button above.
+   */
+  facebook?: {
+    pageAccessToken?: string | null;
+    pageId?: string | null;
+    pageName?: string | null;
+    expiresAt?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3142,6 +3151,14 @@ export interface SocialSettingsSelect<T extends boolean = true> {
         expiresAt?: T;
         userId?: T;
         username?: T;
+      };
+  facebook?:
+    | T
+    | {
+        pageAccessToken?: T;
+        pageId?: T;
+        pageName?: T;
+        expiresAt?: T;
       };
   updatedAt?: T;
   createdAt?: T;

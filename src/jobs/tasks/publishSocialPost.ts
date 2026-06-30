@@ -5,6 +5,7 @@ import { publishLinkedIn } from '@/lib/social/publishLinkedIn'
 import { publishThreads } from '@/lib/social/publishThreads'
 import { publishBlueSky } from '@/lib/social/publishBlueSky'
 import { publishTwitter } from '@/lib/social/publishTwitter'
+import { publishFacebook } from '@/lib/social/publishFacebook'
 import { collectSocialPostImageUrls } from '@/utilities/collectSocialPostImageUrls'
 import { getServerSideURL } from '@/utilities/getURL'
 import { composePlatformBody, composeThreadsTopic } from '@/lib/social/composePlatformBody'
@@ -235,6 +236,26 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
               refreshToken: tw.refreshToken,
               expiresAt: tw.expiresAt,
               username: tw.username,
+            },
+          })
+          publishedUrl = result.url
+          break
+        }
+
+        case 'facebook': {
+          const fb = social.facebook
+          if (!fb?.pageAccessToken || !fb?.pageId) {
+            throw new Error('Facebook is not connected')
+          }
+
+          const result = await publishFacebook({
+            message: text,
+            link: postType === 'url' ? postUrl : undefined,
+            imageUrls,
+            settings: {
+              pageAccessToken: fb.pageAccessToken,
+              pageId: fb.pageId,
+              expiresAt: fb.expiresAt,
             },
           })
           publishedUrl = result.url

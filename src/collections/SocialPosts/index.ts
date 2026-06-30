@@ -192,6 +192,7 @@ export const SocialPosts: CollectionConfig = {
             { label: 'Twitter / X', value: 'twitter' },
             { label: 'BlueSky', value: 'bluesky' },
             { label: 'Threads', value: 'threads' },
+            { label: 'Facebook', value: 'facebook' },
           ],
         },
         {

@@ -12,7 +12,7 @@ type CalendarPost = {
 type CalendarSocialPost = {
   id: number
   title: string
-  platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads'
+  platform: 'linkedin' | 'twitter' | 'bluesky' | 'threads' | 'facebook'
   status: string
   scheduledFor: string
   publishedAt?: string | null
@@ -36,6 +36,7 @@ const PLATFORM_ICON: Record<string, string> = {
   twitter: 'X',
   bluesky: 'Sky',
   threads: 'Th',
+  facebook: 'Fb',
 }
 
 function daysInMonth(year: number, month: number): number {

@@ -8,7 +8,7 @@ export type KeywordLike = { name: string }
  * body editor, the publish job, and the backfill migration.
  *
  * - LinkedIn: base (trimmed) + space-joined `#Under_Scored` hashtags
- * - BlueSky:  base + `\n\n` + space-joined `#NoSpace` hashtags
+ * - BlueSky / Facebook: base + `\n\n` + space-joined `#NoSpace` hashtags
  * - Twitter / Threads: clean base text (hashtags/topic handled structurally)
  */
 export function composePlatformBody(
@@ -21,7 +21,7 @@ export function composePlatformBody(
     const tags = keywords.map((k) => `#${k.name.replace(/ /g, '_')}`).join(' ')
     return tags ? `${body.trim()} ${tags}` : body
   }
-  if (platform === 'bluesky') {
+  if (platform === 'bluesky' || platform === 'facebook') {
     const tags = keywords.map((k) => `#${k.name.replace(/\s+/g, '')}`).join(' ')
     return tags ? `${body}\n\n${tags}` : body
   }
