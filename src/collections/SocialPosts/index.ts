@@ -61,7 +61,9 @@ export const SocialPosts: CollectionConfig = {
       relationTo: 'keywords',
       hasMany: true,
       admin: {
-        description: 'Used as hashtags when publishing.',
+        components: {
+          Field: '@/collections/SocialPosts/components/KeywordsField#KeywordsField',
+        },
       },
     },
     {
