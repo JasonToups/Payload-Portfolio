@@ -29,15 +29,6 @@ export const SocialPosts: CollectionConfig = {
   },
   fields: [
     {
-      name: 'linkedPostAutoFill',
-      type: 'ui',
-      admin: {
-        components: {
-          Field: '@/collections/SocialPosts/components/LinkedPostAutoFill',
-        },
-      },
-    },
-    {
       name: 'title',
       type: 'text',
       required: true,
@@ -93,6 +84,15 @@ export const SocialPosts: CollectionConfig = {
       admin: {
         description: 'URL to share. Auto-populated from the linked Post; edit to override.',
         condition: (data) => (data?.postType ?? 'url') === 'url' && !data?.linkedPost,
+      },
+    },
+    {
+      name: 'linkedPostAutoFill',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/collections/SocialPosts/components/LinkedPostAutoFill',
+        },
       },
     },
     {
