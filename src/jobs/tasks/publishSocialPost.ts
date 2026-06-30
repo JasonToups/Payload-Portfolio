@@ -149,24 +149,13 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
             .join(' ')
           const liCommentary = liHashtags ? `${doc.body.trim()} ${liHashtags}` : doc.body
 
-          type ResolvedMedia = { url?: string | null }
-          const ogMedia =
-            typeof linkedPost?.meta?.image === 'object' && linkedPost.meta.image !== null
-              ? (linkedPost.meta.image as ResolvedMedia)
-              : null
-          const heroMedia =
-            typeof linkedPost?.heroImage === 'object' && linkedPost.heroImage !== null
-              ? (linkedPost.heroImage as ResolvedMedia)
-              : null
-          const thumbnailUrl = ogMedia?.url ?? heroMedia?.url ?? undefined
-
           const result = await publishLinkedIn({
             body: liCommentary,
             url: postUrl,
-            title: linkedPost?.title,
-            description: linkedPost?.meta?.description ?? undefined,
+            title: doc.metaTitle ?? undefined,
+            description: doc.metaDescription ?? undefined,
             imageUrls,
-            thumbnailUrl: thumbnailUrl ?? undefined,
+            thumbnailUrl: doc.metaImageUrl ?? undefined,
             settings: {
               accessToken: li.accessToken,
               personUrn: li.personUrn,
@@ -188,13 +177,10 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
 
           const thPostUrl = postUrl
 
-          const thBody = [
-            doc.body,
-            ...(hashtagString ? [hashtagString] : []),
-          ].join('\n\n')
-
+          // Threads honors only one topic tag (the first keyword via topicTag);
+          // it does not support additional hashtags, so the body stays clean.
           const result = await publishThreads({
-            body: thBody,
+            body: doc.body,
             topicTag,
             imageUrls,
             linkAttachment: imageUrls.length === 0 ? thPostUrl : undefined,
@@ -228,14 +214,14 @@ export const publishSocialPostTask: TaskConfig<TaskIO> = {
             throw new Error('BlueSky profile URL is not set in Social Settings')
           }
 
-          const bskyDescription = linkedPost?.meta?.description ?? undefined
           const bskyBody = hashtagString ? `${doc.body}\n\n${hashtagString}` : doc.body
 
           const result = await publishBlueSky({
             body: bskyBody,
             postUrl,
-            title: linkedPost?.title,
-            description: bskyDescription,
+            title: doc.metaTitle ?? undefined,
+            description: doc.metaDescription ?? undefined,
+            imageUrl: doc.metaImageUrl ?? undefined,
             imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
             settings: { handle, appPassword },
           })

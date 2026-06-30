@@ -2,6 +2,7 @@ import { randomBytes } from 'crypto'
 import type { CollectionBeforeChangeHook } from 'payload'
 import type { Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
+import { fetchOpenGraph } from '@/utilities/fetchOpenGraph'
 import type { PlatformEntry } from '../types'
 import { PLATFORM_LABELS } from '../types'
 
@@ -37,6 +38,22 @@ export const socialPostBeforeChange: CollectionBeforeChangeHook = async ({ data,
   // Auto-populate url from the linked Post's slug for URL-type posts
   if (operation === 'create' && post?.slug && !data.url && (data.postType ?? 'url') === 'url') {
     data.url = `${getServerSideURL()}/posts/${post.slug}`
+  }
+
+  // Resolve link-card metadata by scraping the target URL — the same procedure
+  // for internal Post URLs and external URLs. Only runs when not yet populated,
+  // so manual overrides (and values set by the client) are preserved. Fails soft.
+  if (
+    (data.postType ?? 'url') === 'url' &&
+    typeof data.url === 'string' &&
+    data.url.trim() &&
+    !data.metaTitle &&
+    !data.metaImageUrl
+  ) {
+    const meta = await fetchOpenGraph(data.url.trim())
+    if (meta.title && !data.metaTitle) data.metaTitle = meta.title
+    if (meta.description && !data.metaDescription) data.metaDescription = meta.description
+    if (meta.imageUrl && !data.metaImageUrl) data.metaImageUrl = meta.imageUrl
   }
 
   if (postId && post?.slug && !data.shortUrl) {

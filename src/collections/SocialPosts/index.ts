@@ -96,6 +96,43 @@ export const SocialPosts: CollectionConfig = {
       },
     },
     {
+      name: 'metaTitle',
+      type: 'text',
+      admin: {
+        description:
+          'Link-card title. Auto-scraped from the URL (internal or external); edit to override.',
+        condition: (data) => (data?.postType ?? 'url') === 'url',
+      },
+    },
+    {
+      name: 'metaDescription',
+      type: 'textarea',
+      admin: {
+        rows: 2,
+        description:
+          'Link-card description. Auto-scraped from the URL; edit to override.',
+        condition: (data) => (data?.postType ?? 'url') === 'url',
+      },
+    },
+    {
+      name: 'metaImageUrl',
+      type: 'text',
+      admin: {
+        description:
+          'Link-card image URL. Auto-scraped from the URL; paste an absolute image URL to override.',
+        condition: (data) => (data?.postType ?? 'url') === 'url',
+      },
+    },
+    {
+      name: 'socialCardPreview',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/collections/SocialPosts/components/SocialCardPreview#SocialCardPreview',
+        },
+      },
+    },
+    {
       name: 'heroImage',
       type: 'upload',
       relationTo: 'media',
