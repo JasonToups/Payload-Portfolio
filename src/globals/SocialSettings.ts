@@ -121,5 +121,28 @@ export const SocialSettings: GlobalConfig = {
         { name: 'username', type: 'text', label: 'Username', admin: { readOnly: true } },
       ],
     },
+    {
+      name: 'facebookConnect',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/globals/components/FacebookConnect#FacebookConnect',
+        },
+      },
+    },
+    {
+      name: 'facebook',
+      type: 'group',
+      label: 'Facebook',
+      admin: {
+        description: 'Page token is set automatically via the Connect Facebook button above.',
+      },
+      fields: [
+        { name: 'pageAccessToken', type: 'text', label: 'Page Access Token', admin: { readOnly: true } },
+        { name: 'pageId', type: 'text', label: 'Page ID', admin: { readOnly: true } },
+        { name: 'pageName', type: 'text', label: 'Page Name', admin: { readOnly: true } },
+        { name: 'expiresAt', type: 'date', label: 'User Token Expires At', admin: { readOnly: true } },
+      ],
+    },
   ],
 }

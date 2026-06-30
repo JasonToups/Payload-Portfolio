@@ -1,4 +1,4 @@
-export type PlatformSlug = 'linkedin' | 'twitter' | 'bluesky' | 'threads'
+export type PlatformSlug = 'linkedin' | 'twitter' | 'bluesky' | 'threads' | 'facebook'
 
 export type PlatformPublishStatus =
   | 'draft'
@@ -23,9 +23,10 @@ export const PLATFORM_LABELS: Record<PlatformSlug, string> = {
   twitter: 'Twitter / X',
   bluesky: 'BlueSky',
   threads: 'Threads',
+  facebook: 'Facebook',
 }
 
-export const ALL_PLATFORMS: PlatformSlug[] = ['linkedin', 'twitter', 'bluesky', 'threads']
+export const ALL_PLATFORMS: PlatformSlug[] = ['linkedin', 'twitter', 'bluesky', 'threads', 'facebook']
 
 export const PUBLISHABLE_STATUSES: PlatformPublishStatus[] = ['draft', 'failed']
 

@@ -1,4 +1,4 @@
-export type SocialPlatform = 'twitter' | 'threads' | 'bluesky' | 'linkedin'
+export type SocialPlatform = 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'facebook'
 
 export type SocialProfile = {
   platform: SocialPlatform
@@ -32,6 +32,8 @@ function extractHandleFromUrl(platform: SocialPlatform, profileUrl: string): str
         // https://bsky.app/profile/handle.bsky.social — segments[0] = 'profile'
         return segments[1] ?? ''
       case 'linkedin':
+        return ''
+      case 'facebook':
         return ''
     }
   } catch {
@@ -85,5 +87,7 @@ export function buildShareUrl(
       if (source) params.set('source', source)
       return `https://www.linkedin.com/sharing/share-offsite/?${params.toString()}`
     }
+    case 'facebook':
+      return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`
   }
 }

@@ -1,6 +1,6 @@
 'use client'
 
-type SocialPlatform = 'twitter' | 'threads' | 'bluesky' | 'linkedin'
+type SocialPlatform = 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'facebook'
 
 type SocialShare = {
   platform: SocialPlatform
@@ -20,6 +20,7 @@ const PLATFORM_DISPLAY: Record<SocialPlatform, string> = {
   threads: 'Th',
   bluesky: 'Sky',
   linkedin: 'Li',
+  facebook: 'Fb',
 }
 
 const SocialSharesCell: React.FC<SocialSharesCellProps> = ({ rowData }) => {
