@@ -35,6 +35,36 @@ async function postForm(
 }
 
 /**
+ * Force Facebook to (re-)scrape a URL's Open Graph tags before we post it, so the link-preview
+ * card renders promptly and any stale/failed cache self-heals. Fails soft — Facebook will also
+ * scrape on its own eventually, so a failure here must never block publishing.
+ */
+async function warmOgCache(url: string, accessToken: string): Promise<void> {
+  try {
+    await fetch(
+      `${GRAPH_BASE}/?id=${encodeURIComponent(url)}&scrape=true&access_token=${encodeURIComponent(accessToken)}`,
+      { method: 'POST' },
+    )
+  } catch {
+    /* non-critical */
+  }
+}
+
+/**
+ * Remove the post URL from the message body when it also rides in the `link` param, so the post
+ * shows the rich preview card rather than a redundant bare URL. Matches the link with or without
+ * a trailing slash and collapses the whitespace/blank line it leaves behind.
+ */
+function stripUrlFromMessage(message: string, link: string): string {
+  const escaped = link.replace(/\/+$/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return message
+    .replace(new RegExp(`${escaped}/?`, 'g'), '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
+/**
  * Publish to a Facebook Page via the Graph API. Unlike Threads/Instagram, Page feed and
  * photo posts complete in a single call (no container polling):
  *  - text / link  → POST /{pageId}/feed
@@ -80,9 +110,15 @@ export async function publishFacebook(options: PublishFacebookOptions): Promise<
     return { url: `https://www.facebook.com/${data.id ?? data.post_id}` }
   }
 
-  // Text-only or link post.
+  // Text-only or link post. For link posts the URL rides only in the `link` param so Facebook
+  // builds the rich preview card — strip any duplicate of it from the message text, which would
+  // otherwise render as a bare inline URL and can suppress the card.
   const params: Record<string, string> = { message }
-  if (link) params.link = link
+  if (link) {
+    params.message = stripUrlFromMessage(message, link)
+    params.link = link
+    await warmOgCache(link, pageAccessToken)
+  }
   const data = (await postForm(`${pageId}/feed`, params, pageAccessToken)) as FacebookPostResponse
   return { url: `https://www.facebook.com/${data.id ?? data.post_id}` }
 }
