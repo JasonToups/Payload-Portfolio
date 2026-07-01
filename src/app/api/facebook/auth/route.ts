@@ -3,9 +3,7 @@ import { NextResponse } from 'next/server'
 import { randomBytes } from 'crypto'
 
 export async function GET() {
-  // Facebook and Threads share one Meta app, so the App ID/Secret are the same — fall back
-  // to the Threads credentials. Only the redirect URI is Facebook-specific.
-  const appId = process.env.FACEBOOK_APP_ID ?? process.env.THREADS_APP_ID
+  const appId = process.env.FACEBOOK_APP_ID
   const redirectUri = process.env.FACEBOOK_REDIRECT_URI
 
   if (!appId || !redirectUri) {
