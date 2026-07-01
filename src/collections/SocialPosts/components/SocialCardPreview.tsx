@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react'
 
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 
+import { isLinkCardPostType } from '../types'
+
 type MediaDoc = {
   id?: string | number
   url?: string | null
@@ -43,9 +45,10 @@ const clamp = (lines: number): React.CSSProperties => ({
  * normalized meta fields (metaTitle / metaDescription / metaImageUrl) for link
  * cards, so it renders identically regardless of whether the source was an
  * internal Post or an external URL. Switches presentation on postType:
- *   url     → link card
- *   image   → first image thumbnail
- *   content → body-only text card
+ *   url        → link card
+ *   linkedPost → link card
+ *   image      → first image thumbnail
+ *   content    → body-only text card
  */
 export const SocialCardPreview: React.FC = () => {
   const { value: postType } = useField<string | null>({ path: 'postType' })
@@ -83,9 +86,13 @@ export const SocialCardPreview: React.FC = () => {
   }, [type, imagesValue])
 
   let domain = ''
-  if (type === 'url') {
+  if (isLinkCardPostType(type)) {
     try {
-      domain = urlValue ? new URL(urlValue).hostname : ''
+      domain = urlValue
+        ? new URL(urlValue).hostname
+        : typeof window !== 'undefined'
+          ? window.location.hostname
+          : ''
     } catch {
       domain = ''
     }
@@ -96,7 +103,7 @@ export const SocialCardPreview: React.FC = () => {
       <p style={labelStyle}>Social Card Preview</p>
 
       {/* Link card */}
-      {type === 'url' && (
+      {isLinkCardPostType(type) && (
         <div style={cardStyle}>
           <div
             style={{
