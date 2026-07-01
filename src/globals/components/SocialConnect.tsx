@@ -2,36 +2,38 @@
 
 import { useEffect, useState } from 'react'
 
-type FacebookStatusResponse = { connected: boolean }
+type StatusResponse = { connected: boolean }
 
 /**
- * Connection panel for Facebook on the Social Settings global: shows connection status and a
- * "Connect Facebook" button that runs the OAuth popup flow (mirrors the LinkedIn connect UI).
+ * Reusable connection panel for an OAuth social platform on the Social Settings global.
+ * Shows connection status and a Connect/Reconnect button that runs the OAuth popup flow
+ * (`/api/{platform}/auth`), then reloads so Payload re-fetches the newly-saved token fields.
+ * All account connections live here — not in the Posts editor.
  */
-export function FacebookConnect() {
+export function SocialConnect({ platform, label }: { platform: string; label: string }) {
   const [status, setStatus] = useState<'loading' | 'connected' | 'disconnected'>('loading')
 
   const checkStatus = () => {
-    fetch('/api/facebook/status')
+    fetch(`/api/${platform}/status`)
       .then((r) => r.json())
-      .then((data: FacebookStatusResponse) =>
-        setStatus(data.connected ? 'connected' : 'disconnected'),
-      )
+      .then((data: StatusResponse) => setStatus(data.connected ? 'connected' : 'disconnected'))
       .catch(() => setStatus('disconnected'))
   }
 
   useEffect(() => {
     checkStatus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleConnect = () => {
-    const popup = window.open('/api/facebook/auth', 'facebook-oauth', 'width=600,height=700')
+    const popup = window.open(`/api/${platform}/auth`, `${platform}-oauth`, 'width=600,height=700')
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return
-      if (event.data === 'facebook-connected') {
-        setStatus('connected')
+      if (event.data === `${platform}-connected`) {
         window.removeEventListener('message', handleMessage)
         popup?.close()
+        // Reload so Payload re-fetches the global and the newly-saved token fields populate.
+        window.location.reload()
       }
     }
     window.addEventListener('message', handleMessage)
@@ -59,7 +61,7 @@ export function FacebookConnect() {
           textTransform: 'uppercase',
         }}
       >
-        Facebook Connection
+        {label} Connection
       </label>
       <div style={{ alignItems: 'center', display: 'flex', gap: '8px' }}>
         <span
@@ -73,27 +75,33 @@ export function FacebookConnect() {
           }}
         />
         <span style={{ color: 'var(--theme-text-dim)', fontSize: '13px' }}>{statusLabel}</span>
-        {status !== 'connected' && status !== 'loading' && (
+        {status !== 'loading' && (
           <button
             className="btn btn--style-secondary btn--size-small"
             onClick={handleConnect}
             style={{ marginLeft: '8px' }}
             type="button"
           >
-            Connect Facebook
-          </button>
-        )}
-        {status === 'connected' && (
-          <button
-            className="btn btn--style-secondary btn--size-small"
-            onClick={handleConnect}
-            style={{ marginLeft: '8px' }}
-            type="button"
-          >
-            Reconnect
+            {status === 'connected' ? 'Reconnect' : `Connect ${label}`}
           </button>
         )}
       </div>
     </div>
   )
+}
+
+export function LinkedInConnect() {
+  return <SocialConnect platform="linkedin" label="LinkedIn" />
+}
+
+export function ThreadsConnect() {
+  return <SocialConnect platform="threads" label="Threads" />
+}
+
+export function TwitterConnect() {
+  return <SocialConnect platform="twitter" label="Twitter / X" />
+}
+
+export function FacebookConnect() {
+  return <SocialConnect platform="facebook" label="Facebook" />
 }
