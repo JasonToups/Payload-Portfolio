@@ -32,6 +32,9 @@ export function FacebookConnect() {
         setStatus('connected')
         window.removeEventListener('message', handleMessage)
         popup?.close()
+        // Reload so Payload re-fetches the global and the newly-saved Page token /
+        // Page ID / Page Name fields populate without a manual refresh.
+        window.location.reload()
       }
     }
     window.addEventListener('message', handleMessage)
