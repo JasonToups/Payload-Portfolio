@@ -22,7 +22,8 @@ const nextConfig = {
           protocol: url.protocol.replace(':', ''),
         }
       }),
-      // www subdomain variant (production site runs at www.toupsi.com)
+      // Production canonical host (apex) and the www variant that 308-redirects to it.
+      { protocol: 'https', hostname: 'toupsi.com' },
       { protocol: 'https', hostname: 'www.toupsi.com' },
       // Vercel Blob storage CDN (safety net for any direct blob URLs)
       ...(blobStoreId
