@@ -23,7 +23,7 @@ type KeywordsApiResponse = { docs: KeywordDoc[] }
  * Published / processing entries are read-only (their text was already sent).
  */
 export function PlatformBodiesField() {
-  const { dispatchFields } = useForm()
+  const { dispatchFields, setModified } = useForm()
   const { value: baseBody } = useField<string | null>({ path: 'body' })
   const { value: keywordsRaw } = useField<(string | number)[]>({ path: 'keywords' })
 
@@ -94,6 +94,8 @@ export function PlatformBodiesField() {
 
   const setBody = (rowIndex: number, value: string) => {
     dispatchFields({ type: 'UPDATE', path: `platforms.${rowIndex}.body`, value })
+    // Raw dispatchFields doesn't flip the form's `modified` flag; set it so Save activates.
+    setModified(true)
   }
 
   // Copy-on-add: fill an empty body once keywords are resolved. Never overwrites a

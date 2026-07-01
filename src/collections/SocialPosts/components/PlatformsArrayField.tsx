@@ -171,7 +171,7 @@ export function PlatformsArrayField() {
   const { id: docId } = useDocumentInfo()
   const settingsTimezone = useSettingsTimezone()
   const [addOpen, setAddOpen] = useState(false)
-  const { dispatchFields } = useForm()
+  const { dispatchFields, setModified } = useForm()
   const { value: titleValue, setValue: setTitleValue } = useField<string>({ path: 'title' })
 
   // Read platforms from indexed form fields — Payload stores array row count at 'platforms'
@@ -222,6 +222,9 @@ export function PlatformsArrayField() {
     const row = entries.find((e) => e.platform === platform)
     if (!row) return
     dispatchFields({ type: 'REMOVE_ROW', path: 'platforms', rowIndex: row.rowIndex })
+    // Raw dispatchFields updates the field reducer but not the form's top-level `modified`
+    // flag — set it explicitly so the Save button activates.
+    setModified(true)
     const next = entries.filter((e) => e.platform !== platform)
     syncTitle(next)
   }
@@ -245,6 +248,10 @@ export function PlatformsArrayField() {
       dispatchFields({ type: 'ADD_ROW', path: 'platforms' })
       dispatchFields({ type: 'UPDATE', path: `platforms.${rowCount}.platform`, value: platform })
     }
+
+    // Raw dispatchFields updates the field reducer but not the form's top-level `modified`
+    // flag — set it explicitly so the Save button activates.
+    setModified(true)
 
     const newRowIndex = targetIndex !== -1 ? targetIndex : rowCount
     const next = [...entries, { rowIndex: newRowIndex, platform, status: 'draft' as const }]
