@@ -58,6 +58,9 @@ export const SocialSettings: GlobalConfig = {
       label: 'Social Profiles',
       admin: {
         description: "The site owner's profiles on each social platform",
+        components: {
+          RowLabel: '@/globals/components/ProfileRowLabel#ProfileRowLabel',
+        },
       },
       fields: [
         {
@@ -70,6 +73,7 @@ export const SocialSettings: GlobalConfig = {
             { label: 'Threads', value: 'threads' },
             { label: 'BlueSky', value: 'bluesky' },
             { label: 'LinkedIn', value: 'linkedin' },
+            { label: 'Facebook', value: 'facebook' },
           ],
         },
         {

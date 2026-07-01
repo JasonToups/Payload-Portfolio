@@ -2933,13 +2933,13 @@ export interface SocialSetting {
    */
   profiles?:
     | {
-        platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin';
+        platform: 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'facebook';
         url: string;
         id?: string | null;
       }[]
     | null;
   /**
-   * Tokens are set automatically via the LinkedIn connect flow in Posts → Share tab.
+   * Tokens are set automatically via the Connect LinkedIn button above.
    */
   linkedin?: {
     accessToken?: string | null;
@@ -2947,7 +2947,7 @@ export interface SocialSetting {
     personUrn?: string | null;
   };
   /**
-   * Tokens are set automatically via the Threads connect flow in Posts → Share tab.
+   * Tokens are set automatically via the Connect Threads button above.
    */
   threads?: {
     accessToken?: string | null;
@@ -2955,7 +2955,7 @@ export interface SocialSetting {
     expiresAt?: string | null;
   };
   /**
-   * Tokens are set automatically via the Twitter / X connect flow in Posts → Share tab.
+   * Tokens are set automatically via the Connect Twitter / X button above.
    */
   twitter?: {
     accessToken?: string | null;

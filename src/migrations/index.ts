@@ -36,6 +36,7 @@ import * as migration_20260630_174716 from './20260630_174716';
 import * as migration_20260630_183130 from './20260630_183130';
 import * as migration_20260630_191907 from './20260630_191907';
 import * as migration_20260630_192100_seed_facebook_entries from './20260630_192100_seed_facebook_entries';
+import * as migration_20260701_005441 from './20260701_005441';
 
 export const migrations = [
   {
@@ -221,11 +222,16 @@ export const migrations = [
   {
     up: migration_20260630_191907.up,
     down: migration_20260630_191907.down,
-    name: '20260630_191907'
+    name: '20260630_191907',
   },
   {
     up: migration_20260630_192100_seed_facebook_entries.up,
     down: migration_20260630_192100_seed_facebook_entries.down,
     name: '20260630_192100_seed_facebook_entries',
+  },
+  {
+    up: migration_20260701_005441.up,
+    down: migration_20260701_005441.down,
+    name: '20260701_005441'
   },
 ];
