@@ -78,19 +78,6 @@ const LinkedInCompose: React.FC<LinkedInComposeProps> = ({
       .catch(() => setStatus('disconnected'))
   }, [])
 
-  const handleConnect = () => {
-    const popup = window.open('/api/linkedin/auth', 'linkedin-oauth', 'width=600,height=700')
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return
-      if (event.data === 'linkedin-connected') {
-        setStatus('connected')
-        window.removeEventListener('message', handleMessage)
-        popup?.close()
-      }
-    }
-    window.addEventListener('message', handleMessage)
-  }
-
   const handlePublish = async () => {
     setPublishing(true)
     setResult(null)
@@ -154,14 +141,9 @@ const LinkedInCompose: React.FC<LinkedInComposeProps> = ({
         />
         <span style={{ fontSize: '13px', color: 'var(--theme-text-dim)' }}>{statusLabel}</span>
         {status === 'disconnected' && (
-          <button
-            type="button"
-            onClick={handleConnect}
-            className="btn btn--style-secondary btn--size-small"
-            style={{ marginLeft: '8px' }}
-          >
-            Connect LinkedIn
-          </button>
+          <span style={{ fontSize: '12px', color: 'var(--theme-text-dim)', marginLeft: '8px' }}>
+            Connect LinkedIn in <strong>Social Settings</strong>.
+          </span>
         )}
       </div>
 

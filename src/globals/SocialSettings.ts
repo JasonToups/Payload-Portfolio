@@ -81,11 +81,20 @@ export const SocialSettings: GlobalConfig = {
       ],
     },
     {
+      name: 'linkedinConnect',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/globals/components/SocialConnect#LinkedInConnect',
+        },
+      },
+    },
+    {
       name: 'linkedin',
       type: 'group',
       label: 'LinkedIn',
       admin: {
-        description: 'Tokens are set automatically via the LinkedIn connect flow in Posts → Share tab.',
+        description: 'Tokens are set automatically via the Connect LinkedIn button above.',
       },
       fields: [
         { name: 'accessToken', type: 'text', label: 'Access Token', admin: { readOnly: true } },
@@ -94,11 +103,20 @@ export const SocialSettings: GlobalConfig = {
       ],
     },
     {
+      name: 'threadsConnect',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/globals/components/SocialConnect#ThreadsConnect',
+        },
+      },
+    },
+    {
       name: 'threads',
       type: 'group',
       label: 'Threads',
       admin: {
-        description: 'Tokens are set automatically via the Threads connect flow in Posts → Share tab.',
+        description: 'Tokens are set automatically via the Connect Threads button above.',
       },
       fields: [
         { name: 'accessToken', type: 'text', label: 'Access Token', admin: { readOnly: true } },
@@ -107,11 +125,20 @@ export const SocialSettings: GlobalConfig = {
       ],
     },
     {
+      name: 'twitterConnect',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/globals/components/SocialConnect#TwitterConnect',
+        },
+      },
+    },
+    {
       name: 'twitter',
       type: 'group',
       label: 'Twitter / X',
       admin: {
-        description: 'Tokens are set automatically via the Twitter / X connect flow in Posts → Share tab.',
+        description: 'Tokens are set automatically via the Connect Twitter / X button above.',
       },
       fields: [
         { name: 'accessToken', type: 'text', label: 'Access Token', admin: { readOnly: true } },
@@ -126,7 +153,7 @@ export const SocialSettings: GlobalConfig = {
       type: 'ui',
       admin: {
         components: {
-          Field: '@/globals/components/FacebookConnect#FacebookConnect',
+          Field: '@/globals/components/SocialConnect#FacebookConnect',
         },
       },
     },
