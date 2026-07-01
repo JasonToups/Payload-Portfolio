@@ -23,7 +23,7 @@ export async function GET() {
   const params = new URLSearchParams({
     client_id: appId,
     redirect_uri: redirectUri,
-    scope: 'pages_manage_posts,pages_read_engagement,pages_show_list',
+    scope: 'pages_manage_posts,pages_show_list',
     response_type: 'code',
     state,
   })
